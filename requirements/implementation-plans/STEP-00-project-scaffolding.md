@@ -48,7 +48,6 @@ Key dependencies:
   "bcrypt": "^5",
   "class-validator": "^0.14",
   "class-transformer": "^0.5",
-  "@aws-sdk/client-secrets-manager": "^3",
   "@aws-sdk/client-ses": "^3",
   "@aws-sdk/client-s3": "^3",
   "pdfkit": "^0.14",
@@ -67,23 +66,33 @@ Standard NestJS CLI config.
 ```env
 APP_PORT=3000
 NODE_ENV=development
-AWS_REGION=eu-west-1
+
+# Database — Railway injects DATABASE_URL automatically in production.
+# For local development use docker-compose.
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/exportmanager
+
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
+
+# Set these in Railway dashboard under Settings → Variables:
+JWT_SECRET=changeme
+JWT_REFRESH_SECRET=changeme
+
+# AWS S3 (file storage) and SES (email) — still used in production
+AWS_REGION=eu-west-1
 STORAGE_BUCKET=export-manager-assets
 SES_FROM_EMAIL=noreply@yourdomain.com
-# Loaded from AWS Secrets Manager in production:
-# JWT_SECRET=
-# JWT_REFRESH_SECRET=
+
+# Anthropic — set in Railway dashboard
 # ANTHROPIC_API_KEY=
 ```
 
 ### `backend/Dockerfile`
 Multi-stage build:
 - Stage 1 `builder`: `node:20-alpine` → copy package files, `npm ci`, copy src, `npm run build`
-- Stage 2 `runner`: `node:20-alpine` → copy `dist/` and `node_modules/` (prod deps only), `CMD ["node", "dist/main"]`
+- Stage 2 `runner`: `node:20-alpine` → copy `dist/` and `node_modules/` (prod deps only)
 - Expose port 3000
+- `CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]` — Railway runs migrations automatically on each deploy before the server starts
 
 ### `backend/src/main.ts`
 Bootstrap with:
@@ -127,7 +136,9 @@ export class PaginationDto {
 Standard NestJS Prisma service extending `PrismaClient`, implements `OnModuleInit` with `$connect()`.
 
 ### `backend/src/config/secrets.config.ts`
-On module init in non-development environments, fetches secrets from AWS Secrets Manager using `GetSecretValueCommand` and sets them on `process.env`. Called before HTTP server starts.
+Railway injects all environment variables at container startup via the Railway dashboard (Settings → Variables). No secrets manager is needed.
+
+This file exports a `validateEnv()` function that checks for required env vars (`DATABASE_URL`, `JWT_SECRET`, `JWT_REFRESH_SECRET`) and throws a clear error at startup if any are missing. Called at the top of `main.ts` before `NestFactory.create()`.
 
 ### `backend/prisma/schema.prisma`
 Full schema matching all tables in `grocery_export_database_schema.md` plus the additional `refresh_tokens` table:
@@ -240,9 +251,8 @@ services:
 
 ### `.github/workflows/ci.yml`
 Jobs:
-1. `lint-and-test` — checkout, setup Node 20, `npm ci` in backend and mobile, `npm run lint`, `npm run test`
-2. `build-and-push` (on main branch only) — Docker build, ECR login via `aws-actions/amazon-ecr-login`, push image tagged with commit SHA
-3. `deploy` (on main branch only, after build-and-push) — run Prisma migrations as ECS one-off task, update ECS service with new task definition
+1. `lint-and-test` — checkout, setup Node 20, `npm ci` in backend and mobile, `npm run lint`, `npm run test` (with Postgres service container)
+2. `deploy` (on main branch only, after lint-and-test) — install Railway CLI, run `railway up --service backend --detach` using `RAILWAY_TOKEN` secret. Railway builds the Docker image, runs `prisma migrate deploy`, and starts the server automatically.
 
 ### `backend/.gitignore` and `mobile/.gitignore`
 Standard Node/Expo gitignore. Ensure `.env` is excluded.
