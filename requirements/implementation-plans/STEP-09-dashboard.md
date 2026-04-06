@@ -102,6 +102,20 @@ GET /api/v1/dashboard/risks        @Roles('admin','operations','finance','viewer
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/dashboard/dashboard.service.spec.ts`
+- `getRevenueSummary()` sums only `sales` with `status = 'completed'` — voided sales are excluded
+- `getRevenueSummary()` correctly scopes `thisMonthGhs` to the current calendar month
+- `getRevenueSummary()` calculates `monthOverMonthChange` as `(thisMonth - lastMonth) / lastMonth * 100`
+- `getInventorySummary()` `lowStockCount` counts only products where `quantity_available < minimum_stock_threshold`
+- `getInventorySummary()` `outOfStockCount` counts products where `quantity_available = 0`
+- `getShipmentSummary()` `delayedCount` counts shipments where `expected_arrival_date < today` and `actual_arrival_date IS NULL`
+- `getFxSummary()` `realisedFxGainLoss` matches `FxService.getSummary().realisedFxGainLoss` for the same date range
+- `getSummary()` calls all sub-queries via `Promise.all` (parallel execution — not sequential)
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/components/KpiCard.tsx`
@@ -204,8 +218,10 @@ export const dashboardApi = {
 
 1. Create `DashboardModule` and register in `app.module.ts`
 2. Implement each private aggregation method one at a time, testing with Swagger after each
-3. Implement `getSummary()` using `Promise.all` — verify all sub-queries run in parallel
-4. Test performance: `GET /dashboard/summary` should return in <500ms with typical data volume
+3. Write unit tests for each aggregation method before implementing — cover voided-sale exclusion, date scoping, and delayed count logic
+4. Implement each method until all unit tests pass
+5. Implement `getSummary()` using `Promise.all` — parallel execution is verified by the unit test
+6. Test performance: `GET /dashboard/summary` should return in <500ms with typical data volume
 5. Build `KpiCard` component — test with static data on simulator
 6. Build `MiniChart` component — test sparkline renders correctly
 7. Build `RiskPanel` and `OpportunityPanel` (will show empty until STEP-11)
@@ -225,3 +241,4 @@ export const dashboardApi = {
 - KPI cards are tappable and navigate to the correct drilldown screens
 - Pull to refresh updates all sections simultaneously
 - Stale data renders from store cache while fresh data loads in background
+- `npm test` passes — voided-sale exclusion, low stock count, and delayed shipment count are all verified by unit tests

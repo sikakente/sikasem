@@ -217,6 +217,27 @@ GET  /api/v1/ai/history  @Roles('admin','operations','finance','viewer')
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/ai/ai.service.spec.ts`
+- `parseResponseSections()` correctly extracts `<internal_data>` content
+- `parseResponseSections()` correctly extracts `<recommendation>`, `<risk>`, and `<opportunity>` content
+- `parseResponseSections()` returns `rawText` unchanged when no XML tags are present
+- `parseResponseSections()` returns `undefined` for sections whose tags are absent in the response
+- `executeTool()` dispatches to the correct tool function by name
+- `executeTool()` returns `{}` (empty object) for an unknown tool name — never throws
+- `chat()` stores the interaction in `ai_insight_logs` after receiving the final response
+- `chat()` passes today's date into the system prompt (the `{date}` placeholder is replaced)
+
+### `backend/src/modules/ai/tools/inventory-query.tool.spec.ts`
+- Returns an array of inventory items from the DB (mocked Prisma)
+- Returns an empty array when no inventory records exist — does not throw
+
+### `backend/src/modules/ai/tools/sales-query.tool.spec.ts`
+- Returns revenue and unit totals scoped to the provided `dateFrom`/`dateTo`
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/store/ai.store.ts`
@@ -283,9 +304,10 @@ export const aiApi = {
 4. Implement `AiService.chat()` with the agentic tool-use loop
 5. Test a simple question via Swagger: "What are my top selling products?" — verify tool is called, results passed back to Claude, and a structured response is returned
 6. Test a question that requires multiple tools: "What is my overall profitability and which shipment cost the most?"
-7. Implement `parseResponseSections()` — test it correctly extracts XML tag contents
+7. Write unit tests for `parseResponseSections()` first, then implement until all pass
 8. Implement rate limiting
-9. Build `AiMessageBubble` component — test with mock data showing all section types
+9. Run `npm test` — all AI service unit tests must pass
+10. Build `AiMessageBubble` component — test with mock data showing all section types
 10. Build `AiPromptSuggestions` component
 11. Build AI Chat screen — test the full conversation flow on device
 12. Test on device: ask a real question about test data and verify the answer cites actual numbers
@@ -299,3 +321,4 @@ export const aiApi = {
 - Rate limiting rejects more than 20 requests/minute per user with a 429 response
 - All interactions are stored in `ai_insight_logs`
 - The response to "What are my top selling products?" names real products from the database
+- `npm test` passes — `parseResponseSections()`, `executeTool()` dispatch, and `ai_insight_logs` persistence are all unit-tested

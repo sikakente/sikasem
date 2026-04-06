@@ -138,6 +138,44 @@ Run via `npx prisma db seed`.
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/auth/auth.service.spec.ts`
+- `login()` with valid credentials returns `{ accessToken, refreshToken, user }`
+- `login()` with wrong password throws `UnauthorizedException`
+- `login()` with unknown email throws `UnauthorizedException`
+- `refresh()` with valid token issues a new token pair and revokes the old token record
+- `refresh()` with a revoked token revokes **all** sessions for that user and throws `UnauthorizedException`
+- `refresh()` with an expired token throws `UnauthorizedException`
+- `logout()` sets `revokedAt` on the specific token row only
+- `logoutAll()` sets `revokedAt` on every token row for the user
+- `resetPassword()` with a valid reset JWT updates `passwordHash` and revokes all refresh tokens
+
+### `backend/src/modules/auth/strategies/jwt.strategy.spec.ts`
+- `validate()` returns the decoded `{ sub, email, roles }` payload for a valid token
+- Throws when the token signature is invalid
+
+### `backend/src/modules/auth/guards/jwt-auth.guard.spec.ts`
+- Routes decorated with `@Public()` pass through without a token
+- Routes without `@Public()` are rejected with 401 when no `Authorization` header is present
+
+### `backend/src/modules/auth/guards/roles.guard.spec.ts`
+- Returns `true` when `request.user.roles` includes a required role
+- Returns `false` when `request.user.roles` does not include any required role
+- Returns `true` when no `@Roles()` metadata is set (guard is permissive when no restriction)
+
+### `backend/src/modules/auth/guards/permissions.guard.spec.ts`
+- Returns `true` when the user's roles include the required permission code
+- Returns `false` when the required permission is absent
+- Falls back to a DB query when the permission is not in the cache
+
+### `backend/src/modules/users/users.service.spec.ts`
+- `findByEmail()` returns the user record including roles
+- `create()` hashes the password before storing — stored hash is not the plain-text password
+- `deactivate()` sets `isActive: false` without deleting the record
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/app/(auth)/_layout.tsx`
@@ -206,9 +244,10 @@ export function useAuth() {
 10. Implement `forgotPassword` and `resetPassword` (log link to console in dev)
 11. Implement full `UsersController` (CRUD + roles endpoints)
 12. Register `JwtAuthGuard` and `RolesGuard` as global guards in `app.module.ts`
-13. Build frontend Login screen — confirm end-to-end login works on simulator
-14. Build forgot/reset password screens — test deep link handling with Expo
-15. Verify token refresh interceptor works by expiring access token manually in the store
+13. Write and run all unit tests — `npm test` must pass before building frontend
+14. Build frontend Login screen — confirm end-to-end login works on simulator
+15. Build forgot/reset password screens — test deep link handling with Expo
+16. Verify token refresh interceptor works by expiring access token manually in the store
 
 ## Acceptance Criteria
 - `POST /auth/login` returns `accessToken`, `refreshToken`, and `user` object
@@ -219,3 +258,4 @@ export function useAuth() {
 - Password reset deep link (`exportapp://reset-password?token=...`) opens the reset screen on the device
 - Login screen works end-to-end on the Expo simulator
 - Admin can create a new user via `POST /users` and that user can log in
+- `npm test` passes with all auth and users unit tests green (no mocked DB skips)

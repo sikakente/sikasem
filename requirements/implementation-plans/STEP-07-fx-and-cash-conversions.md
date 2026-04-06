@@ -80,6 +80,20 @@ Extends `PaginationDto`. Fields: `eventType?`, `dateFrom?`, `dateTo?`.
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/fx/fx.service.spec.ts`
+- `createConversion()` creates both a `cash_conversions` row and an `fx_records` row with `event_type: 'conversion'`
+- `createConversion()` inside a `$transaction` rolls back both rows if either insert fails
+- `getSummary()` calculates `realisedFxGainLoss` correctly: `totalGbpReceived - totalExpectedGbpFromSales`
+- `getSummary()` `unrealisedGhsBalance` equals `totalGhsSales - totalGhsConverted`
+- `getSummary()` scopes results to the provided `dateFrom`/`dateTo` range
+- `getSummary()` returns a `periodBreakdown` array with one entry per calendar month in range
+- `getLatestSaleRate()` returns the `exchange_rate` from the most recent `fx_records` row where `event_type = 'sale'`
+- All FX rates written by this service follow the GBP-per-GHS convention (rate < 1 for typical values)
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/components/FxSummaryCard.tsx`
@@ -144,7 +158,7 @@ export const fxApi = {
 2. Verify `fx_records` already has data from STEP-03 (purchase) and STEP-06 (sale) — run a direct DB query to confirm
 3. Implement `FxService.findAll()` and `findById()` — test basic list/read endpoints
 4. Implement `FxService.createConversion()` — test creates both `cash_conversions` and `fx_records` rows
-5. Implement `FxService.getSummary()` — this is the most complex query. Break it into sub-queries and test each calculation: purchase total, sale total, conversion total, gain/loss
+5. Write unit tests for `FxService.getSummary()` first — cover purchase total, sale total, conversion total, gain/loss, and unrealised balance. Implement until all pass.
 6. Implement `FxService.getLatestSaleRate()` — update `SalesService` (STEP-06) to use this as a default FX rate in the sale creation response
 7. Build `FxSummaryCard` component
 8. Build FX Overview screen — verify summary cards show correct values based on test data
@@ -152,6 +166,7 @@ export const fxApi = {
 10. Build Cash Conversion screen — test form validation and record creation
 11. Build Conversions List screen
 12. Update POS Payment screen (STEP-06) to pre-populate FX rate from `GET /fx/latest-rate`
+13. Run `npm test` — all FX unit tests must pass
 
 ## Acceptance Criteria
 - `GET /fx/summary` returns accurate purchase/sale/conversion totals based on existing records
@@ -161,3 +176,4 @@ export const fxApi = {
 - FX Event Detail screen correctly links back to the source transaction (purchase or sale)
 - POS Payment screen pre-populates the FX rate from the most recent sale rate
 - Rate direction is consistent: all rates stored as GBP-per-GHS throughout
+- `npm test` passes — `getSummary()` gain/loss and period-breakdown logic are unit-tested with known input values

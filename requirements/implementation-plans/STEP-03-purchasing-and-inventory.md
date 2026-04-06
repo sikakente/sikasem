@@ -141,6 +141,27 @@ POST  /api/v1/purchases/:id/confirm  @Roles('admin','operations')
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/inventory/inventory.service.spec.ts`
+- `recordMovement()` inserts a row into `inventory_movements` with correct fields
+- `recordMovement()` upserts `inventory_balances` for the target location inside the same transaction
+- `recordMovement()` throws `ConflictException('Insufficient stock')` when deducting more than `quantity_available` and `allowNegative` is `false`
+- `recordMovement()` allows deduction below zero when `allowNegative` is `true`
+- `recordMovement({ type: 'allocate_shipment' })` decrements `quantity_available` but **not** `quantity_on_hand`
+- `recordMovement({ type: 'purchase_in' })` increments both `quantity_on_hand` and `quantity_available`
+- If the optional `tx` (transaction client) is passed, the method uses it instead of opening a new `$transaction`
+- `createAdjustment()` calls `AuditService.log()` with the correct adjustment details
+
+### `backend/src/modules/purchasing/purchasing.service.spec.ts`
+- `confirm()` calls `InventoryService.recordMovement()` once per purchase order item with `type: 'purchase_in'`
+- `confirm()` creates an `fx_records` row for each item with `event_type: 'purchase'`
+- `confirm()` updates `purchase_orders.status` to `confirmed`
+- `confirm()` rolls back the entire transaction if any step fails (Prisma `$transaction` atomicity)
+- `confirm()` throws `ConflictException` when called on an already-confirmed order
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/app/(app)/purchasing/index.tsx`
@@ -239,7 +260,7 @@ Used by the dashboard (STEP-09) to show low stock count without a separate API c
 
 1. Extend `prisma/seed.ts` with UK Warehouse and Ghana Warehouse locations
 2. Create `LocationsModule` and `LocationsService` — test `getUkWarehouse()` and `getGhanaWarehouse()`
-3. Implement `InventoryService.recordMovement()` — write unit tests for the balance upsert logic and negative stock guard
+3. Implement `InventoryService.recordMovement()` — write unit tests **first** (TDD), then implement until all tests pass
 4. Implement `InventoryService.getBalances()` and `getMovements()`
 5. Implement `InventoryController`
 6. Confirm `GET /inventory` returns empty balances before any purchases
@@ -251,6 +272,7 @@ Used by the dashboard (STEP-09) to show low stock count without a separate API c
 12. Build Inventory Overview and Movement History screens
 13. Build Inventory Adjustment screen — test that adjustment writes to audit log
 14. Build Stock by Product Detail screen
+15. Run `npm test` — all inventory and purchasing unit tests must pass
 
 ## Acceptance Criteria
 - `POST /purchases` creates a draft purchase
@@ -260,3 +282,4 @@ Used by the dashboard (STEP-09) to show low stock count without a separate API c
 - Negative stock guard rejects a deduction that would go below zero (unless override permission present)
 - Create Purchase screen correctly auto-calculates GHS equivalent when FX rate is entered
 - Full purchase flow works end-to-end on the Expo simulator
+- `npm test` passes — `InventoryService.recordMovement()` has thorough unit test coverage including the negative-stock guard and the allocation vs dispatch balance logic

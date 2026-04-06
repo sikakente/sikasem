@@ -79,6 +79,22 @@ Extends `PaginationDto`. Fields: `status?`, `carrierName?`, `dateFrom?`, `dateTo
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/shipments/shipments.service.spec.ts`
+- `create()` also inserts a `locations` row of type `shipment` for the virtual transit location
+- `create()` inserts an initial `shipment_status_history` row with status `draft`
+- `addItem()` calls `InventoryService.recordMovement({ type: 'allocate_shipment' })` — decrements `quantity_available` but not `quantity_on_hand`
+- `addItem()` throws `ConflictException` when the product has insufficient available stock in the UK
+- `removeItem()` calls `InventoryService.recordMovement()` to reverse the allocation
+- `removeItem()` throws `ConflictException` if the shipment has already been dispatched
+- `dispatch()` calls `InventoryService.recordMovement({ type: 'dispatch' })` for each item, moving stock from UK to the shipment virtual location
+- `dispatch()` updates the shipment status to `dispatched` and inserts a `shipment_status_history` row
+- `dispatch()` throws `ConflictException` when the current status is not `draft` or `packed`
+- `addItem()` throws `ConflictException` when called on a dispatched shipment
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/components/ShipmentStatusBadge.tsx`
@@ -171,10 +187,11 @@ interface ShipmentsState {
 ## Implementation Steps
 
 1. Create `ShipmentsModule` — wire into `app.module.ts`
-2. Implement `ShipmentsService.create()` — test that it also creates a virtual location row
-3. Implement `ShipmentsService.addItem()` — test that allocation reduces `quantity_available` in UK but not `quantity_on_hand`
-4. Implement `ShipmentsService.dispatch()` — test that dispatch transfers `quantity_on_hand` from UK to shipment location
-5. Implement `ShipmentsService.removeItem()` — test rollback of allocation
+2. Write unit tests for `ShipmentsService` first, then implement until all pass
+3. Implement `ShipmentsService.create()` — virtual location row creation is covered by unit test
+4. Implement `ShipmentsService.addItem()` — allocation balance logic covered by unit test
+5. Implement `ShipmentsService.dispatch()` — stock transfer and status update covered by unit test
+6. Implement `ShipmentsService.removeItem()` — rollback covered by unit test
 6. Implement cost methods (`addCost`, `getCosts`)
 7. Implement `ShipmentsController`
 8. Test via Swagger the full sequence: create → add items → dispatch → verify UK quantity reduced
@@ -194,3 +211,4 @@ interface ShipmentsState {
 - Costs are listed with a running total on the shipment detail
 - Shipment Detail quick action buttons show/hide correctly based on status
 - Status Update screen works with one tap on a real device
+- `npm test` passes — dispatch, allocation, and removal logic all have unit test coverage

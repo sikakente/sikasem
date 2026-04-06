@@ -249,6 +249,28 @@ Standard Node/Expo gitignore. Ensure `.env` is excluded.
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/common/filters/http-exception.filter.spec.ts`
+- Returns correct `{ statusCode, error, message }` shape for a 400 `BadRequestException`
+- Returns correct shape for a 404 `NotFoundException`
+- Includes `path` from the request URL
+
+### `backend/src/common/interceptors/response.interceptor.spec.ts`
+- Wraps a plain object response in `{ data, meta: { timestamp } }`
+- `meta.timestamp` is a valid ISO 8601 string
+
+### `backend/src/common/dto/pagination.dto.spec.ts`
+- Defaults `page` to `1` and `limit` to `20` when not provided
+- Rejects `page < 1` and `limit > 100`
+- Transforms string query params to numbers
+
+### `backend/src/prisma/prisma.service.spec.ts`
+- `PrismaService` instantiates without throwing
+- `onModuleInit` calls `$connect`
+
+---
+
 ## Implementation Steps
 
 1. Create the monorepo directory structure
@@ -265,6 +287,7 @@ Standard Node/Expo gitignore. Ensure `.env` is excluded.
 12. Run `npx prisma migrate dev --name init` inside the backend container
 13. Confirm all tables are created in Postgres
 14. Write CI workflow skeleton
+15. Write and run unit tests — `npm test` must pass with no failures
 
 ## Acceptance Criteria
 - `docker compose up` starts Postgres and the NestJS backend without errors
@@ -273,3 +296,4 @@ Standard Node/Expo gitignore. Ensure `.env` is excluded.
 - `GET http://localhost:3000/api/v1/docs` shows the Swagger UI
 - Expo app runs on simulator with `npx expo start`
 - No TypeScript compilation errors in either project
+- `npm test` passes in `backend/` with all unit tests green

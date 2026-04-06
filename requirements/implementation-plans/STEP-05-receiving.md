@@ -80,6 +80,22 @@ Fields: `receivedDate?`, `notes?`, `items?: UpdateReceivingItemDto[]` (array wit
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/receiving/receiving.service.spec.ts`
+- `create()` pre-fills `expected_quantity` from the shipment item's quantity
+- `update()` updates item quantities while status is `partial`
+- `update()` throws `ConflictException` when the receiving record is already `completed`
+- `submit()` calls `InventoryService.recordMovement({ type: 'receive', from: shipmentLocation, to: GhanaWarehouse })` for each item where `received_quantity > 0`
+- `submit()` calls `InventoryService.recordMovement({ type: 'damage_out' })` for each item where `damaged_quantity > 0`
+- `submit()` calls `InventoryService.recordMovement({ type: 'loss_out' })` for each item where `lost_quantity > 0`
+- `submit()` sets `receiving_records.status = 'completed'` inside the transaction
+- `submit()` sets `shipment.actual_arrival_date` and `shipment.status = 'received'` atomically
+- `submit()` does **not** call `recordMovement()` when called with `received_quantity = 0` for all items (partial save)
+- `getQueue()` returns only shipments with status `in_transit`, `dispatched`, or `arrived` that have no completed receiving record
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/components/ReceivingLineItem.tsx`
@@ -133,7 +149,7 @@ export const receivingApi = {
 2. Implement `ReceivingService.getQueue()` — test it returns dispatched/in-transit shipments
 3. Implement `ReceivingService.create()` — test pre-filling of expected quantities from shipment items
 4. Implement `ReceivingService.update()` — test partial quantity updates
-5. Implement `ReceivingService.submit()` — this is the critical method. Test with a database transaction:
+5. Write unit tests for `ReceivingService.submit()` first — this is the most critical method. Cover:
    - Confirm Ghana inventory increases by `received_quantity`
    - Confirm shipment virtual location decreases by total of received + damaged + lost
    - Confirm `actual_arrival_date` is set on the shipment
@@ -143,7 +159,8 @@ export const receivingApi = {
 7. Build `ReceivingLineItem` component — test on simulator with large/small screens
 8. Build Receiving Queue screen
 9. Build Receive Shipment screen with line items
-10. Test full flow: dispatch shipment in STEP-04 → queue shows it → receive it → Ghana stock increases
+10. Run `npm test` — all receiving unit tests must pass before building frontend
+11. Test full flow: dispatch shipment in STEP-04 → queue shows it → receive it → Ghana stock increases
 
 ## Acceptance Criteria
 - Submitting a receiving record atomically creates all movement records and updates shipment status in one transaction
@@ -154,3 +171,4 @@ export const receivingApi = {
 - Partial save does NOT move stock — only `submit` triggers inventory movements
 - Receiving queue correctly shows only shipments awaiting receipt
 - Receive Shipment screen is comfortable to use one-handed on a phone
+- `npm test` passes — `submit()` is fully unit-tested including the partial-save no-movement guarantee

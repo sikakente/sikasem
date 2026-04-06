@@ -131,6 +131,30 @@ For CSV/XLSX/PDF responses, set correct `Content-Type` and `Content-Disposition`
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/reports/exporters/csv.exporter.spec.ts`
+- `export()` produces a string with a header row matching the column definitions
+- `export()` escapes cell values that contain commas (wraps in quotes)
+- `export()` escapes cell values that contain double-quotes (doubles the quote character)
+- `export()` returns one row per data item plus the header
+
+### `backend/src/modules/reports/exporters/xlsx.exporter.spec.ts`
+- `export()` returns a `Buffer` with XLSX magic bytes
+- The resulting workbook contains a sheet with the correct name
+- The first row of the sheet contains the column headers in bold
+
+### `backend/src/modules/reports/definitions/profitability.report.spec.ts`
+- Landed cost calculation: given known `purchase_unit_cost_gbp`, `shipment_costs`, and `units_in_shipment`, the computed `landed_cost_per_unit` matches the expected value
+- Gross profit = `(sale_unit_price_ghs / fx_rate_at_sale) - landed_cost_gbp` for a known case
+- Margin % rounds to 2 decimal places
+
+### `backend/src/modules/reports/definitions/fx-gain-loss.report.spec.ts`
+- Monthly FX gain/loss total matches `GET /fx/summary` for the same period
+- Rows are ordered by month ascending
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/hooks/useReportExport.ts`
@@ -193,7 +217,7 @@ export const reportsApi = {
 ## Implementation Steps
 
 1. Create `ReportsModule` and register in `app.module.ts`
-2. Implement CSV and XLSX exporters — test each with hardcoded sample data
+2. Write unit tests for CSV and XLSX exporters first, then implement until all pass
 3. Implement PDF exporter using `pdfkit` — test table layout renders correctly
 4. Implement the Inventory report definition — test `GET /reports/inventory?format=json`
 5. Implement and test each remaining report definition one at a time
@@ -203,7 +227,8 @@ export const reportsApi = {
 9. Build Reports Home screen
 10. Build Generic Report Detail screen with filter panel
 11. Test each export format on a real device (CSV opens in Numbers/Excel, PDF opens in viewer)
-12. Test the Profitability report with real data from previous steps — verify margin calculations
+12. Run `npm test` — all exporter and profitability report unit tests must pass
+13. Test the Profitability report with real data from previous steps — verify margin calculations match unit test expectations
 
 ## Acceptance Criteria
 - All 8 report types return data matching the underlying database records
@@ -213,3 +238,4 @@ export const reportsApi = {
 - Reports respond in <2 seconds for typical data volumes
 - Date range filters correctly scope results
 - Export share sheet opens on device allowing user to save or share the file
+- `npm test` passes — CSV escaping, XLSX buffer validity, profitability landed cost, and FX gain/loss consistency are all unit-tested
