@@ -4,8 +4,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { validateEnv } from './config/secrets.config';
 
 async function bootstrap() {
+  validateEnv();
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api/v1');

@@ -22,4 +22,6 @@ COPY --from=builder /app/prisma ./prisma
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+# Railway: run Prisma migrations then start the server.
+# DATABASE_URL is injected by Railway at container startup.
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
