@@ -1,0 +1,730 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users & Auth ────────────────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(uuid())
+  fullName     String
+  email        String    @unique
+  passwordHash String
+  phone        String?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  userRoles           UserRole[]
+  refreshTokens       RefreshToken[]
+  purchaseOrders      PurchaseOrder[]
+  inventoryMovements  InventoryMovement[]
+  shipments           Shipment[]
+  shipmentStatusHistory ShipmentStatusHistory[]
+  shipmentCosts       ShipmentCost[]
+  receivingRecords    ReceivingRecord[]
+  sales               Sale[]
+  invoices            Invoice[]
+  receipts            Receipt[]
+  cashConversions     CashConversion[]
+  alerts              Alert[]
+  auditLogs           AuditLog[]
+  aiInsightLogs       AiInsightLog[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  tokenHash   String
+  deviceLabel String?
+  issuedAt    DateTime  @default(now())
+  expiresAt   DateTime
+  revokedAt   DateTime?
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model Permission {
+  id          String @id @default(uuid())
+  code        String @unique
+  description String?
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String @id @default(uuid())
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+// ─── Suppliers & Products ────────────────────────────────────────────────────
+
+model Supplier {
+  id              String   @id @default(uuid())
+  name            String
+  supplierType    String
+  contactName     String?
+  phone           String?
+  email           String?
+  addressLine1    String?
+  addressLine2    String?
+  city            String?
+  country         String
+  currencyCode    String   @default("GBP") @db.VarChar(3)
+  notes           String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  purchaseOrders    PurchaseOrder[]
+  productSupplierMaps ProductSupplierMap[]
+
+  @@index([name])
+  @@map("suppliers")
+}
+
+model ProductCategory {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model Product {
+  id                     String   @id @default(uuid())
+  name                   String
+  sku                    String   @unique
+  barcode                String?  @unique
+  categoryId             String?
+  brand                  String?
+  description            String?
+  unitType               String
+  baseCurrency           String   @default("GBP") @db.VarChar(3)
+  defaultCostPriceGbp    Decimal? @db.Decimal(12, 2)
+  defaultSellingPriceGhs Decimal? @db.Decimal(12, 2)
+  minimumStockThreshold  Decimal  @default(0) @db.Decimal(12, 2)
+  expiryTrackingEnabled  Boolean  @default(false)
+  imageUrl               String?
+  isActive               Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  category            ProductCategory?     @relation(fields: [categoryId], references: [id])
+  barcodes            ProductBarcode[]
+  productSupplierMaps ProductSupplierMap[]
+  purchaseOrderItems  PurchaseOrderItem[]
+  inventoryBatches    InventoryBatch[]
+  inventoryMovements  InventoryMovement[]
+  inventoryBalances   InventoryBalance[]
+  shipmentItems       ShipmentItem[]
+  receivingItems      ReceivingItem[]
+  saleItems           SaleItem[]
+  invoiceItems        InvoiceItem[]
+
+  @@index([sku])
+  @@index([barcode])
+  @@map("products")
+}
+
+model ProductBarcode {
+  id          String  @id @default(uuid())
+  productId   String
+  barcode     String  @unique
+  barcodeType String
+  isPrimary   Boolean @default(false)
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([barcode])
+  @@map("product_barcodes")
+}
+
+model ProductSupplierMap {
+  id                   String  @id @default(uuid())
+  productId            String
+  supplierId           String
+  supplierProductName  String?
+  preferredFlag        Boolean @default(false)
+  notes                String?
+
+  product  Product  @relation(fields: [productId], references: [id])
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@unique([productId, supplierId])
+  @@map("product_supplier_map")
+}
+
+// ─── Purchasing ──────────────────────────────────────────────────────────────
+
+model PurchaseOrder {
+  id          String   @id @default(uuid())
+  referenceNo String   @unique
+  supplierId  String
+  purchaseDate DateTime @db.Date
+  status      String   @default("draft")
+  notes       String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  supplier           Supplier            @relation(fields: [supplierId], references: [id])
+  createdByUser      User                @relation(fields: [createdBy], references: [id])
+  items              PurchaseOrderItem[]
+
+  @@index([referenceNo])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id                     String   @id @default(uuid())
+  purchaseOrderId        String
+  productId              String
+  quantity               Decimal  @db.Decimal(12, 2)
+  unitCostGbp            Decimal  @db.Decimal(12, 4)
+  totalCostGbp           Decimal  @db.Decimal(12, 2)
+  fxRatePurchase         Decimal  @db.Decimal(18, 6)
+  totalCostGhsEquivalent Decimal  @db.Decimal(12, 2)
+  expiryDate             DateTime? @db.Date
+  batchReference         String?
+  notes                  String?
+
+  purchaseOrder   PurchaseOrder    @relation(fields: [purchaseOrderId], references: [id])
+  product         Product          @relation(fields: [productId], references: [id])
+  inventoryBatches InventoryBatch[]
+  shipmentItems   ShipmentItem[]
+
+  @@map("purchase_order_items")
+}
+
+// ─── Inventory ───────────────────────────────────────────────────────────────
+
+model Location {
+  id           String  @id @default(uuid())
+  name         String
+  locationType String
+  country      String
+  city         String?
+  address      String?
+  isActive     Boolean @default(true)
+
+  inventoryBatchesCurrent InventoryBatch[]   @relation("CurrentLocation")
+  movementsFrom           InventoryMovement[] @relation("FromLocation")
+  movementsTo             InventoryMovement[] @relation("ToLocation")
+  inventoryBalances       InventoryBalance[]
+  shipmentOrigins         Shipment[]         @relation("OriginLocation")
+  shipmentDestinations    Shipment[]         @relation("DestinationLocation")
+  receivingRecords        ReceivingRecord[]
+  sales                   Sale[]
+
+  @@map("locations")
+}
+
+model InventoryBatch {
+  id                  String   @id @default(uuid())
+  productId           String
+  sourcePurchaseItemId String?
+  batchReference      String?
+  expiryDate          DateTime? @db.Date
+  initialQuantity     Decimal  @db.Decimal(12, 2)
+  remainingQuantity   Decimal  @db.Decimal(12, 2)
+  currentLocationId   String
+  status              String   @default("active")
+  createdAt           DateTime @default(now())
+
+  product              Product           @relation(fields: [productId], references: [id])
+  sourcePurchaseItem   PurchaseOrderItem? @relation(fields: [sourcePurchaseItemId], references: [id])
+  currentLocation      Location          @relation("CurrentLocation", fields: [currentLocationId], references: [id])
+  inventoryMovements   InventoryMovement[]
+  shipmentItems        ShipmentItem[]
+  saleItems            SaleItem[]
+
+  @@map("inventory_batches")
+}
+
+model InventoryMovement {
+  id            String   @id @default(uuid())
+  productId     String
+  batchId       String?
+  movementType  String
+  quantity      Decimal  @db.Decimal(12, 2)
+  fromLocationId String?
+  toLocationId  String?
+  referenceType String?
+  referenceId   String?
+  movementDate  DateTime @default(now())
+  notes         String?
+  createdBy     String
+
+  product      Product         @relation(fields: [productId], references: [id])
+  batch        InventoryBatch? @relation(fields: [batchId], references: [id])
+  fromLocation Location?       @relation("FromLocation", fields: [fromLocationId], references: [id])
+  toLocation   Location?       @relation("ToLocation", fields: [toLocationId], references: [id])
+  createdByUser User           @relation(fields: [createdBy], references: [id])
+
+  @@index([productId, movementDate])
+  @@map("inventory_movements")
+}
+
+model InventoryBalance {
+  id                String   @id @default(uuid())
+  productId         String
+  locationId        String
+  quantityOnHand    Decimal  @db.Decimal(12, 2)
+  quantityAllocated Decimal  @db.Decimal(12, 2)
+  quantityAvailable Decimal  @db.Decimal(12, 2)
+  updatedAt         DateTime @updatedAt
+
+  product  Product  @relation(fields: [productId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@unique([productId, locationId])
+  @@index([productId, locationId])
+  @@map("inventory_balances")
+}
+
+// ─── Shipments ───────────────────────────────────────────────────────────────
+
+model Shipment {
+  id                    String    @id @default(uuid())
+  shipmentReference     String    @unique
+  shipmentName          String?
+  originLocationId      String
+  destinationLocationId String
+  carrierName           String?
+  trackingNumber        String?
+  packedDate            DateTime? @db.Date
+  dispatchDate          DateTime? @db.Date
+  expectedArrivalDate   DateTime? @db.Date
+  actualArrivalDate     DateTime? @db.Date
+  status                String    @default("draft")
+  notes                 String?
+  createdBy             String
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  originLocation      Location               @relation("OriginLocation", fields: [originLocationId], references: [id])
+  destinationLocation Location               @relation("DestinationLocation", fields: [destinationLocationId], references: [id])
+  createdByUser       User                   @relation(fields: [createdBy], references: [id])
+  items               ShipmentItem[]
+  statusHistory       ShipmentStatusHistory[]
+  costs               ShipmentCost[]
+  receivingRecords    ReceivingRecord[]
+
+  @@index([shipmentReference])
+  @@index([status])
+  @@map("shipments")
+}
+
+model ShipmentItem {
+  id                    String   @id @default(uuid())
+  shipmentId            String
+  productId             String
+  batchId               String?
+  quantity              Decimal  @db.Decimal(12, 2)
+  sourcePurchaseItemId  String?
+  allocatedCostGbp      Decimal? @db.Decimal(12, 2)
+  allocatedShippingCostGbp Decimal? @db.Decimal(12, 2)
+  notes                 String?
+
+  shipment           Shipment          @relation(fields: [shipmentId], references: [id])
+  product            Product           @relation(fields: [productId], references: [id])
+  batch              InventoryBatch?   @relation(fields: [batchId], references: [id])
+  sourcePurchaseItem PurchaseOrderItem? @relation(fields: [sourcePurchaseItemId], references: [id])
+  receivingItems     ReceivingItem[]
+
+  @@map("shipment_items")
+}
+
+model ShipmentStatusHistory {
+  id              String   @id @default(uuid())
+  shipmentId      String
+  status          String
+  statusTimestamp DateTime @default(now())
+  notes           String?
+  updatedBy       String
+
+  shipment      Shipment @relation(fields: [shipmentId], references: [id])
+  updatedByUser User     @relation(fields: [updatedBy], references: [id])
+
+  @@index([shipmentId, statusTimestamp])
+  @@map("shipment_status_history")
+}
+
+model ShipmentCost {
+  id          String   @id @default(uuid())
+  shipmentId  String
+  costType    String
+  amountGbp   Decimal  @db.Decimal(12, 2)
+  description String?
+  vendorName  String?
+  costDate    DateTime @db.Date
+  createdBy   String
+
+  shipment      Shipment @relation(fields: [shipmentId], references: [id])
+  createdByUser User     @relation(fields: [createdBy], references: [id])
+
+  @@map("shipment_costs")
+}
+
+// ─── Receiving ───────────────────────────────────────────────────────────────
+
+model ReceivingRecord {
+  id               String   @id @default(uuid())
+  shipmentId       String
+  receivedLocationId String
+  receivedDate     DateTime @db.Date
+  notes            String?
+  receivedBy       String
+  createdAt        DateTime @default(now())
+
+  shipment         Shipment       @relation(fields: [shipmentId], references: [id])
+  receivedLocation Location       @relation(fields: [receivedLocationId], references: [id])
+  receivedByUser   User           @relation(fields: [receivedBy], references: [id])
+  items            ReceivingItem[]
+
+  @@map("receiving_records")
+}
+
+model ReceivingItem {
+  id               String  @id @default(uuid())
+  receivingRecordId String
+  shipmentItemId   String
+  productId        String
+  expectedQuantity Decimal @db.Decimal(12, 2)
+  receivedQuantity Decimal @db.Decimal(12, 2)
+  damagedQuantity  Decimal @default(0) @db.Decimal(12, 2)
+  lostQuantity     Decimal @default(0) @db.Decimal(12, 2)
+  notes            String?
+
+  receivingRecord ReceivingRecord @relation(fields: [receivingRecordId], references: [id])
+  shipmentItem    ShipmentItem    @relation(fields: [shipmentItemId], references: [id])
+  product         Product         @relation(fields: [productId], references: [id])
+
+  @@map("receiving_items")
+}
+
+// ─── Customers & Sales ───────────────────────────────────────────────────────
+
+model Customer {
+  id           String   @id @default(uuid())
+  customerType String
+  fullName     String
+  phone        String?
+  email        String?
+  address      String?
+  notes        String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sales    Sale[]
+  invoices Invoice[]
+
+  @@map("customers")
+}
+
+model Sale {
+  id            String   @id @default(uuid())
+  saleReference String   @unique
+  saleDatetime  DateTime @default(now())
+  locationId    String
+  customerId    String?
+  soldBy        String
+  currencyCode  String   @default("GHS") @db.VarChar(3)
+  subtotalGhs   Decimal  @db.Decimal(12, 2)
+  discountTotalGhs Decimal @default(0) @db.Decimal(12, 2)
+  taxTotalGhs   Decimal  @default(0) @db.Decimal(12, 2)
+  totalGhs      Decimal  @db.Decimal(12, 2)
+  notes         String?
+  status        String   @default("completed")
+  createdAt     DateTime @default(now())
+
+  location     Location      @relation(fields: [locationId], references: [id])
+  customer     Customer?     @relation(fields: [customerId], references: [id])
+  soldByUser   User          @relation(fields: [soldBy], references: [id])
+  items        SaleItem[]
+  payments     SalePayment[]
+  invoices     Invoice[]
+  receipts     Receipt[]
+  cashConversionLinks CashConversionSaleLink[]
+  fxRecords    FxRecord[]
+
+  @@index([saleReference])
+  @@index([saleDatetime])
+  @@map("sales")
+}
+
+model SaleItem {
+  id                     String  @id @default(uuid())
+  saleId                 String
+  productId              String
+  batchId                String?
+  quantity               Decimal @db.Decimal(12, 2)
+  unitPriceGhs           Decimal @db.Decimal(12, 2)
+  discountAmountGhs      Decimal @default(0) @db.Decimal(12, 2)
+  lineTotalGhs           Decimal @db.Decimal(12, 2)
+  estimatedCostGbp       Decimal? @db.Decimal(12, 2)
+  estimatedLandedCostGbp Decimal? @db.Decimal(12, 2)
+
+  sale    Sale           @relation(fields: [saleId], references: [id])
+  product Product        @relation(fields: [productId], references: [id])
+  batch   InventoryBatch? @relation(fields: [batchId], references: [id])
+
+  @@index([productId])
+  @@map("sale_items")
+}
+
+model SalePayment {
+  id              String   @id @default(uuid())
+  saleId          String
+  paymentMethod   String
+  amountGhs       Decimal  @db.Decimal(12, 2)
+  paymentReference String?
+  paidAt          DateTime @default(now())
+
+  sale Sale @relation(fields: [saleId], references: [id])
+
+  @@map("sale_payments")
+}
+
+// ─── Invoices & Receipts ─────────────────────────────────────────────────────
+
+model Invoice {
+  id            String   @id @default(uuid())
+  invoiceNumber String   @unique
+  customerId    String
+  saleId        String?
+  invoiceDate   DateTime @db.Date
+  dueDate       DateTime @db.Date
+  currencyCode  String   @db.VarChar(3)
+  subtotal      Decimal  @db.Decimal(12, 2)
+  discountTotal Decimal  @default(0) @db.Decimal(12, 2)
+  taxTotal      Decimal  @default(0) @db.Decimal(12, 2)
+  shippingTotal Decimal  @default(0) @db.Decimal(12, 2)
+  total         Decimal  @db.Decimal(12, 2)
+  status        String   @default("draft")
+  pdfUrl        String?
+  notes         String?
+  createdBy     String
+  createdAt     DateTime @default(now())
+
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  sale          Sale?         @relation(fields: [saleId], references: [id])
+  createdByUser User          @relation(fields: [createdBy], references: [id])
+  items         InvoiceItem[]
+
+  @@index([invoiceNumber])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id             String  @id @default(uuid())
+  invoiceId      String
+  productId      String?
+  description    String
+  quantity       Decimal @db.Decimal(12, 2)
+  unitPrice      Decimal @db.Decimal(12, 2)
+  discountAmount Decimal @default(0) @db.Decimal(12, 2)
+  lineTotal      Decimal @db.Decimal(12, 2)
+
+  invoice Invoice  @relation(fields: [invoiceId], references: [id])
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@map("invoice_items")
+}
+
+model Receipt {
+  id             String   @id @default(uuid())
+  receiptNumber  String   @unique
+  saleId         String
+  receiptDatetime DateTime @default(now())
+  totalGhs       Decimal  @db.Decimal(12, 2)
+  pdfUrl         String?
+  createdBy      String
+
+  sale          Sale @relation(fields: [saleId], references: [id])
+  createdByUser User @relation(fields: [createdBy], references: [id])
+
+  @@index([receiptNumber])
+  @@map("receipts")
+}
+
+// ─── FX & Cash Conversions ───────────────────────────────────────────────────
+
+model FxRecord {
+  id           String   @id @default(uuid())
+  eventType    String
+  referenceType String?
+  referenceId  String?
+  fromCurrency String   @db.VarChar(3)
+  toCurrency   String   @db.VarChar(3)
+  exchangeRate Decimal  @db.Decimal(18, 6)
+  sourceAmount Decimal  @db.Decimal(12, 2)
+  targetAmount Decimal  @db.Decimal(12, 2)
+  eventDatetime DateTime @default(now())
+  notes        String?
+  saleId       String?
+
+  sale Sale? @relation(fields: [saleId], references: [id])
+
+  @@index([referenceType, referenceId])
+  @@map("fx_records")
+}
+
+model CashConversion {
+  id                   String   @id @default(uuid())
+  conversionReference  String   @unique
+  conversionDate       DateTime @db.Date
+  sourceCurrency       String   @db.VarChar(3)
+  sourceAmount         Decimal  @db.Decimal(12, 2)
+  destinationCurrency  String   @db.VarChar(3)
+  destinationAmount    Decimal  @db.Decimal(12, 2)
+  exchangeRate         Decimal  @db.Decimal(18, 6)
+  feesGbp              Decimal? @db.Decimal(12, 2)
+  notes                String?
+  createdBy            String
+  createdAt            DateTime @default(now())
+
+  createdByUser User                   @relation(fields: [createdBy], references: [id])
+  saleLinks     CashConversionSaleLink[]
+
+  @@index([conversionReference])
+  @@map("cash_conversions")
+}
+
+model CashConversionSaleLink {
+  id                 String  @id @default(uuid())
+  cashConversionId   String
+  saleId             String?
+  amountGhsAllocated Decimal @db.Decimal(12, 2)
+
+  cashConversion CashConversion @relation(fields: [cashConversionId], references: [id])
+  sale           Sale?          @relation(fields: [saleId], references: [id])
+
+  @@map("cash_conversion_sale_links")
+}
+
+// ─── Alerts, Risks & Opportunities ──────────────────────────────────────────
+
+model Alert {
+  id                String   @id @default(uuid())
+  alertType         String
+  severity          String
+  title             String
+  message           String
+  relatedEntityType String?
+  relatedEntityId   String?
+  status            String   @default("open")
+  createdAt         DateTime @default(now())
+  acknowledgedBy    String?
+  acknowledgedAt    DateTime?
+
+  acknowledgedByUser User? @relation(fields: [acknowledgedBy], references: [id])
+
+  @@index([status, severity])
+  @@map("alerts")
+}
+
+model RiskRecord {
+  id                String   @id @default(uuid())
+  riskType          String
+  relatedEntityType String?
+  relatedEntityId   String?
+  score             Decimal? @db.Decimal(5, 2)
+  summary           String
+  recommendation    String?
+  detectedAt        DateTime @default(now())
+  status            String   @default("open")
+
+  @@index([status])
+  @@map("risk_records")
+}
+
+model OpportunityRecord {
+  id                String   @id @default(uuid())
+  opportunityType   String
+  relatedEntityType String?
+  relatedEntityId   String?
+  score             Decimal? @db.Decimal(5, 2)
+  summary           String
+  recommendation    String?
+  detectedAt        DateTime @default(now())
+  status            String   @default("open")
+
+  @@index([status])
+  @@map("opportunity_records")
+}
+
+// ─── AI & Audit ──────────────────────────────────────────────────────────────
+
+model AiInsightLog {
+  id           String   @id @default(uuid())
+  userId       String
+  promptText   String
+  responseText String
+  insightType  String
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("ai_insight_logs")
+}
+
+model AuditLog {
+  id              String   @id @default(uuid())
+  userId          String
+  actionType      String
+  entityType      String
+  entityId        String
+  beforeJson      Json?
+  afterJson       Json?
+  actionTimestamp DateTime @default(now())
+  notes           String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
