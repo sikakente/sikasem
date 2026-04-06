@@ -23,6 +23,8 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/exportmanager
       NODE_ENV: development
       APP_PORT: 3000
+      JWT_SECRET: dev-jwt-secret-changeme
+      JWT_REFRESH_SECRET: dev-jwt-refresh-secret-changeme
     depends_on:
       postgres:
         condition: service_healthy
