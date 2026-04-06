@@ -1,28 +1,12 @@
-import {
-  GetSecretValueCommand,
-  SecretsManagerClient,
-} from '@aws-sdk/client-secrets-manager';
+const REQUIRED_ENV_VARS = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
 
-export async function loadSecretsFromAws(): Promise<void> {
-  if (process.env.NODE_ENV === 'development') {
-    return;
-  }
+export function validateEnv(): void {
+  const missing = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
 
-  const secretName = process.env.AWS_SECRET_NAME ?? 'export-manager/secrets';
-  const region = process.env.AWS_REGION ?? 'eu-west-1';
-
-  const client = new SecretsManagerClient({ region });
-
-  const command = new GetSecretValueCommand({ SecretId: secretName });
-  const response = await client.send(command);
-
-  if (!response.SecretString) {
-    throw new Error(`Secret ${secretName} has no string value`);
-  }
-
-  const secrets = JSON.parse(response.SecretString) as Record<string, string>;
-
-  for (const [key, value] of Object.entries(secrets)) {
-    process.env[key] = value;
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing required environment variables: ${missing.join(', ')}\n` +
+        'Set these in the Railway dashboard under Settings → Variables.',
+    );
   }
 }

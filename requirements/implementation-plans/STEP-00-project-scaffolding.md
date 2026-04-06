@@ -101,7 +101,7 @@ Bootstrap with:
 - Global `ResponseInterceptor`
 - `app.enableCors()` — configure origins from env
 - Swagger setup: `DocumentBuilder` with title, version, Bearer auth scheme
-- Listen on `APP_PORT`
+- Listen on `PORT ?? APP_PORT ?? 3000` — Railway injects `PORT` in production; `APP_PORT` is used locally
 
 ### `backend/src/app.module.ts`
 - `ConfigModule.forRoot({ isGlobal: true })`
@@ -199,9 +199,17 @@ Root layout:
 - Render `<Stack>` with `(auth)` group (unauthenticated) and `(app)` group (authenticated)
 - Use Zustand `authStore` to determine which group to show
 
+### `mobile/.env.example`
+```env
+# Point this at your Railway backend URL in production.
+# For local dev, leave as-is (uses docker-compose backend).
+# For production EAS builds, set EXPO_PUBLIC_API_URL in eas.json → build → production → env.
+EXPO_PUBLIC_API_URL=http://localhost:3000/api/v1
+```
+
 ### `mobile/lib/api/client.ts`
 Axios instance:
-- `baseURL` from `process.env.EXPO_PUBLIC_API_URL`
+- `baseURL` from `process.env.EXPO_PUBLIC_API_URL` (falls back to `http://localhost:3000/api/v1`)
 - Request interceptor: attach `Authorization: Bearer <accessToken>` from Zustand store
 - Response interceptor: on 401, call `POST /auth/refresh` with refresh token from `expo-secure-store`, update store, retry original request. On second 401, clear tokens and redirect to login.
 

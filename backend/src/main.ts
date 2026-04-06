@@ -4,8 +4,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { validateEnv } from './config/secrets.config';
 
 async function bootstrap() {
+  validateEnv();
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api/v1');
@@ -35,7 +37,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/v1/docs', app, document);
 
-  const port = process.env.APP_PORT ?? 3000;
+  const port = process.env.PORT ?? process.env.APP_PORT ?? 3000;
   await app.listen(port);
   console.log(`Application running on port ${port}`);
 }
