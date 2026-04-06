@@ -50,7 +50,7 @@ STEP-03's `InventoryService.recordMovement()` is the single most critical method
 - **~236 files** created across backend and mobile
 - **Backend**: 19 NestJS modules, 37 Prisma tables, REST API under `/api/v1`
 - **Frontend**: 32 screens, Expo Router file-based navigation, Zustand state management
-- **Infrastructure**: Docker on AWS ECS Fargate, RDS PostgreSQL, S3, SES, Secrets Manager
+- **Infrastructure**: Docker on Railway (backend + PostgreSQL), S3 (file storage), SES (email)
 
 ---
 
