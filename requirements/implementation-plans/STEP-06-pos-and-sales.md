@@ -124,6 +124,32 @@ GET  /api/v1/receipts/:id/pdf — returns { url: signedS3Url }
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/sales/sales.service.spec.ts`
+- `create()` calls `InventoryService.recordMovement({ type: 'sale_out' })` for each line item
+- `create()` throws `ConflictException` if any item's Ghana stock is insufficient before the transaction starts
+- `create()` creates an `fx_records` row with `event_type: 'sale'`
+- `create()` creates a `receipts` row and triggers PDF generation
+- `create()` rolls back the entire transaction if any step fails
+- `void()` calls `InventoryService.recordMovement({ type: 'return_in' })` for each line item
+- `void()` sets `sales.status = 'voided'` — voided sales must not appear in revenue totals
+- `void()` throws `ConflictException` when the sale status is already `voided`
+
+### `backend/src/modules/receipts/receipts.service.spec.ts`
+- `generate()` returns a `receipts` record with a non-null `pdfUrl`
+- `getPdfUrl()` returns a signed URL string from `StorageService`
+
+### `mobile/store/pos.store.spec.ts` (mobile Zustand tests)
+- `addItem()` increments quantity if the product is already in the cart
+- `updateQuantity()` removes the item when quantity is set to 0
+- `applyDiscount()` stores the discount against the correct cart item
+- `clearCart()` resets all state to the initial empty values
+- `subtotal()` sums `unitPriceGhs × quantity` across all items
+- `total()` equals `subtotal() - sum of all discountAmountGhs`
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/store/pos.store.ts`
@@ -254,10 +280,11 @@ export const customersApi = {
 1. Create `CustomersModule` — test CRUD
 2. Create `ReceiptsModule` and `ReceiptsService.generate()` — test PDF generation and S3 upload
 3. Create `SalesModule`
-4. Implement `SalesService.create()` — this is the most complex method. Write a unit test that mocks the transaction and verifies all 7 steps execute
-5. Test `POST /sales` via Swagger: verify Ghana inventory decreases, FX record created, receipt PDF accessible
-6. Implement `SalesService.void()` — test inventory reversal
-7. Build POS Zustand store — write unit tests for cart calculations
+4. Write unit tests for `SalesService.create()` and `SalesService.void()` first — all 7 transaction steps must be covered
+5. Implement `SalesService.create()` until all unit tests pass
+6. Test `POST /sales` via Swagger: verify Ghana inventory decreases, FX record created, receipt PDF accessible
+7. Implement `SalesService.void()` — covered by unit tests
+8. Write unit tests for the POS Zustand store, then build the store until all pass
 8. Build POS Main screen — test barcode scan → cart add → haptic feedback on real device
 9. Build Payment screen — test split payment UI
 10. Build Receipt screen — test PDF opens and can be shared
@@ -274,3 +301,4 @@ export const customersApi = {
 - Receipt PDF renders correctly with all line items, totals, and business branding
 - Split payment correctly records multiple payment rows summing to the sale total
 - FX record is created linking back to the sale
+- `npm test` passes — `SalesService.create()`, `void()`, receipt generation, and POS cart store are all unit-tested

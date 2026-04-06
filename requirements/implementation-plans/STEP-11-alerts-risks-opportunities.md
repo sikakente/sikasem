@@ -139,6 +139,37 @@ Gate behind `NODE_ENV !== 'production'` check.
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/alerts/alerts.service.spec.ts`
+- `createOrSkip()` creates an alert when no open alert with the same `alert_type + entity` exists
+- `createOrSkip()` skips (returns without inserting) when an open alert for the same `alert_type + entity` already exists
+- `createOrSkip()` creates a new alert when a previous alert for the same entity was `resolved` (not a duplicate)
+- `runAlertDetection()` continues running remaining rules even when one rule throws an error (via `Promise.allSettled`)
+- `acknowledge()` sets `status = 'acknowledged'`, `acknowledged_by`, and `acknowledged_at`
+- `resolve()` sets `status = 'resolved'`
+- `dismiss()` sets `status = 'dismissed'`
+
+### `backend/src/modules/alerts/alert-rules/low-stock.rule.spec.ts`
+- Creates an alert for a product where `quantity_available <= minimum_stock_threshold`
+- Does **not** create an alert for a product where `quantity_available > minimum_stock_threshold`
+- Sets severity to `high` when `quantity_available = 0`, `medium` otherwise
+
+### `backend/src/modules/alerts/alert-rules/shipment-delay.rule.spec.ts`
+- Creates an alert for a shipment where `expected_arrival_date < today` and `actual_arrival_date IS NULL`
+- Does **not** create an alert for received or closed shipments
+- Sets severity to `high` when overdue by >7 days, `medium` otherwise
+
+### `backend/src/modules/risks/risk-rules/stockout-risk.rule.spec.ts`
+- Creates a `risk_records` row for a product with zero available stock AND high recent sell-through
+- Does **not** create a duplicate if an open record already exists for the same product
+
+### `backend/src/modules/opportunities/opportunity-rules/restock.rule.spec.ts`
+- Creates an opportunity record for a product that sold >70% of stock in the last 30 days and has low current stock
+- Recommended reorder quantity is included in the record
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/app/(app)/alerts/index.tsx`
@@ -183,7 +214,7 @@ export const alertsApi = {
 
 ## Implementation Steps
 
-1. Create `AlertsModule` — implement `createOrSkip()` helper and deduplication logic
+1. Create `AlertsModule` — write unit tests for `createOrSkip()` deduplication first, then implement
 2. Implement low-stock rule — test by setting a product's threshold above its current stock
 3. Implement shipment-delay rule — test by creating a shipment with a past expected arrival date
 4. Implement FX-loss and expiry-risk rules
@@ -196,7 +227,8 @@ export const alertsApi = {
 11. Build Alerts List screen with swipe actions
 12. Build Risk Detail screen
 13. Build Opportunities screen
-14. Test email notification for high-severity alert via SES in a staging environment
+14. Run `npm test` — all alert deduplication, rule, and detection unit tests must pass
+15. Test email notification for high-severity alert via SES in a staging environment
 
 ## Acceptance Criteria
 - Low-stock alert is created when a product's available quantity drops below its threshold
@@ -206,3 +238,4 @@ export const alertsApi = {
 - `GET /dashboard/risks` now returns live data from `risk_records`
 - Risk Detail screen shows a link to the affected entity that navigates to it
 - All detection rules are idempotent — safe to run multiple times without data corruption
+- `npm test` passes — deduplication, low-stock rule, delay rule, and `Promise.allSettled` fault-tolerance are all unit-tested

@@ -88,6 +88,25 @@ Extends `PaginationDto`. Fields: `status?`, `customerId?`, `dateFrom?`, `dateTo?
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/common/services/pdf.service.spec.ts`
+- `renderInvoice()` returns a `Buffer` with length > 0
+- `renderInvoice()` output begins with the PDF magic bytes (`%PDF`)
+- `renderReceipt()` returns a `Buffer` with length > 0
+- `renderReceipt()` output begins with the PDF magic bytes (`%PDF`)
+
+### `backend/src/modules/invoices/invoices.service.spec.ts`
+- `create()` with a `saleId` auto-populates `invoice_items` from the sale's line items
+- `create()` without a `saleId` uses the items provided in the DTO
+- `create()` calls `PdfService.renderInvoice()` and `StorageService.uploadFile()`
+- `create()` saves the S3 key into `invoices.pdf_url`
+- `markPaid()` sets `status = 'paid'` and writes an audit log entry
+- `getPdfUrl()` calls `StorageService.getSignedUrl()` with the stored key and returns the result
+- `getOverdueInvoices()` returns only invoices where `due_date < now` and `status != 'paid'`
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/components/InvoiceStatusBadge.tsx`
@@ -158,7 +177,7 @@ export const receiptsApi = {
 
 ## Implementation Steps
 
-1. Implement `PdfService.renderInvoice()` — test with a hardcoded data object, verify PDF renders correctly
+1. Write unit tests for `PdfService.renderInvoice()` and `renderReceipt()` first, then implement until both pass
 2. Implement `PdfService.renderReceipt()` — update `ReceiptsService` from STEP-06 to use this method
 3. Implement (or extend) `StorageService` — test upload and signed URL generation with real S3 or MinIO
 4. Create `InvoicesModule` — service first, controller after
@@ -170,7 +189,8 @@ export const receiptsApi = {
 10. Build Create Invoice screen — test the "Generate from Sale" flow
 11. Build Invoice Detail screen — verify PDF preview opens
 12. Build Receipt Archive screen
-13. End-to-end test: create a wholesale customer → complete a sale → generate invoice from sale → download PDF
+13. Run `npm test` — all PDF service and invoices unit tests must pass
+14. End-to-end test: create a wholesale customer → complete a sale → generate invoice from sale → download PDF
 
 ## Acceptance Criteria
 - `POST /invoices` with a `saleId` generates an invoice pre-populated with the sale's line items
@@ -180,3 +200,4 @@ export const receiptsApi = {
 - Invoice Detail screen displays the correct totals and PDF preview link
 - Receipt Archive shows all receipts from completed sales (STEP-06)
 - Marking an invoice paid updates its status and writes to the audit log
+- `npm test` passes — PDF rendering, from-sale item population, and overdue filter all have unit test coverage

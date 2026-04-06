@@ -103,6 +103,26 @@ Fields: `alertEmailEnabled` (boolean), `alertEmailRecipients` (string[]), `lowSt
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/settings/settings.service.spec.ts`
+- `get()` returns `null` for a key that does not exist in the `settings` table
+- `set()` upserts a value — calling it twice with the same key updates the existing row
+- `getBusinessProfile()` delegates to `get('business_profile')`
+- `setBusinessProfile()` delegates to `set('business_profile', dto, userId)` and writes an audit log
+
+### `mobile/hooks/usePermissions.spec.ts` (mobile Jest tests)
+- `hasRole('admin')` returns `true` for a user with `roles: ['admin']`
+- `hasRole('finance')` returns `false` for a user with `roles: ['warehouse']`
+- `canAccess('reports')` returns `true` for `finance` role
+- `canAccess('reports')` returns `false` for `pos_cashier` role
+- `canAccess('pos')` returns `true` for `pos_cashier` role
+- `canAccess('settings')` returns `false` for `viewer` role
+- `canAccess('settings')` returns `true` for `admin` role
+- Returns `false` for all modules when `user` is `null` (not logged in)
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/hooks/usePermissions.ts`
@@ -256,7 +276,7 @@ export const adminApi = {
 3. Test `GET /settings/business-profile` (returns null before setup) and `PATCH` to create it
 4. Add `AuditController` (controller only — service exists from STEP-02)
 5. Add `LocationsController` (controller only — service exists from STEP-03)
-6. Implement `usePermissions` hook — write unit tests for each role/module combination
+6. Write unit tests for `usePermissions` hook first (covering all roles × modules), then implement until all pass
 7. Build `TabBar` component with role filtering — test on device with each role type
 8. Build `QuickActions` component — verify role-gated visibility
 9. Build `(app)/_layout.tsx` with tab bar and role-based routing
@@ -268,7 +288,8 @@ export const adminApi = {
 15. Build Audit Log Viewer — test filter and before/after JSON diff display
 16. Build Notification Settings screen
 17. Build Locations management screen
-18. Final integration test: walk through the entire app with each role and verify correct screens are visible/hidden
+18. Run `npm test` in both `backend/` and `mobile/` — all unit tests across the entire project must pass
+19. Final integration test: walk through the entire app with each role and verify correct screens are visible/hidden
 
 ## Acceptance Criteria
 - Bottom tab bar shows only the tabs relevant to the logged-in user's role
@@ -279,3 +300,4 @@ export const adminApi = {
 - Admin can create a new user, assign a role, and that user can log in and see only their permitted screens
 - Quick actions on dashboard navigate directly to the correct screens
 - All 32 MVP screens from the screen map are accessible and functional
+- `npm test` passes in both `backend/` and `mobile/` — `usePermissions` is fully unit-tested for all role/module combinations and `SettingsService` upsert behaviour is verified

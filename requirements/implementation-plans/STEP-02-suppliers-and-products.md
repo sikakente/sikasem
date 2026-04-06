@@ -121,6 +121,30 @@ Provides and exports `StorageService`. Global module.
 
 ---
 
+## Unit Tests to Write
+
+### `backend/src/modules/audit/audit.service.spec.ts`
+- `log()` writes a record to `audit_logs` with the correct fields
+- `log()` does **not** throw when the DB write fails — it swallows the error silently
+- `log()` sets `beforeJson` and `afterJson` correctly when both are provided
+
+### `backend/src/modules/suppliers/suppliers.service.spec.ts`
+- `findAll()` returns paginated results respecting `page` and `limit`
+- `findAll()` filters by `search` against the `name` field
+- `findById()` throws `NotFoundException` for an unknown ID
+- `create()` calls `AuditService.log()` with `actionType: 'create'`
+- `update()` calls `AuditService.log()` with correct `beforeJson` and `afterJson`
+- `deactivate()` sets `isActive: false` without hard-deleting the record
+
+### `backend/src/modules/products/products.service.spec.ts`
+- `findByBarcode()` resolves when the barcode matches `products.barcode`
+- `findByBarcode()` resolves when the barcode matches a row in `product_barcodes`
+- `findByBarcode()` throws `NotFoundException` when neither table has a match
+- `create()` creates additional barcode rows in `product_barcodes` when `additionalBarcodes` is provided
+- `findAll()` with `search` filters across name, SKU, and barcode (OR logic)
+
+---
+
 ## Frontend Files to Create
 
 ### `mobile/components/BarcodeScanner.tsx`
@@ -220,7 +244,7 @@ export const productsApi = {
 
 ## Implementation Steps
 
-1. Create `AuditModule` and `AuditService.log()` — test it writes to `audit_logs`
+1. Create `AuditModule` and `AuditService.log()` — write unit tests first, then implement
 2. Create `StorageModule` and `StorageService` — test upload/download with a local MinIO instance or real S3
 3. Create `SuppliersModule` — service first, then controller, then register in `app.module.ts`
 4. Seed a few test suppliers, confirm `GET /suppliers` returns paginated results
@@ -231,7 +255,8 @@ export const productsApi = {
 9. Build Product List screen with barcode scan shortcut
 10. Build Add Product screen — confirm form saves and product appears in list
 11. Build Product Detail screen — confirm stock by location and history tabs load
-12. Test end-to-end: scan barcode on device → opens correct product detail screen
+12. Run `npm test` — all unit tests must pass before proceeding
+13. Test end-to-end: scan barcode on device → opens correct product detail screen
 
 ## Acceptance Criteria
 - `GET /suppliers` returns paginated suppliers with search working
@@ -241,3 +266,4 @@ export const productsApi = {
 - Product detail shows correct stock by location (will be zero until STEP-03)
 - Audit log has entries for every create/update action
 - Image upload works: product image appears on the product detail screen
+- `npm test` passes with all audit, suppliers, and products unit tests green
