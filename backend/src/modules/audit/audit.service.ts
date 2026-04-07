@@ -11,8 +11,8 @@ export class AuditService {
     actionType: string;
     entityType: string;
     entityId: string;
-    beforeJson?: Record<string, unknown>;
-    afterJson?: Record<string, unknown>;
+    beforeJson?: object;
+    afterJson?: object;
     notes?: string;
   }): Promise<void> {
     try {
