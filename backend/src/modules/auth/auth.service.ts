@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -8,6 +8,8 @@ import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private usersService: UsersService,
@@ -16,17 +18,25 @@ export class AuthService {
   ) {}
 
   async login(email: string, password: string) {
+    this.logger.log(`Login attempt: ${email}`);
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new UnauthorizedException('Invalid credentials');
+    if (!user) {
+      this.logger.warn(`Login failed: no account found for ${email}`);
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) throw new UnauthorizedException('Invalid credentials');
+    if (!valid) {
+      this.logger.warn(`Login failed: wrong password for ${email}`);
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
     const roles = user.userRoles.map((ur: { role: { name: string } }) => ur.role.name);
     const accessToken = this.signAccessToken(user.id, user.email, roles);
     const rawRefreshToken = this.generateRawToken();
     await this.storeRefreshToken(user.id, rawRefreshToken);
 
+    this.logger.log(`Login success: ${email} (roles: ${roles.join(', ')})`);
     return {
       accessToken,
       refreshToken: rawRefreshToken,
@@ -38,10 +48,13 @@ export class AuthService {
     const tokenHash = this.hashToken(rawRefreshToken);
     const stored = await this.prisma.refreshToken.findFirst({ where: { tokenHash } });
 
-    if (!stored) throw new UnauthorizedException('Invalid refresh token');
+    if (!stored) {
+      this.logger.warn('Token refresh failed: token not found');
+      throw new UnauthorizedException('Invalid refresh token');
+    }
 
     if (stored.revokedAt) {
-      // Reuse detection — revoke all active sessions for this user
+      this.logger.warn(`Token refresh failed: reuse detected for userId=${stored.userId} — revoking all sessions`);
       await this.prisma.refreshToken.updateMany({
         where: { userId: stored.userId, revokedAt: null },
         data: { revokedAt: new Date() },
@@ -50,6 +63,7 @@ export class AuthService {
     }
 
     if (stored.expiresAt < new Date()) {
+      this.logger.warn(`Token refresh failed: expired token for userId=${stored.userId}`);
       throw new UnauthorizedException('Refresh token expired');
     }
 
@@ -66,6 +80,7 @@ export class AuthService {
     const newRawRefreshToken = this.generateRawToken();
     await this.storeRefreshToken(user.id, newRawRefreshToken);
 
+    this.logger.log(`Token refreshed for ${user.email}`);
     return {
       accessToken: newAccessToken,
       refreshToken: newRawRefreshToken,
@@ -74,6 +89,7 @@ export class AuthService {
   }
 
   async logout(userId: string, rawRefreshToken: string) {
+    this.logger.log(`Logout: userId=${userId}`);
     const tokenHash = this.hashToken(rawRefreshToken);
     await this.prisma.refreshToken.updateMany({
       where: { userId, tokenHash, revokedAt: null },
@@ -82,6 +98,7 @@ export class AuthService {
   }
 
   async logoutAll(userId: string) {
+    this.logger.log(`Logout all sessions: userId=${userId}`);
     await this.prisma.refreshToken.updateMany({
       where: { userId, revokedAt: null },
       data: { revokedAt: new Date() },
