@@ -1,21 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-
-export interface AuditLogParams {
-  userId: string;
-  actionType: 'create' | 'update' | 'delete' | 'void' | 'refund' | 'adjust';
-  entityType: string;
-  entityId: string;
-  beforeJson?: object;
-  afterJson?: object;
-  notes?: string;
-}
 
 @Injectable()
 export class AuditService {
   constructor(private prisma: PrismaService) {}
 
-  async log(params: AuditLogParams): Promise<void> {
+  async log(params: {
+    userId: string;
+    actionType: string;
+    entityType: string;
+    entityId: string;
+    beforeJson?: object;
+    afterJson?: object;
+    notes?: string;
+  }): Promise<void> {
     try {
       await this.prisma.auditLog.create({
         data: {
@@ -23,8 +22,8 @@ export class AuditService {
           actionType: params.actionType,
           entityType: params.entityType,
           entityId: params.entityId,
-          beforeJson: params.beforeJson ?? undefined,
-          afterJson: params.afterJson ?? undefined,
+          beforeJson: params.beforeJson as Prisma.InputJsonValue | undefined,
+          afterJson: params.afterJson as Prisma.InputJsonValue | undefined,
           notes: params.notes,
         },
       });
