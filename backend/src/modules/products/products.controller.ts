@@ -15,6 +15,9 @@ import { ProductQueryDto } from './dto/product-query.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Public } from '../auth/decorators/public.decorator';
 
+import { ApiBearerAuth } from '@nestjs/swagger';
+
+@ApiBearerAuth()
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}

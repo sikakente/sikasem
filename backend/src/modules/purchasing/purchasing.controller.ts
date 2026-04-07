@@ -16,6 +16,9 @@ import { PurchaseQueryDto } from './dto/purchase-query.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
+import { ApiBearerAuth } from '@nestjs/swagger';
+
+@ApiBearerAuth()
 @Controller('purchases')
 @UseGuards(RolesGuard)
 export class PurchasingController {

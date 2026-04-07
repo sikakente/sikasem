@@ -15,6 +15,9 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { RequirePermission } from '../auth/decorators/require-permission.decorator';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
 
+import { ApiBearerAuth } from '@nestjs/swagger';
+
+@ApiBearerAuth()
 @Controller('inventory')
 export class InventoryController {
   constructor(private inventoryService: InventoryService) {}
