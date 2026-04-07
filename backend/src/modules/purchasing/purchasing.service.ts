@@ -108,36 +108,38 @@ export class PurchasingService {
 
     const beforeJson = { ...existing } as Record<string, unknown>;
 
-    // Replace items if provided
-    if (dto.items) {
-      await this.prisma.purchaseOrderItem.deleteMany({ where: { purchaseOrderId: id } });
-    }
+    const order = await this.prisma.$transaction(async (tx) => {
+      // Replace items if provided
+      if (dto.items) {
+        await tx.purchaseOrderItem.deleteMany({ where: { purchaseOrderId: id } });
+      }
 
-    const order = await this.prisma.purchaseOrder.update({
-      where: { id },
-      data: {
-        ...(dto.supplierId && { supplierId: dto.supplierId }),
-        ...(dto.purchaseDate && { purchaseDate: new Date(dto.purchaseDate) }),
-        ...(dto.notes !== undefined && { notes: dto.notes }),
-        ...(dto.items && {
-          items: {
-            create: dto.items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              unitCostGbp: item.unitCostGbp,
-              totalCostGbp: item.totalCostGbp,
-              fxRatePurchase: item.fxRatePurchase,
-              totalCostGhsEquivalent: item.totalCostGhsEquivalent,
-              expiryDate: item.expiryDate ? new Date(item.expiryDate) : undefined,
-              batchReference: item.batchReference,
-              notes: item.notes,
-            })),
-          },
-        }),
-      },
-      include: {
-        items: true,
-      },
+      return tx.purchaseOrder.update({
+        where: { id },
+        data: {
+          ...(dto.supplierId && { supplierId: dto.supplierId }),
+          ...(dto.purchaseDate && { purchaseDate: new Date(dto.purchaseDate) }),
+          ...(dto.notes !== undefined && { notes: dto.notes }),
+          ...(dto.items && {
+            items: {
+              create: dto.items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                unitCostGbp: item.unitCostGbp,
+                totalCostGbp: item.totalCostGbp,
+                fxRatePurchase: item.fxRatePurchase,
+                totalCostGhsEquivalent: item.totalCostGhsEquivalent,
+                expiryDate: item.expiryDate ? new Date(item.expiryDate) : undefined,
+                batchReference: item.batchReference,
+                notes: item.notes,
+              })),
+            },
+          }),
+        },
+        include: {
+          items: true,
+        },
+      });
     });
 
     await this.audit.log({
@@ -184,7 +186,7 @@ export class PurchasingService {
           tx,
         );
 
-        await (tx as any).fxRecord.create({
+        await tx.fxRecord.create({
           data: {
             eventType: 'purchase',
             referenceType: 'purchase_order_item',
@@ -198,7 +200,7 @@ export class PurchasingService {
         });
       }
 
-      const updated = await (tx as any).purchaseOrder.update({
+      const updated = await tx.purchaseOrder.update({
         where: { id },
         data: { status: 'confirmed' },
         include: { items: true },
