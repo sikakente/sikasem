@@ -12,6 +12,7 @@ import { inventoryApi } from '../../../lib/api/inventory.api';
 interface InventoryMovement {
   id: string;
   productId: string;
+  product?: { name: string };
   movementType: string;
   quantity: number;
   fromLocationId?: string;
@@ -79,7 +80,7 @@ export default function MovementsScreen() {
     return (
       <View style={styles.row}>
         <View style={styles.rowTop}>
-          <Text style={styles.productId} numberOfLines={1}>{item.productId}</Text>
+          <Text style={styles.productId} numberOfLines={1}>{item.product?.name || item.productId}</Text>
           <View style={[styles.typeBadge, { backgroundColor: color.bg }]}>
             <Text style={[styles.typeBadgeText, { color: color.text }]}>
               {item.movementType}
