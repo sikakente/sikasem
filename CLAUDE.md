@@ -130,6 +130,20 @@ export const featureApi = {
 };
 ```
 
+## Before Pushing a PR
+
+Always run and fix linting errors before creating a pull request:
+
+```bash
+# Backend
+cd backend && npm run lint
+
+# Mobile
+cd mobile && npm run lint
+```
+
+Fix all reported errors before committing. Do not use `--no-verify` to bypass checks.
+
 ## Implementation Plans
 
 Step-by-step plans for the full build live in `requirements/implementation-plans/`. Each STEP document contains exact file paths, key decisions, acceptance criteria, and unit test specifications. Completed steps: STEP-00 through STEP-03.
