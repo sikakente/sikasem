@@ -28,12 +28,14 @@ import { OpportunitiesModule } from './modules/opportunities/opportunities.modul
 import { AiModule } from './modules/ai/ai.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { StorageModule } from './modules/storage/storage.module';
+import { LocationsModule } from './modules/locations/locations.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     PrismaModule,
+    LocationsModule,
     AuthModule,
     UsersModule,
     RolesModule,

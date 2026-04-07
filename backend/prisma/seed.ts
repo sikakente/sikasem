@@ -87,6 +87,19 @@ async function main() {
     });
   }
 
+  // Seed locations
+  console.log('Seeding locations...');
+  const LOCATIONS = [
+    { name: 'UK Warehouse', locationType: 'UK warehouse', country: 'GB', city: 'London', isActive: true },
+    { name: 'Ghana Warehouse', locationType: 'Ghana warehouse', country: 'GH', city: 'Accra', isActive: true },
+  ];
+  for (const loc of LOCATIONS) {
+    const existing = await prisma.location.findFirst({ where: { name: loc.name } });
+    if (!existing) {
+      await prisma.location.create({ data: loc });
+    }
+  }
+
   console.log('Seed complete.');
   console.log(`Admin user: ${adminEmail} / ${adminPassword}`);
 }
