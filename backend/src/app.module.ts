@@ -27,6 +27,7 @@ import { RisksModule } from './modules/risks/risks.module';
 import { OpportunitiesModule } from './modules/opportunities/opportunities.module';
 import { AiModule } from './modules/ai/ai.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { StorageModule } from './modules/storage/storage.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { AuditModule } from './modules/audit/audit.module';
     OpportunitiesModule,
     AiModule,
     AuditModule,
+    StorageModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
