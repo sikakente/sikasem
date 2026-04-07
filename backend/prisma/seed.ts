@@ -94,11 +94,15 @@ async function main() {
     { name: 'Ghana Warehouse', locationType: 'Ghana warehouse', country: 'GH', city: 'Accra', isActive: true },
   ];
   for (const loc of LOCATIONS) {
-    await prisma.location.upsert({
-      where: { name: loc.name },
-      update: { locationType: loc.locationType, country: loc.country, city: loc.city, isActive: loc.isActive },
-      create: loc,
-    });
+    const existing = await prisma.location.findFirst({ where: { name: loc.name } });
+    if (!existing) {
+      await prisma.location.create({ data: loc });
+    } else {
+      await prisma.location.update({
+        where: { id: existing.id },
+        data: { locationType: loc.locationType, country: loc.country, city: loc.city, isActive: loc.isActive },
+      });
+    }
   }
 
   console.log('Seed complete.');

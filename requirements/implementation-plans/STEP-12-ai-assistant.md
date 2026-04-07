@@ -240,7 +240,7 @@ GET  /api/v1/ai/history  @Roles('admin','operations','finance','viewer')
 
 ## Frontend Files to Create
 
-### `mobile/store/ai.store.ts`
+### `mobile/src/store/ai.store.ts`
 ```typescript
 interface AiMessage {
   id: string;
@@ -258,7 +258,7 @@ interface AiState {
 ```
 Messages are stored in-memory per session. Not persisted to device (server history available via `GET /ai/history`).
 
-### `mobile/components/AiMessageBubble.tsx`
+### `mobile/src/components/AiMessageBubble.tsx`
 Renders a single AI message. For user messages: simple right-aligned bubble. For assistant messages: structured card layout with sections:
 - `<internal_data>` section: blue tint, "Data" label, bar chart icon
 - `<external_trend>` section: grey tint, "Trend" label, globe icon
@@ -268,14 +268,14 @@ Renders a single AI message. For user messages: simple right-aligned bubble. For
 
 If only raw text (no tags), render as a plain text bubble.
 
-### `mobile/components/AiPromptSuggestions.tsx`
+### `mobile/src/components/AiPromptSuggestions.tsx`
 Horizontal scrollable row of tappable prompt chips:
 ```
 "Top selling products" | "Shipping costs this month" | "FX impact" | "What risks need attention?" | "Slow-moving stock" | "Which supplier costs most?"
 ```
 Tapping a chip fills the input with that prompt.
 
-### `mobile/app/(app)/ai/index.tsx`
+### `mobile/src/app/(app)/ai/index.tsx`
 AI Chat Main Screen:
 - Header: "AI Assistant" with model name badge
 - Chat message list (`FlashList`, inverted so newest at bottom)
@@ -286,7 +286,7 @@ AI Chat Main Screen:
 - Each assistant message uses `AiMessageBubble`
 - Long messages are truncated with a "Show more" toggle
 
-### `mobile/lib/api/ai.api.ts`
+### `mobile/src/lib/api/ai.api.ts`
 ```typescript
 export const aiApi = {
   chat: (message: string) => client.post('/ai/chat', { message }),

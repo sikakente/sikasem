@@ -164,14 +164,14 @@ POST  /api/v1/purchases/:id/confirm  @Roles('admin','operations')
 
 ## Frontend Files to Create
 
-### `mobile/app/(app)/purchasing/index.tsx`
+### `mobile/src/app/(app)/purchasing/index.tsx`
 Purchase Order List Screen:
 - `FlashList` of purchase cards (supplier name, date, item count, total GBP, status badge)
 - Filter by supplier (picker), status, date range
 - FAB → `purchasing/new`
 - Pull to refresh
 
-### `mobile/app/(app)/purchasing/new.tsx`
+### `mobile/src/app/(app)/purchasing/new.tsx`
 Create Purchase Screen:
 - Supplier picker (search dropdown)
 - Purchase date picker
@@ -182,7 +182,7 @@ Create Purchase Screen:
 - Total GBP summary footer
 - Save as Draft / Confirm Purchase buttons
 
-### `mobile/app/(app)/purchasing/[id].tsx`
+### `mobile/src/app/(app)/purchasing/[id].tsx`
 Purchase Detail Screen:
 - Supplier, date, status badge
 - Items table: product, quantity, unit cost, total GBP, FX rate, GHS equivalent
@@ -190,7 +190,7 @@ Purchase Detail Screen:
 - Confirm button (if status is draft)
 - Linked inventory batches section (shows UK stock increased after confirm)
 
-### `mobile/app/(app)/inventory/index.tsx`
+### `mobile/src/app/(app)/inventory/index.tsx`
 Inventory Overview Screen:
 - Summary cards: total UK stock value, total Ghana stock value, low stock count
 - `FlashList` of inventory balance rows (product name, location chips, quantity)
@@ -198,12 +198,12 @@ Inventory Overview Screen:
 - Filter: location picker, low stock toggle, category
 - Tap row → `inventory/product/[id]`
 
-### `mobile/app/(app)/inventory/movements.tsx`
+### `mobile/src/app/(app)/inventory/movements.tsx`
 Inventory Movement History Screen:
 - `FlashList` of movement rows: date, product, movement type badge, quantity, from/to locations, reference
 - Filter by movement type, product, location, date range
 
-### `mobile/app/(app)/inventory/adjustment.tsx`
+### `mobile/src/app/(app)/inventory/adjustment.tsx`
 Inventory Adjustment Screen:
 - Product search/scan picker
 - Location picker
@@ -213,7 +213,7 @@ Inventory Adjustment Screen:
 - Notes
 - Submit button
 
-### `mobile/app/(app)/inventory/product/[id].tsx`
+### `mobile/src/app/(app)/inventory/product/[id].tsx`
 Stock by Product Detail Screen:
 - Product header (name, SKU, barcode)
 - Balance cards per location (on hand, allocated, available)
@@ -222,7 +222,7 @@ Stock by Product Detail Screen:
 - Related shipments section
 - Related sales section
 
-### `mobile/lib/api/purchasing.api.ts`
+### `mobile/src/lib/api/purchasing.api.ts`
 ```typescript
 export const purchasingApi = {
   list: (params) => client.get('/purchases', { params }),
@@ -233,7 +233,7 @@ export const purchasingApi = {
 };
 ```
 
-### `mobile/lib/api/inventory.api.ts`
+### `mobile/src/lib/api/inventory.api.ts`
 ```typescript
 export const inventoryApi = {
   list: (params) => client.get('/inventory', { params }),
@@ -243,7 +243,7 @@ export const inventoryApi = {
 };
 ```
 
-### `mobile/store/inventory.store.ts`
+### `mobile/src/store/inventory.store.ts`
 Zustand slice:
 ```typescript
 interface InventoryState {

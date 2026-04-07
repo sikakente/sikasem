@@ -157,7 +157,7 @@ For CSV/XLSX/PDF responses, set correct `Content-Type` and `Content-Disposition`
 
 ## Frontend Files to Create
 
-### `mobile/hooks/useReportExport.ts`
+### `mobile/src/hooks/useReportExport.ts`
 ```typescript
 export function useReportExport() {
   const exportReport = async (reportType: string, params: ReportQueryDto, format: 'csv' | 'xlsx' | 'pdf') => {
@@ -170,7 +170,7 @@ export function useReportExport() {
 }
 ```
 
-### `mobile/app/(app)/reports/index.tsx`
+### `mobile/src/app/(app)/reports/index.tsx`
 Reports Home Screen:
 - List of report cards: icon, title, description
   - Inventory Report
@@ -183,7 +183,7 @@ Reports Home Screen:
   - FX Gain/Loss Report
 - Each card → `reports/[type]`
 
-### `mobile/app/(app)/reports/[type].tsx`
+### `mobile/src/app/(app)/reports/[type].tsx`
 Generic Report Detail Screen:
 - Report title and description at top
 - Filter panel (collapsible on mobile):
@@ -198,7 +198,7 @@ Generic Report Detail Screen:
   - Shows loading spinner while export is in progress
   - On success: opens native share sheet
 
-### `mobile/lib/api/reports.api.ts`
+### `mobile/src/lib/api/reports.api.ts`
 ```typescript
 export const reportsApi = {
   list: () => client.get('/reports'),

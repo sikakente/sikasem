@@ -97,7 +97,7 @@ Extends `PaginationDto`. Fields: `status?`, `carrierName?`, `dateFrom?`, `dateTo
 
 ## Frontend Files to Create
 
-### `mobile/components/ShipmentStatusBadge.tsx`
+### `mobile/src/components/ShipmentStatusBadge.tsx`
 Reusable badge component. Maps status to colour:
 - `draft` → grey
 - `packed` → blue
@@ -107,7 +107,7 @@ Reusable badge component. Maps status to colour:
 - `closed` → dark grey
 - `cancelled` → red/strikethrough
 
-### `mobile/components/InventoryPicker.tsx`
+### `mobile/src/components/InventoryPicker.tsx`
 Reusable product picker for selecting items from UK inventory:
 - Search + scan barcode
 - Shows product name, SKU, and available UK quantity
@@ -115,14 +115,14 @@ Reusable product picker for selecting items from UK inventory:
 - Returns `{ productId, quantity }` to parent
 - Used in Create Shipment and (later) Purchase screens
 
-### `mobile/app/(app)/shipments/index.tsx`
+### `mobile/src/app/(app)/shipments/index.tsx`
 Shipment List Screen:
 - `FlashList` of shipment cards: reference, carrier, status badge, dispatch date, expected arrival, item count
 - Status filter tabs: All / In Transit / Delayed / Received
 - Search by reference
 - FAB → `shipments/new`
 
-### `mobile/app/(app)/shipments/new.tsx`
+### `mobile/src/app/(app)/shipments/new.tsx`
 Create Shipment Screen:
 - Shipment reference, name, carrier, tracking number
 - Origin / Destination location pickers (dropdown)
@@ -131,7 +131,7 @@ Create Shipment Screen:
 - Notes
 - Save as Draft / Dispatch Now buttons
 
-### `mobile/app/(app)/shipments/[id].tsx`
+### `mobile/src/app/(app)/shipments/[id].tsx`
 Shipment Detail Screen:
 - Header: reference, status badge, carrier, tracking number
 - Dates row: packed → dispatch → expected → actual arrival (with transit days)
@@ -141,7 +141,7 @@ Shipment Detail Screen:
 - Timeline tab: status history in reverse chronological order
 - Profitability summary section (placeholder until STEP-09)
 
-### `mobile/app/(app)/shipments/[id]/costs.tsx`
+### `mobile/src/app/(app)/shipments/[id]/costs.tsx`
 Shipment Cost Entry Screen:
 - Cost type picker (freight, customs, transport, etc.)
 - Amount GBP (numeric input)
@@ -150,14 +150,14 @@ Shipment Cost Entry Screen:
 - Description
 - Save button — appends to costs list
 
-### `mobile/app/(app)/shipments/[id]/status.tsx`
+### `mobile/src/app/(app)/shipments/[id]/status.tsx`
 Shipment Status Update Screen (lightweight mobile-only):
 - Current status display
 - "Mark as Dispatched" or "Mark as Arrived" button (contextual)
 - Confirmation dialog with optional notes
 - Designed for one-thumb operation in a warehouse
 
-### `mobile/lib/api/shipments.api.ts`
+### `mobile/src/lib/api/shipments.api.ts`
 ```typescript
 export const shipmentsApi = {
   list: (params) => client.get('/shipments', { params }),
@@ -173,7 +173,7 @@ export const shipmentsApi = {
 };
 ```
 
-### `mobile/store/shipments.store.ts`
+### `mobile/src/store/shipments.store.ts`
 ```typescript
 interface ShipmentsState {
   activeShipments: Shipment[];

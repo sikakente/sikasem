@@ -109,7 +109,7 @@ Extends `PaginationDto`. Fields: `status?`, `customerId?`, `dateFrom?`, `dateTo?
 
 ## Frontend Files to Create
 
-### `mobile/components/InvoiceStatusBadge.tsx`
+### `mobile/src/components/InvoiceStatusBadge.tsx`
 Maps status to colour:
 - `draft` → grey
 - `sent` → blue
@@ -117,14 +117,14 @@ Maps status to colour:
 - `overdue` → red
 - `cancelled` → dark grey/strikethrough
 
-### `mobile/app/(app)/invoices/index.tsx`
+### `mobile/src/app/(app)/invoices/index.tsx`
 Invoice List Screen:
 - `FlashList` of invoice rows: invoice number, customer name, date, total, status badge
 - Filter tabs: All / Draft / Sent / Paid / Overdue
 - Filter by customer (search picker), date range
 - FAB → `invoices/new`
 
-### `mobile/app/(app)/invoices/new.tsx`
+### `mobile/src/app/(app)/invoices/new.tsx`
 Create Invoice Screen:
 - Customer picker (search + create new inline)
 - "Generate from Sale" option — opens sale selector, auto-populates items
@@ -136,7 +136,7 @@ Create Invoice Screen:
 - Total summary footer
 - Save as Draft / Generate & Preview buttons
 
-### `mobile/app/(app)/invoices/[id].tsx`
+### `mobile/src/app/(app)/invoices/[id].tsx`
 Invoice Detail Screen:
 - Invoice number, dates, status badge
 - Customer details section
@@ -146,13 +146,13 @@ Invoice Detail Screen:
 - PDF section: Preview button (opens signed URL in browser/PDF viewer), Download button
 - Action buttons: Mark Paid, Send (stub in MVP — shows "coming soon")
 
-### `mobile/app/(app)/receipts/index.tsx`
+### `mobile/src/app/(app)/receipts/index.tsx`
 Receipt Archive Screen:
 - `FlashList` of receipts: receipt number, date, sale total, linked sale ID
 - Search by receipt number
 - Tap → opens PDF signed URL
 
-### `mobile/lib/api/invoices.api.ts`
+### `mobile/src/lib/api/invoices.api.ts`
 ```typescript
 export const invoicesApi = {
   list: (params) => client.get('/invoices', { params }),
@@ -164,7 +164,7 @@ export const invoicesApi = {
 };
 ```
 
-### `mobile/lib/api/receipts.api.ts`
+### `mobile/src/lib/api/receipts.api.ts`
 ```typescript
 export const receiptsApi = {
   list: (params) => client.get('/receipts', { params }),

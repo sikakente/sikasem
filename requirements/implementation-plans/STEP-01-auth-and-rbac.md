@@ -178,10 +178,10 @@ Run via `npx prisma db seed`.
 
 ## Frontend Files to Create
 
-### `mobile/app/(auth)/_layout.tsx`
+### `mobile/src/app/(auth)/_layout.tsx`
 Stack layout for unauthenticated screens. No tab bar. Redirect to `(app)` if already authenticated.
 
-### `mobile/app/(auth)/login.tsx`
+### `mobile/src/app/(auth)/login.tsx`
 Login Screen:
 - Email input, password input (secureTextEntry), Sign In button
 - On submit: call `POST /auth/login`, save tokens via `authStore.setTokens()`, navigate to `(app)`
@@ -189,19 +189,19 @@ Login Screen:
 - Large inputs, centered layout, works well on small phones
 - Show error message on invalid credentials (401)
 
-### `mobile/app/(auth)/forgot-password.tsx`
+### `mobile/src/app/(auth)/forgot-password.tsx`
 Forgot Password Screen:
 - Email input, Submit button
 - On submit: call `POST /auth/forgot-password`
 - Show "if that email exists, a reset link has been sent" (do not reveal email existence)
 
-### `mobile/app/(auth)/reset-password.tsx`
+### `mobile/src/app/(auth)/reset-password.tsx`
 Reset Password Screen:
 - Reads `token` param from deep link `exportapp://reset-password?token=...`
 - New password input, confirm password input, Submit button
 - On submit: call `POST /auth/reset-password`, redirect to login on success
 
-### `mobile/lib/api/auth.api.ts`
+### `mobile/src/lib/api/auth.api.ts`
 ```typescript
 export const authApi = {
   login: (email: string, password: string) =>
@@ -217,7 +217,7 @@ export const authApi = {
 };
 ```
 
-### `mobile/hooks/useAuth.ts`
+### `mobile/src/hooks/useAuth.ts`
 Convenience hook:
 ```typescript
 export function useAuth() {

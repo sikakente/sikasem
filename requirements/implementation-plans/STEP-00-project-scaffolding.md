@@ -191,7 +191,7 @@ Extend `expo/tsconfig.base` with `"strict": true`.
 ### `mobile/babel.config.js`
 Use `babel-preset-expo`.
 
-### `mobile/app/_layout.tsx`
+### `mobile/src/app/_layout.tsx`
 Root layout:
 - Load fonts
 - Wrap with auth gate: check `expo-secure-store` for refresh token on mount
@@ -207,13 +207,13 @@ Root layout:
 EXPO_PUBLIC_API_URL=http://localhost:3000/api/v1
 ```
 
-### `mobile/lib/api/client.ts`
+### `mobile/src/lib/api/client.ts`
 Axios instance:
 - `baseURL` from `process.env.EXPO_PUBLIC_API_URL` (falls back to `http://localhost:3000/api/v1`)
 - Request interceptor: attach `Authorization: Bearer <accessToken>` from Zustand store
 - Response interceptor: on 401, call `POST /auth/refresh` with refresh token from `expo-secure-store`, update store, retry original request. On second 401, clear tokens and redirect to login.
 
-### `mobile/store/auth.store.ts`
+### `mobile/src/store/auth.store.ts`
 Zustand store:
 ```typescript
 interface AuthState {
