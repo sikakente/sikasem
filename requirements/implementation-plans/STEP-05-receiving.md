@@ -98,7 +98,7 @@ Fields: `receivedDate?`, `notes?`, `items?: UpdateReceivingItemDto[]` (array wit
 
 ## Frontend Files to Create
 
-### `mobile/components/ReceivingLineItem.tsx`
+### `mobile/src/components/ReceivingLineItem.tsx`
 Mobile-optimised per-product card for the receiving workflow:
 - Product name and expected quantity at top
 - Three numeric stepper inputs stacked: Received / Damaged / Lost
@@ -106,14 +106,14 @@ Mobile-optimised per-product card for the receiving workflow:
 - Highlights in red if received + damaged + lost < expected (shortage warning)
 - Notes field (collapsible)
 
-### `mobile/app/(app)/receiving/index.tsx`
+### `mobile/src/app/(app)/receiving/index.tsx`
 Receiving Queue Screen:
 - Sections: "Pending Receipt" (in_transit/dispatched shipments) and "Recent Receipts"
 - Pending cards show shipment reference, carrier, expected arrival date, item count
 - Overdue arrivals highlighted in red
 - Tap → `receiving/[shipmentId]`
 
-### `mobile/app/(app)/receiving/[shipmentId].tsx`
+### `mobile/src/app/(app)/receiving/[shipmentId].tsx`
 Receive Shipment Screen:
 - Shipment header summary (reference, carrier, expected vs actual arrival date input)
 - Per-item cards using `ReceivingLineItem` component
@@ -123,13 +123,13 @@ Receive Shipment Screen:
 - "Confirm Receipt" button — shows confirmation dialog, then submits
 - Designed for one-handed phone use with large inputs
 
-### `mobile/app/(app)/receiving/history.tsx`
+### `mobile/src/app/(app)/receiving/history.tsx`
 Receiving History Screen:
 - `FlashList` of completed receiving records
 - Each row: shipment reference, received date, item count, discrepancy count
 - Filter by date range
 
-### `mobile/lib/api/receiving.api.ts`
+### `mobile/src/lib/api/receiving.api.ts`
 ```typescript
 export const receivingApi = {
   getQueue: () => client.get('/receiving/queue'),

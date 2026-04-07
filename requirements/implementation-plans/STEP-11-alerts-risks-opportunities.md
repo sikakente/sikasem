@@ -172,7 +172,7 @@ Gate behind `NODE_ENV !== 'production'` check.
 
 ## Frontend Files to Create
 
-### `mobile/app/(app)/alerts/index.tsx`
+### `mobile/src/app/(app)/alerts/index.tsx`
 Alerts List Screen:
 - Filter bar: All / High / Medium / Low (severity tabs)
 - Secondary filter: alert type chips
@@ -180,7 +180,7 @@ Alerts List Screen:
 - Swipe actions: Acknowledge (right swipe) / Dismiss (left swipe)
 - Tap card → opens a bottom sheet with full message, linked entity, and Resolve/Acknowledge/Dismiss buttons
 
-### `mobile/app/(app)/alerts/risks/[id].tsx`
+### `mobile/src/app/(app)/alerts/risks/[id].tsx`
 Risk Detail Screen:
 - Risk type badge
 - Summary paragraph
@@ -190,13 +190,13 @@ Risk Detail Screen:
 - Status picker: Open / Monitoring / Closed
 - Risk score (if present)
 
-### `mobile/app/(app)/alerts/opportunities/index.tsx`
+### `mobile/src/app/(app)/alerts/opportunities/index.tsx`
 Opportunities Screen:
 - `FlashList` of opportunity cards: type icon, title, priority badge, estimated benefit (if available), recommended action snippet
 - Tap card → bottom sheet with full details and "Mark as Acted On" / "Dismiss" buttons
 - Filter by type
 
-### `mobile/lib/api/alerts.api.ts`
+### `mobile/src/lib/api/alerts.api.ts`
 ```typescript
 export const alertsApi = {
   list: (params) => client.get('/alerts', { params }),
@@ -207,8 +207,8 @@ export const alertsApi = {
 };
 ```
 
-### `mobile/lib/api/risks.api.ts`
-### `mobile/lib/api/opportunities.api.ts`
+### `mobile/src/lib/api/risks.api.ts`
+### `mobile/src/lib/api/opportunities.api.ts`
 
 ---
 

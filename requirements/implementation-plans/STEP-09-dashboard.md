@@ -118,7 +118,7 @@ GET /api/v1/dashboard/risks        @Roles('admin','operations','finance','viewer
 
 ## Frontend Files to Create
 
-### `mobile/components/KpiCard.tsx`
+### `mobile/src/components/KpiCard.tsx`
 ```typescript
 interface KpiCardProps {
   label: string;
@@ -132,10 +132,10 @@ interface KpiCardProps {
 ```
 Tappable card that navigates to a drilldown when `onPress` is provided.
 
-### `mobile/components/MiniChart.tsx`
+### `mobile/src/components/MiniChart.tsx`
 Thin wrapper around `react-native-svg` (or `victory-native`). Renders a small sparkline bar or line chart. Props: `data: number[]`, `type: 'bar' | 'line'`, `color`, `height` (default 40px). Designed to fit inside a KpiCard.
 
-### `mobile/components/RiskPanel.tsx`
+### `mobile/src/components/RiskPanel.tsx`
 ```typescript
 interface RiskPanelProps {
   risks: Risk[];
@@ -144,10 +144,10 @@ interface RiskPanelProps {
 ```
 Compact list of up to 3 risk cards, each showing: icon, title, severity badge, recommendation snippet.
 
-### `mobile/components/OpportunityPanel.tsx`
+### `mobile/src/components/OpportunityPanel.tsx`
 Same structure as `RiskPanel` but for opportunities. Shows: icon, title, priority, estimated benefit.
 
-### `mobile/app/(app)/dashboard/index.tsx`
+### `mobile/src/app/(app)/dashboard/index.tsx`
 Main Dashboard Screen:
 
 Mobile layout (stacked):
@@ -165,32 +165,32 @@ Desktop/tablet layout (side-by-side panels).
 
 Pull to refresh. Each section has a loading skeleton while data loads.
 
-### `mobile/app/(app)/dashboard/revenue.tsx`
+### `mobile/src/app/(app)/dashboard/revenue.tsx`
 Revenue Trend Drilldown:
 - Monthly revenue bar chart (last 6 months)
 - GHS and GBP equivalent columns
 - Day-by-day breakdown table for selected month
 
-### `mobile/app/(app)/dashboard/shipments.tsx`
+### `mobile/src/app/(app)/dashboard/shipments.tsx`
 Shipment Status Drilldown:
 - Status distribution pie/donut chart
 - Average transit time trend line chart
 - Delayed shipments list with links
 
-### `mobile/app/(app)/dashboard/fx.tsx`
+### `mobile/src/app/(app)/dashboard/fx.tsx`
 FX Impact Detail Drilldown:
 - Three-panel layout: Purchase / Sale / Conversion rates over time
 - Gain/loss by month chart
 - Unrealised GHS balance
 
-### `mobile/app/(app)/dashboard/products.tsx`
+### `mobile/src/app/(app)/dashboard/products.tsx`
 Product Profitability Drilldown:
 - Best selling by quantity
 - Best selling by revenue
 - Highest margin products
 - Slowest moving products
 
-### `mobile/store/dashboard.store.ts`
+### `mobile/src/store/dashboard.store.ts`
 ```typescript
 interface DashboardState {
   summary: DashboardSummary | null;
@@ -200,7 +200,7 @@ interface DashboardState {
 ```
 Cached locally so reopening the app shows stale data instantly while fresh data loads.
 
-### `mobile/lib/api/dashboard.api.ts`
+### `mobile/src/lib/api/dashboard.api.ts`
 ```typescript
 export const dashboardApi = {
   getSummary: (params) => client.get('/dashboard/summary', { params }),

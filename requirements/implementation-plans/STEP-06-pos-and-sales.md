@@ -140,7 +140,7 @@ GET  /api/v1/receipts/:id/pdf — returns { url: signedS3Url }
 - `generate()` returns a `receipts` record with a non-null `pdfUrl`
 - `getPdfUrl()` returns a signed URL string from `StorageService`
 
-### `mobile/store/pos.store.spec.ts` (mobile Zustand tests)
+### `mobile/src/store/pos.store.spec.ts` (mobile Zustand tests)
 - `addItem()` increments quantity if the product is already in the cart
 - `updateQuantity()` removes the item when quantity is set to 0
 - `applyDiscount()` stores the discount against the correct cart item
@@ -152,7 +152,7 @@ GET  /api/v1/receipts/:id/pdf — returns { url: signedS3Url }
 
 ## Frontend Files to Create
 
-### `mobile/store/pos.store.ts`
+### `mobile/src/store/pos.store.ts`
 Zustand cart store:
 ```typescript
 interface CartItem {
@@ -180,7 +180,7 @@ interface PosState {
 }
 ```
 
-### `mobile/app/(app)/pos/index.tsx`
+### `mobile/src/app/(app)/pos/index.tsx`
 POS Main Screen — the highest-priority mobile screen in the entire app:
 - Top bar: barcode scan input (auto-focuses on mount), product search field, customer selector
 - Main area: product quick-add list (most recently sold products)
@@ -191,7 +191,7 @@ POS Main Screen — the highest-priority mobile screen in the entire app:
 - Bottom sticky bar: total GHS, "Charge" button
 - Large tap targets throughout — designed for fast cashier use
 
-### `mobile/app/(app)/pos/payment.tsx`
+### `mobile/src/app/(app)/pos/payment.tsx`
 Payment Screen:
 - Total GHS displayed prominently
 - Payment method tabs: Cash / Card / Mobile Money / Bank Transfer / Split
@@ -202,7 +202,7 @@ Payment Screen:
 - "Complete Sale" button
 - Calculates and shows GBP equivalent based on FX rate
 
-### `mobile/app/(app)/pos/receipt.tsx`
+### `mobile/src/app/(app)/pos/receipt.tsx`
 Receipt Screen:
 - Shows completed sale summary: items, quantities, prices, total, payment breakdown
 - Business name and branding at top
@@ -212,20 +212,20 @@ Receipt Screen:
 - "New Sale" button → clears cart and goes back to POS main
 - "View Sale Details" link
 
-### `mobile/app/(app)/pos/void.tsx`
+### `mobile/src/app/(app)/pos/void.tsx`
 Void/Refund Screen:
 - Sale summary
 - Reason input (required)
 - "Void Sale" button with confirmation dialog
 - Shows inventory impact: which items will be returned to stock
 
-### `mobile/app/(app)/sales/index.tsx`
+### `mobile/src/app/(app)/sales/index.tsx`
 Sales History Screen:
 - `FlashList` of sale rows: date/time, receipt number, customer (or "Walk-in"), total GHS, payment method, status badge
 - Filter: date range, cashier, payment method, status
 - Search by receipt number
 
-### `mobile/app/(app)/sales/[id].tsx`
+### `mobile/src/app/(app)/sales/[id].tsx`
 Sale Detail Screen:
 - Items with quantities and prices
 - Payment breakdown
@@ -235,24 +235,24 @@ Sale Detail Screen:
 - Receipt link → opens PDF
 - Void button (if permitted and status is completed)
 
-### `mobile/app/(app)/customers/index.tsx`
+### `mobile/src/app/(app)/customers/index.tsx`
 Customer List Screen:
 - `FlashList` of customer cards: name, phone, type badge, total spend
 - Search by name/phone/email
 - FAB → `customers/new`
 
-### `mobile/app/(app)/customers/new.tsx`
+### `mobile/src/app/(app)/customers/new.tsx`
 Add Customer Screen:
 - Form: name, type picker, phone, email, address, notes
 
-### `mobile/app/(app)/customers/[id].tsx`
+### `mobile/src/app/(app)/customers/[id].tsx`
 Customer Detail Screen:
 - Name, contact info, customer type
 - Total spend, purchase frequency
 - Recent sales list
 - Edit button
 
-### `mobile/lib/api/sales.api.ts`
+### `mobile/src/lib/api/sales.api.ts`
 ```typescript
 export const salesApi = {
   list: (params) => client.get('/sales', { params }),
@@ -262,7 +262,7 @@ export const salesApi = {
 };
 ```
 
-### `mobile/lib/api/customers.api.ts`
+### `mobile/src/lib/api/customers.api.ts`
 ```typescript
 export const customersApi = {
   list: (params) => client.get('/customers', { params }),

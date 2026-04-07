@@ -147,14 +147,14 @@ Provides and exports `StorageService`. Global module.
 
 ## Frontend Files to Create
 
-### `mobile/components/BarcodeScanner.tsx`
+### `mobile/src/components/BarcodeScanner.tsx`
 Reusable component. Uses `expo-camera` with barcode scanning enabled.
 - Renders a camera view with an overlay rectangle in the center
 - `onScanned(barcode: string)` callback prop — called once then pauses scanning (re-activate manually)
 - Permission request handled internally
 - Works as a modal or inline depending on `mode` prop
 
-### `mobile/app/(app)/suppliers/index.tsx`
+### `mobile/src/app/(app)/suppliers/index.tsx`
 Supplier List Screen:
 - `FlashList` of supplier cards (name, type, city, active badge)
 - Search bar at top (debounced, 300ms)
@@ -162,12 +162,12 @@ Supplier List Screen:
 - FAB (floating action button) → `suppliers/new`
 - Pull to refresh
 
-### `mobile/app/(app)/suppliers/new.tsx`
+### `mobile/src/app/(app)/suppliers/new.tsx`
 Add Supplier Screen:
 - Form: name, type picker, contact name, phone, email, address, country, notes
 - Save button — calls `POST /suppliers`, navigates back on success
 
-### `mobile/app/(app)/suppliers/[id].tsx`
+### `mobile/src/app/(app)/suppliers/[id].tsx`
 Supplier Detail Screen:
 - Header: name, type, location, contact info
 - Products sourced section (FlashList of product chips)
@@ -175,12 +175,12 @@ Supplier Detail Screen:
 - Spend summary (monthly totals)
 - Edit button → `suppliers/[id]/edit`
 
-### `mobile/app/(app)/suppliers/[id]/edit.tsx`
+### `mobile/src/app/(app)/suppliers/[id]/edit.tsx`
 Edit Supplier Screen:
 - Pre-filled form from supplier data
 - Save → `PATCH /suppliers/:id`
 
-### `mobile/app/(app)/products/index.tsx`
+### `mobile/src/app/(app)/products/index.tsx`
 Product List Screen:
 - Search bar with barcode scan icon button (opens `BarcodeScanner` modal)
 - `FlashList` of product cards (image thumbnail, name, SKU, stock badge)
@@ -188,7 +188,7 @@ Product List Screen:
 - FAB → `products/new`
 - On barcode scanned: call `GET /products/barcode/:barcode`, navigate to `products/[id]` on found, show "Product not found — add it?" prompt on 404
 
-### `mobile/app/(app)/products/new.tsx`
+### `mobile/src/app/(app)/products/new.tsx`
 Add Product Screen:
 - Grouped form sections: Basic Info, Pricing, Stock Settings, Image
 - Barcode field has camera scan button inline
@@ -198,7 +198,7 @@ Add Product Screen:
 - Image picker (expo-image-picker) → upload to backend which stores on S3
 - Save → `POST /products`
 
-### `mobile/app/(app)/products/[id].tsx`
+### `mobile/src/app/(app)/products/[id].tsx`
 Product Detail Screen:
 - Product image, name, SKU, barcode, category
 - Stock by location cards (UK / In Transit / Ghana)
@@ -209,11 +209,11 @@ Product Detail Screen:
 - Suppliers used section
 - Edit button
 
-### `mobile/app/(app)/products/[id]/edit.tsx`
+### `mobile/src/app/(app)/products/[id]/edit.tsx`
 Edit Product Screen:
 - Pre-filled form, same structure as Add Product
 
-### `mobile/lib/api/suppliers.api.ts`
+### `mobile/src/lib/api/suppliers.api.ts`
 ```typescript
 export const suppliersApi = {
   list: (params) => client.get('/suppliers', { params }),
@@ -225,7 +225,7 @@ export const suppliersApi = {
 };
 ```
 
-### `mobile/lib/api/products.api.ts`
+### `mobile/src/lib/api/products.api.ts`
 ```typescript
 export const productsApi = {
   list: (params) => client.get('/products', { params }),

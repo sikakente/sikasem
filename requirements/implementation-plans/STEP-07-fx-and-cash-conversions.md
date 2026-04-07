@@ -96,14 +96,14 @@ Extends `PaginationDto`. Fields: `eventType?`, `dateFrom?`, `dateTo?`.
 
 ## Frontend Files to Create
 
-### `mobile/components/FxSummaryCard.tsx`
+### `mobile/src/components/FxSummaryCard.tsx`
 Reusable card showing a single FX metric:
 - Label (e.g. "Purchase FX", "Sale FX", "Conversion")
 - Rate display
 - Source and target amounts
 - Gain/loss indicator (green positive, red negative)
 
-### `mobile/app/(app)/fx/index.tsx`
+### `mobile/src/app/(app)/fx/index.tsx`
 FX Overview Screen:
 - Date range filter at top (default: current month)
 - Three summary cards: Purchase FX / Sale FX / Conversion FX
@@ -112,7 +112,7 @@ FX Overview Screen:
 - Unrealised GHS balance card (GHS sales not yet converted to GBP)
 - "Record Conversion" FAB → `fx/conversion/new`
 
-### `mobile/app/(app)/fx/[id].tsx`
+### `mobile/src/app/(app)/fx/[id].tsx`
 FX Event Detail Screen:
 - Event type badge (Purchase / Sale / Conversion)
 - Source transaction link (tappable → navigates to purchase/sale/conversion detail)
@@ -120,7 +120,7 @@ FX Event Detail Screen:
 - Timestamp
 - Notes
 
-### `mobile/app/(app)/fx/conversion/new.tsx`
+### `mobile/src/app/(app)/fx/conversion/new.tsx`
 Cash Conversion Screen:
 - Conversion date picker
 - Source amount GHS (numeric input)
@@ -131,13 +131,13 @@ Cash Conversion Screen:
 - Optional: link to specific sales (multi-select from recent unlinked sales)
 - Save button
 
-### `mobile/app/(app)/fx/conversions/index.tsx`
+### `mobile/src/app/(app)/fx/conversions/index.tsx`
 Cash Conversion List Screen:
 - `FlashList` of conversion records: date, GHS converted, rate, GBP received, fees, net GBP
 - Filter by date range
 - Running total at top: total GBP repatriated
 
-### `mobile/lib/api/fx.api.ts`
+### `mobile/src/lib/api/fx.api.ts`
 ```typescript
 export const fxApi = {
   list: (params) => client.get('/fx', { params }),

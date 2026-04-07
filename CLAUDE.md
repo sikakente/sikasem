@@ -106,22 +106,22 @@ Extend `PaginationDto` (`src/common/dto/pagination.dto.ts`) for any paginated qu
 
 ### Routing
 
-Expo Router file-based routing under `app/`:
+Expo Router file-based routing under `src/app/`:
 - `(auth)/` — login, forgot-password, reset-password (redirects to `(app)` if authenticated)
 - `(app)/` — all authenticated screens
 
-Session is restored from `expo-secure-store` on app boot in `app/_layout.tsx`. Navigation guards live there, not in individual screens.
+Session is restored from `expo-secure-store` on app boot in `src/app/_layout.tsx`. Navigation guards live there, not in individual screens.
 
 ### State
 
-- `store/auth.store.ts` — Zustand; holds `accessToken`, `user`, `isAuthenticated`; refresh token persisted in SecureStore
-- `store/inventory.store.ts` — Zustand; holds `balances` and `lowStockCount` for dashboard use
+- `src/store/auth.store.ts` — Zustand; holds `accessToken`, `user`, `isAuthenticated`; refresh token persisted in SecureStore
+- `src/store/inventory.store.ts` — Zustand; holds `balances` and `lowStockCount` for dashboard use
 
 ### API client
 
-`lib/api/client.ts` — axios instance with base URL `/api/v1`, attaches Bearer token from auth store, auto-refreshes on 401 with queued retry.
+`src/lib/api/client.ts` — axios instance with base URL `/api/v1`, attaches Bearer token from auth store, auto-refreshes on 401 with queued retry.
 
-Feature API modules in `lib/api/` follow the pattern:
+Feature API modules in `src/lib/api/` follow the pattern:
 ```typescript
 export const featureApi = {
   list: (params?) => client.get('/resource', { params }),

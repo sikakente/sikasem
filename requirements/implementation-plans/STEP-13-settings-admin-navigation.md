@@ -111,7 +111,7 @@ Fields: `alertEmailEnabled` (boolean), `alertEmailRecipients` (string[]), `lowSt
 - `getBusinessProfile()` delegates to `get('business_profile')`
 - `setBusinessProfile()` delegates to `set('business_profile', dto, userId)` and writes an audit log
 
-### `mobile/hooks/usePermissions.spec.ts` (mobile Jest tests)
+### `mobile/src/hooks/usePermissions.spec.ts` (mobile Jest tests)
 - `hasRole('admin')` returns `true` for a user with `roles: ['admin']`
 - `hasRole('finance')` returns `false` for a user with `roles: ['warehouse']`
 - `canAccess('reports')` returns `true` for `finance` role
@@ -125,7 +125,7 @@ Fields: `alertEmailEnabled` (boolean), `alertEmailRecipients` (string[]), `lowSt
 
 ## Frontend Files to Create
 
-### `mobile/hooks/usePermissions.ts`
+### `mobile/src/hooks/usePermissions.ts`
 ```typescript
 export function usePermissions() {
   const { user } = useAuthStore();
@@ -158,14 +158,14 @@ export function usePermissions() {
 }
 ```
 
-### `mobile/app/(app)/_layout.tsx`
+### `mobile/src/app/(app)/_layout.tsx`
 Authenticated app root layout:
 - Reads `user.roles` from `authStore`
 - Renders a bottom `TabBar` with role-filtered tabs
 - On tablet (width > 768): renders a `Drawer` sidebar instead of bottom tabs
 - Wraps all screens in a consistent header component
 
-### `mobile/components/navigation/TabBar.tsx`
+### `mobile/src/components/navigation/TabBar.tsx`
 Custom tab bar component:
 - Reads `canAccess()` from `usePermissions()`
 - Renders only the tabs the current user's role can see
@@ -173,7 +173,7 @@ Custom tab bar component:
 - "More" tab always visible — opens the More screen
 - Large tap targets (min 44px height)
 
-### `mobile/components/navigation/QuickActions.tsx`
+### `mobile/src/components/navigation/QuickActions.tsx`
 Floating quick-action strip shown on the Dashboard screen:
 - 6 action buttons in a horizontal scroll view (or 2×3 grid on larger screens)
 - Each button: icon + label
@@ -181,13 +181,13 @@ Floating quick-action strip shown on the Dashboard screen:
 - Visibility gated by `canAccess()` — e.g. pos_cashier only sees "Start Sale"
 - Each navigates directly to the relevant screen
 
-### `mobile/app/(app)/more/index.tsx`
+### `mobile/src/app/(app)/more/index.tsx`
 More Screen (full-screen module grid):
 - 4-column icon grid of all modules
 - Each module card: icon, label, role-gated visibility
 - Section headers: Operations / Finance / Analytics / Admin
 
-### `mobile/app/(app)/settings/index.tsx`
+### `mobile/src/app/(app)/settings/index.tsx`
 Settings Home Screen:
 - Grouped list sections:
   - **Business**: Business Profile, Logo
@@ -198,7 +198,7 @@ Settings Home Screen:
   - **Account**: User Management (admin only), Roles & Permissions (admin only), Audit Log (admin only)
   - **Session**: Logout, Logout all devices
 
-### `mobile/app/(app)/settings/business.tsx`
+### `mobile/src/app/(app)/settings/business.tsx`
 Business Profile Screen:
 - Form: business name, contact details, address, tax number
 - Logo upload (image picker → uploads to backend → returns logo URL)
@@ -206,7 +206,7 @@ Business Profile Screen:
 - Invoice footer text area
 - Save button → `PATCH /settings/business-profile`
 
-### `mobile/app/(app)/settings/notifications.tsx`
+### `mobile/src/app/(app)/settings/notifications.tsx`
 Notification Settings Screen:
 - Alert email toggle
 - Email recipients input (comma-separated)
@@ -214,19 +214,19 @@ Notification Settings Screen:
 - FX loss alert threshold (GBP numeric)
 - Save button
 
-### `mobile/app/(app)/settings/users/index.tsx`
+### `mobile/src/app/(app)/settings/users/index.tsx`
 User Management Screen (admin only):
 - `FlashList` of users: name, email, role badge, active/inactive indicator
 - FAB → `settings/users/new`
 - Tap user → `settings/users/[id]`
 
-### `mobile/app/(app)/settings/users/new.tsx`
+### `mobile/src/app/(app)/settings/users/new.tsx`
 Create User Screen:
 - Full name, email, password (temporary), role picker (single role select)
 - Note: user is prompted to change password on first login (future feature — stub for now)
 - Save → `POST /users`
 
-### `mobile/app/(app)/settings/users/[id].tsx`
+### `mobile/src/app/(app)/settings/users/[id].tsx`
 User Detail / Edit Screen:
 - Pre-filled form fields
 - Role picker
@@ -234,26 +234,26 @@ User Detail / Edit Screen:
 - Reset Password button (triggers `POST /auth/forgot-password` for that user's email)
 - Save → `PATCH /users/:id`
 
-### `mobile/app/(app)/settings/roles.tsx`
+### `mobile/src/app/(app)/settings/roles.tsx`
 Role and Permission Screen (admin only):
 - Table/matrix view: rows = roles, columns = permission codes
 - Checkboxes at each intersection
 - Save changes → `PATCH /roles/:id/permissions` for each changed role
 - Read-only for non-admin users
 
-### `mobile/app/(app)/settings/audit.tsx`
+### `mobile/src/app/(app)/settings/audit.tsx`
 Audit Log Viewer Screen (admin only):
 - `FlashList` of log entries: timestamp, user, action type badge, entity type, entity ID
 - Filter by action type, entity type, user, date range
 - Tap entry → bottom sheet with before/after JSON diff (formatted, read-only)
 
-### `mobile/app/(app)/settings/locations.tsx`
+### `mobile/src/app/(app)/settings/locations.tsx`
 Locations Screen (admin only):
 - List of configured locations
 - Add new location form (name, type, country, city)
 - Edit existing location
 
-### `mobile/lib/api/admin.api.ts`
+### `mobile/src/lib/api/admin.api.ts`
 ```typescript
 export const adminApi = {
   getAuditLogs: (params) => client.get('/audit-logs', { params }),
