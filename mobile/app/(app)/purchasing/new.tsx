@@ -145,12 +145,11 @@ export default function NewPurchaseScreen() {
     if (!validate()) return;
     setSubmitting(true);
     try {
-      const response = await purchasingApi.create(buildPayload('confirmed') as Record<string, unknown>);
+      const response = await purchasingApi.create(buildPayload('draft') as Record<string, unknown>);
       const responseData = response.data as { id?: string; data?: { id?: string } };
       const id = responseData?.id || (responseData?.data as { id?: string } | undefined)?.id;
-      if (id) {
-        await purchasingApi.confirm(id);
-      }
+      if (!id) throw new Error('Failed to get purchase order ID from response');
+      await purchasingApi.confirm(id);
       router.back();
     } catch {
       setError('Failed to confirm purchase order. Please try again.');
