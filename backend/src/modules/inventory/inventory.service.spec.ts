@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { InventoryService } from './inventory.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
@@ -190,29 +191,22 @@ describe('InventoryService', () => {
     });
 
     it('uses passed-in tx client instead of opening new $transaction when tx is provided', async () => {
-      const txClient: any = {
-        inventoryMovement: { create: jest.fn().mockResolvedValue(makeMovement()) },
+      const txClient = {
+        inventoryMovement: { create: jest.fn().mockResolvedValue({ id: 'move-1' }) },
         inventoryBalance: {
-          findUnique: jest.fn().mockResolvedValue(makeBalance()),
-          upsert: jest.fn().mockResolvedValue(makeBalance()),
+          findUnique: jest.fn().mockResolvedValue({ quantityAvailable: new Prisma.Decimal(100) }),
+          upsert: jest.fn().mockResolvedValue({}),
         },
-      };
+      } as unknown as Prisma.TransactionClient;
 
       await service.recordMovement(
-        {
-          productId: 'product-1',
-          movementType: 'purchase_in',
-          quantity: 10,
-          toLocationId: 'location-1',
-          createdBy: 'user-1',
-        },
+        { productId: 'p1', movementType: 'dispatch', quantity: 5, fromLocationId: 'loc-1', createdBy: 'u1' },
         txClient,
       );
 
-      // Should use tx client, not open a new transaction
       expect(prisma.$transaction).not.toHaveBeenCalled();
-      expect(txClient.inventoryMovement.create).toHaveBeenCalled();
       expect(txClient.inventoryBalance.upsert).toHaveBeenCalled();
+      expect(txClient.inventoryBalance.findUnique).toHaveBeenCalled();
     });
   });
 

@@ -52,18 +52,18 @@ export class InventoryService {
 
     const isDeduction = DEDUCTION_TYPES.includes(movementType);
 
-    // Check stock availability before starting the transaction
-    if (isDeduction && !allowNegative && fromLocationId) {
-      const balance = await this.prisma.inventoryBalance.findUnique({
-        where: { productId_locationId: { productId, locationId: fromLocationId } },
-      });
-      const available = Number(balance?.quantityAvailable ?? 0);
-      if (available < quantity) {
-        throw new ConflictException('Insufficient stock');
-      }
-    }
-
     const executeInTx = async (client: Prisma.TransactionClient | typeof this.prisma) => {
+      // Stock check inside transaction to avoid race conditions
+      if (isDeduction && !allowNegative && fromLocationId) {
+        const balance = await (client as any).inventoryBalance.findUnique({
+          where: { productId_locationId: { productId: params.productId, locationId: fromLocationId } },
+        });
+        const available = new Prisma.Decimal(balance?.quantityAvailable ?? 0);
+        if (new Prisma.Decimal(params.quantity).greaterThan(available)) {
+          throw new ConflictException('Insufficient stock');
+        }
+      }
+
       // Create the movement record
       const movement = await (client as any).inventoryMovement.create({
         data: {
@@ -174,13 +174,7 @@ export class InventoryService {
     }
 
     if (lowStock) {
-      where.OR = [
-        {
-          product: { reorderPoint: { not: null } },
-          quantityAvailable: { lte: 0 },
-        },
-        { quantityAvailable: { lte: 0 } },
-      ];
+      (where as any).quantityAvailable = { lte: 0 };
     }
 
     const [data, total] = await Promise.all([
