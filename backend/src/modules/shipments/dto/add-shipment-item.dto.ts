@@ -10,12 +10,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class AddShipmentItemDto {
   @ApiProperty()
   @IsUUID()
-  productId: string;
+  productId!: string;
 
   @ApiProperty()
   @IsNumber()
   @IsPositive()
-  quantity: number;
+  quantity!: number;
 
   @ApiPropertyOptional()
   @IsOptional()
