@@ -13,15 +13,13 @@ export class AuthController {
   @Public()
   @Post('login')
   async login(@Body() dto: LoginDto) {
-    const result = await this.authService.login(dto.email, dto.password);
-    return { data: result };
+    return this.authService.login(dto.email, dto.password);
   }
 
   @Public()
   @Post('refresh')
   async refresh(@Body() dto: RefreshTokenDto) {
-    const result = await this.authService.refresh(dto.refreshToken);
-    return { data: result };
+    return this.authService.refresh(dto.refreshToken);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -31,29 +29,27 @@ export class AuthController {
     @Body() dto: RefreshTokenDto,
   ) {
     await this.authService.logout(req.user.sub, dto.refreshToken);
-    return { data: { message: 'Logged out' } };
+    return { message: 'Logged out' };
   }
 
   @UseGuards(JwtAuthGuard)
   @Post('logout-all')
   async logoutAll(@Request() req: { user: { sub: string } }) {
     await this.authService.logoutAll(req.user.sub);
-    return { data: { message: 'All sessions terminated' } };
+    return { message: 'All sessions terminated' };
   }
 
   @Public()
   @Post('forgot-password')
   async forgotPassword(@Body() body: { email: string }) {
     await this.authService.forgotPassword(body.email);
-    return {
-      data: { message: 'If that email exists, a reset link has been sent' },
-    };
+    return { message: 'If that email exists, a reset link has been sent' };
   }
 
   @Public()
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
     await this.authService.resetPassword(dto.token, dto.newPassword);
-    return { data: { message: 'Password reset successfully' } };
+    return { message: 'Password reset successfully' };
   }
 }
