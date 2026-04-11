@@ -2,7 +2,11 @@ import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RolesGuard } from './roles.guard';
 
-const makeContext = (user: object | null, handler = {}, cls = {}): ExecutionContext =>
+const makeContext = (
+  user: object | null,
+  handler = {},
+  cls = {},
+): ExecutionContext =>
   ({
     getHandler: () => handler,
     getClass: () => cls,

@@ -32,7 +32,10 @@ export class PurchasingController {
 
   @Post()
   @Roles('admin', 'operations')
-  create(@Body() dto: CreatePurchaseDto, @Request() req: { user: { id: string } }) {
+  create(
+    @Body() dto: CreatePurchaseDto,
+    @Request() req: { user: { id: string } },
+  ) {
     return this.purchasingService.create(dto, req.user.id);
   }
 

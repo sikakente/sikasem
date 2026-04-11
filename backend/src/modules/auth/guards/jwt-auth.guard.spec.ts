@@ -38,7 +38,9 @@ describe('JwtAuthGuard', () => {
 
     // Spy on the AuthGuard mixin's canActivate to avoid real passport execution
     const mixinProto = Object.getPrototypeOf(Object.getPrototypeOf(guard));
-    const superSpy = jest.spyOn(mixinProto, 'canActivate').mockResolvedValue(false);
+    const superSpy = jest
+      .spyOn(mixinProto, 'canActivate')
+      .mockResolvedValue(false);
 
     const result = await guard.canActivate(context);
 

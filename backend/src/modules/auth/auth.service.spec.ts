@@ -90,26 +90,30 @@ describe('AuthService', () => {
 
     it('throws UnauthorizedException for wrong password', async () => {
       const hash = await bcrypt.hash('correct-password', 10);
-      usersService.findByEmail.mockResolvedValue(makeUser({ passwordHash: hash }) as any);
-
-      await expect(service.login('test@example.com', 'wrong-password')).rejects.toThrow(
-        UnauthorizedException,
+      usersService.findByEmail.mockResolvedValue(
+        makeUser({ passwordHash: hash }) as any,
       );
+
+      await expect(
+        service.login('test@example.com', 'wrong-password'),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('throws UnauthorizedException for unknown email', async () => {
       usersService.findByEmail.mockResolvedValue(null);
 
-      await expect(service.login('unknown@example.com', 'password123')).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(
+        service.login('unknown@example.com', 'password123'),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 
   describe('refresh()', () => {
     it('issues a new token pair and revokes the old token record', async () => {
       const storedToken = makeToken();
-      (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue(storedToken);
+      (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue(
+        storedToken,
+      );
       (prisma.refreshToken.update as jest.Mock).mockResolvedValue({});
       (prisma.refreshToken.create as jest.Mock).mockResolvedValue({});
       usersService.findById.mockResolvedValue(makeUser() as any);
@@ -125,36 +129,52 @@ describe('AuthService', () => {
 
     it('revokes all sessions and throws when a revoked token is presented', async () => {
       const storedToken = makeToken({ revokedAt: new Date() });
-      (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue(storedToken);
+      (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue(
+        storedToken,
+      );
       (prisma.refreshToken.updateMany as jest.Mock).mockResolvedValue({});
 
-      await expect(service.refresh('revoked-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh('revoked-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
       expect(prisma.refreshToken.updateMany).toHaveBeenCalled();
     });
 
     it('throws UnauthorizedException for an expired token', async () => {
-      const expiredToken = makeToken({ expiresAt: new Date(Date.now() - 1000) });
-      (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue(expiredToken);
+      const expiredToken = makeToken({
+        expiresAt: new Date(Date.now() - 1000),
+      });
+      (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue(
+        expiredToken,
+      );
 
-      await expect(service.refresh('expired-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh('expired-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
   describe('logout()', () => {
     it('sets revokedAt on the specific token row only', async () => {
-      (prisma.refreshToken.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+      (prisma.refreshToken.updateMany as jest.Mock).mockResolvedValue({
+        count: 1,
+      });
 
       await service.logout('user-1', 'some-raw-token');
 
       expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith(
-        expect.objectContaining({ where: expect.objectContaining({ userId: 'user-1' }) }),
+        expect.objectContaining({
+          where: expect.objectContaining({ userId: 'user-1' }),
+        }),
       );
     });
   });
 
   describe('logoutAll()', () => {
     it('sets revokedAt on every token row for the user', async () => {
-      (prisma.refreshToken.updateMany as jest.Mock).mockResolvedValue({ count: 3 });
+      (prisma.refreshToken.updateMany as jest.Mock).mockResolvedValue({
+        count: 3,
+      });
 
       await service.logoutAll('user-1');
 
@@ -169,7 +189,9 @@ describe('AuthService', () => {
     it('updates passwordHash and revokes all refresh tokens', async () => {
       jwtService.verify.mockReturnValue({ sub: 'user-1', purpose: 'reset' });
       (prisma.user.update as jest.Mock).mockResolvedValue({});
-      (prisma.refreshToken.updateMany as jest.Mock).mockResolvedValue({ count: 2 });
+      (prisma.refreshToken.updateMany as jest.Mock).mockResolvedValue({
+        count: 2,
+      });
 
       await service.resetPassword('valid-reset-token', 'NewPassword1!');
 
@@ -187,9 +209,9 @@ describe('AuthService', () => {
         throw new Error('invalid token');
       });
 
-      await expect(service.resetPassword('bad-token', 'NewPassword1!')).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(
+        service.resetPassword('bad-token', 'NewPassword1!'),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 });

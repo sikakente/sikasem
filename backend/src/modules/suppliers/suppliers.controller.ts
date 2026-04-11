@@ -30,7 +30,10 @@ export class SuppliersController {
 
   @Post()
   @Roles('admin', 'operations')
-  create(@Body() dto: CreateSupplierDto, @Request() req: { user: { sub: string } }) {
+  create(
+    @Body() dto: CreateSupplierDto,
+    @Request() req: { user: { sub: string } },
+  ) {
     return this.suppliersService.create(dto, req.user.sub);
   }
 
@@ -52,7 +55,10 @@ export class SuppliersController {
 
   @Delete(':id')
   @Roles('admin')
-  deactivate(@Param('id') id: string, @Request() req: { user: { sub: string } }) {
+  deactivate(
+    @Param('id') id: string,
+    @Request() req: { user: { sub: string } },
+  ) {
     return this.suppliersService.deactivate(id, req.user.sub);
   }
 

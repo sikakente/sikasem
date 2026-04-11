@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View,
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { productsApi } from '../../../lib/api/products.api';
@@ -18,11 +23,7 @@ export default function ProductDetailScreen() {
 
   useEffect(() => {
     if (!id) return;
-    Promise.all([
-      productsApi.get(id),
-      productsApi.getStock(id),
-      productsApi.getHistory(id),
-    ])
+    Promise.all([productsApi.get(id), productsApi.getStock(id), productsApi.getHistory(id)])
       .then(([p, s, h]) => {
         setProduct(p.data as any);
         setStock((s.data as any) ?? []);
@@ -56,14 +57,19 @@ export default function ProductDetailScreen() {
             {product.category && <Text style={styles.meta}>Category: {product.category.name}</Text>}
             {product.brand && <Text style={styles.meta}>Brand: {product.brand}</Text>}
           </View>
-          <TouchableOpacity style={styles.editBtn} onPress={() => router.push(`/(app)/products/${id}/edit`)}>
+          <TouchableOpacity
+            style={styles.editBtn}
+            onPress={() => router.push(`/(app)/products/${id}/edit`)}
+          >
             <Text style={styles.editBtnText}>Edit</Text>
           </TouchableOpacity>
         </View>
 
         {isLowStock && (
           <View style={styles.lowStockBanner}>
-            <Text style={styles.lowStockText}>⚠ Low Stock — {totalStock} remaining (min: {product.minimumStockThreshold})</Text>
+            <Text style={styles.lowStockText}>
+              ⚠ Low Stock — {totalStock} remaining (min: {product.minimumStockThreshold})
+            </Text>
           </View>
         )}
       </View>
@@ -71,8 +77,14 @@ export default function ProductDetailScreen() {
       {/* Tabs */}
       <View style={styles.tabBar}>
         {TABS.map((t) => (
-          <TouchableOpacity key={t.key} style={[styles.tab, activeTab === t.key && styles.tabActive]} onPress={() => setActiveTab(t.key)}>
-            <Text style={[styles.tabText, activeTab === t.key && styles.tabTextActive]}>{t.label}</Text>
+          <TouchableOpacity
+            key={t.key}
+            style={[styles.tab, activeTab === t.key && styles.tabActive]}
+            onPress={() => setActiveTab(t.key)}
+          >
+            <Text style={[styles.tabText, activeTab === t.key && styles.tabTextActive]}>
+              {t.label}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -85,11 +97,16 @@ export default function ProductDetailScreen() {
                 <Text style={styles.stockLocation}>{b.location?.name ?? b.locationId}</Text>
                 <View>
                   <Text style={styles.stockQty}>{Number(b.quantityOnHand).toFixed(0)} on hand</Text>
-                  <Text style={styles.stockSub}>{Number(b.quantityAllocated).toFixed(0)} allocated · {Number(b.quantityAvailable).toFixed(0)} available</Text>
+                  <Text style={styles.stockSub}>
+                    {Number(b.quantityAllocated).toFixed(0)} allocated ·{' '}
+                    {Number(b.quantityAvailable).toFixed(0)} available
+                  </Text>
                 </View>
               </View>
             ))}
-            {stock.length === 0 && <Text style={styles.empty}>No stock data yet (see STEP-03)</Text>}
+            {stock.length === 0 && (
+              <Text style={styles.empty}>No stock data yet (see STEP-03)</Text>
+            )}
           </>
         )}
 
@@ -99,7 +116,9 @@ export default function ProductDetailScreen() {
               <View key={i.id} style={styles.histRow}>
                 <Text style={styles.histRef}>{i.purchaseOrder?.referenceNo}</Text>
                 <Text style={styles.histDate}>{i.purchaseOrder?.purchaseDate?.slice(0, 10)}</Text>
-                <Text style={styles.histQty}>×{Number(i.quantity).toFixed(0)} @ £{Number(i.unitCostGbp).toFixed(2)}</Text>
+                <Text style={styles.histQty}>
+                  ×{Number(i.quantity).toFixed(0)} @ £{Number(i.unitCostGbp).toFixed(2)}
+                </Text>
               </View>
             ))}
             {!history?.purchaseItems?.length && <Text style={styles.empty}>No purchases yet</Text>}
@@ -142,23 +161,56 @@ const styles = StyleSheet.create({
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   name: { fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 4 },
   meta: { fontSize: 13, color: '#6b7280', marginBottom: 2 },
-  editBtn: { borderWidth: 1, borderColor: '#2563eb', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 5 },
+  editBtn: {
+    borderWidth: 1,
+    borderColor: '#2563eb',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+  },
   editBtnText: { color: '#2563eb', fontSize: 13, fontWeight: '600' },
   lowStockBanner: { marginTop: 12, backgroundColor: '#fef3c7', borderRadius: 8, padding: 10 },
   lowStockText: { color: '#92400e', fontSize: 13, fontWeight: '500' },
-  tabBar: { flexDirection: 'row', backgroundColor: '#fff', borderBottomWidth: 1, borderColor: '#e5e7eb' },
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderColor: '#e5e7eb',
+  },
   tab: { flex: 1, paddingVertical: 12, alignItems: 'center' },
   tabActive: { borderBottomWidth: 2, borderColor: '#2563eb' },
   tabText: { fontSize: 13, color: '#6b7280' },
   tabTextActive: { color: '#2563eb', fontWeight: '600' },
   tabContent: { padding: 16 },
-  stockCard: { backgroundColor: '#fff', borderRadius: 10, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#e5e7eb', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  stockCard: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   stockLocation: { fontSize: 14, fontWeight: '600', color: '#111827' },
   stockQty: { fontSize: 14, color: '#111827', textAlign: 'right' },
   stockSub: { fontSize: 12, color: '#9ca3af', textAlign: 'right' },
-  histRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderColor: '#f3f4f6' },
+  histRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderColor: '#f3f4f6',
+  },
   histRef: { fontSize: 13, color: '#374151', flex: 1 },
   histDate: { fontSize: 12, color: '#9ca3af', marginHorizontal: 8 },
   histQty: { fontSize: 13, fontWeight: '600', color: '#111827' },
-  empty: { color: '#9ca3af', fontSize: 14, fontStyle: 'italic', textAlign: 'center', marginTop: 20 },
+  empty: {
+    color: '#9ca3af',
+    fontSize: 14,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 20,
+  },
 });

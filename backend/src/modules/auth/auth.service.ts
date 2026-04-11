@@ -31,7 +31,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const roles = user.userRoles.map((ur: { role: { name: string } }) => ur.role.name);
+    const roles = user.userRoles.map(
+      (ur: { role: { name: string } }) => ur.role.name,
+    );
     const accessToken = this.signAccessToken(user.id, user.email, roles);
     const rawRefreshToken = this.generateRawToken();
     await this.storeRefreshToken(user.id, rawRefreshToken);
@@ -46,7 +48,9 @@ export class AuthService {
 
   async refresh(rawRefreshToken: string) {
     const tokenHash = this.hashToken(rawRefreshToken);
-    const stored = await this.prisma.refreshToken.findFirst({ where: { tokenHash } });
+    const stored = await this.prisma.refreshToken.findFirst({
+      where: { tokenHash },
+    });
 
     if (!stored) {
       this.logger.warn('Token refresh failed: token not found');
@@ -54,7 +58,9 @@ export class AuthService {
     }
 
     if (stored.revokedAt) {
-      this.logger.warn(`Token refresh failed: reuse detected for userId=${stored.userId} — revoking all sessions`);
+      this.logger.warn(
+        `Token refresh failed: reuse detected for userId=${stored.userId} — revoking all sessions`,
+      );
       await this.prisma.refreshToken.updateMany({
         where: { userId: stored.userId, revokedAt: null },
         data: { revokedAt: new Date() },
@@ -63,7 +69,9 @@ export class AuthService {
     }
 
     if (stored.expiresAt < new Date()) {
-      this.logger.warn(`Token refresh failed: expired token for userId=${stored.userId}`);
+      this.logger.warn(
+        `Token refresh failed: expired token for userId=${stored.userId}`,
+      );
       throw new UnauthorizedException('Refresh token expired');
     }
 
@@ -74,7 +82,9 @@ export class AuthService {
     });
 
     const user = await this.usersService.findById(stored.userId);
-    const roles = user.userRoles.map((ur: { role: { name: string } }) => ur.role.name);
+    const roles = user.userRoles.map(
+      (ur: { role: { name: string } }) => ur.role.name,
+    );
 
     const newAccessToken = this.signAccessToken(user.id, user.email, roles);
     const newRawRefreshToken = this.generateRawToken();

@@ -77,7 +77,12 @@ export default function PurchaseOrderListScreen() {
         <View style={styles.cardHeader}>
           <Text style={styles.supplierName}>{item.supplierId || 'Unknown Supplier'}</Text>
           <View style={[styles.badge, isConfirmed ? styles.badgeConfirmed : styles.badgeDraft]}>
-            <Text style={[styles.badgeText, isConfirmed ? styles.badgeTextConfirmed : styles.badgeTextDraft]}>
+            <Text
+              style={[
+                styles.badgeText,
+                isConfirmed ? styles.badgeTextConfirmed : styles.badgeTextDraft,
+              ]}
+            >
               {item.status}
             </Text>
           </View>
@@ -86,7 +91,9 @@ export default function PurchaseOrderListScreen() {
           <Text style={styles.cardMeta}>
             {item.purchaseDate ? new Date(item.purchaseDate).toLocaleDateString() : 'No date'}
           </Text>
-          <Text style={styles.cardMeta}>{itemCount} {itemCount === 1 ? 'item' : 'items'}</Text>
+          <Text style={styles.cardMeta}>
+            {itemCount} {itemCount === 1 ? 'item' : 'items'}
+          </Text>
           <Text style={styles.totalText}>£{total.toFixed(2)}</Text>
         </View>
       </TouchableOpacity>

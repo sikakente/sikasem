@@ -3,7 +3,11 @@ import { Reflector } from '@nestjs/core';
 import { PermissionsGuard } from './permissions.guard';
 import { PrismaService } from '../../../prisma/prisma.service';
 
-const makeContext = (user: object | null, handler = {}, cls = {}): ExecutionContext =>
+const makeContext = (
+  user: object | null,
+  handler = {},
+  cls = {},
+): ExecutionContext =>
   ({
     getHandler: () => handler,
     getClass: () => cls,

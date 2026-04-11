@@ -50,19 +50,26 @@ export default function InventoryScreen() {
   }, [fetchInventory]);
 
   const ukStock = balances
-    .filter((b) => b.location?.name?.toLowerCase().includes('uk') || b.locationId?.toLowerCase().includes('uk'))
+    .filter(
+      (b) =>
+        b.location?.name?.toLowerCase().includes('uk') ||
+        b.locationId?.toLowerCase().includes('uk'),
+    )
     .reduce((sum, b) => sum + (b.quantityOnHand || 0), 0);
 
   const ghanaStock = balances
-    .filter((b) => b.location?.name?.toLowerCase().includes('ghana') || b.locationId?.toLowerCase().includes('ghana'))
+    .filter(
+      (b) =>
+        b.location?.name?.toLowerCase().includes('ghana') ||
+        b.locationId?.toLowerCase().includes('ghana'),
+    )
     .reduce((sum, b) => sum + (b.quantityOnHand || 0), 0);
 
   const filteredBalances = balances.filter((b) => {
     if (!search.trim()) return true;
     const term = search.toLowerCase();
     return (
-      b.productId?.toLowerCase().includes(term) ||
-      b.product?.name?.toLowerCase().includes(term)
+      b.productId?.toLowerCase().includes(term) || b.product?.name?.toLowerCase().includes(term)
     );
   });
 
@@ -77,8 +84,12 @@ export default function InventoryScreen() {
         <Text style={styles.summaryValue}>{ghanaStock}</Text>
       </View>
       <View style={[styles.summaryCard, lowStockCount > 0 && styles.summaryCardAlert]}>
-        <Text style={[styles.summaryLabel, lowStockCount > 0 && styles.summaryLabelAlert]}>Low Stock</Text>
-        <Text style={[styles.summaryValue, lowStockCount > 0 && styles.summaryValueAlert]}>{lowStockCount}</Text>
+        <Text style={[styles.summaryLabel, lowStockCount > 0 && styles.summaryLabelAlert]}>
+          Low Stock
+        </Text>
+        <Text style={[styles.summaryValue, lowStockCount > 0 && styles.summaryValueAlert]}>
+          {lowStockCount}
+        </Text>
       </View>
     </View>
   );
@@ -95,7 +106,9 @@ export default function InventoryScreen() {
         activeOpacity={0.8}
       >
         <View style={styles.rowMain}>
-          <Text style={styles.productName} numberOfLines={1}>{productName}</Text>
+          <Text style={styles.productName} numberOfLines={1}>
+            {productName}
+          </Text>
           <View style={styles.locationBadge}>
             <Text style={styles.locationBadgeText}>{locationName}</Text>
           </View>
@@ -150,7 +163,9 @@ export default function InventoryScreen() {
         keyExtractor={(item) => item.id}
         renderItem={renderRow}
         ListHeaderComponent={renderHeader}
-        contentContainerStyle={filteredBalances.length === 0 ? styles.listEmpty : styles.listContent}
+        contentContainerStyle={
+          filteredBalances.length === 0 ? styles.listEmpty : styles.listContent
+        }
         ListEmptyComponent={renderEmpty}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />

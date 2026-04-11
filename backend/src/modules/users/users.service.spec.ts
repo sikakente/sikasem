@@ -75,7 +75,10 @@ describe('UsersService', () => {
       await service.create(dto);
 
       expect(capturedData.passwordHash).not.toBe('plaintext123');
-      const isValid = await bcrypt.compare('plaintext123', capturedData.passwordHash);
+      const isValid = await bcrypt.compare(
+        'plaintext123',
+        capturedData.passwordHash,
+      );
       expect(isValid).toBe(true);
     });
   });
@@ -83,7 +86,9 @@ describe('UsersService', () => {
   describe('deactivate()', () => {
     it('sets isActive to false without deleting the record', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(makeUser());
-      (prisma.user.update as jest.Mock).mockResolvedValue(makeUser({ isActive: false }));
+      (prisma.user.update as jest.Mock).mockResolvedValue(
+        makeUser({ isActive: false }),
+      );
 
       const result = await service.deactivate('user-1');
 
@@ -96,7 +101,9 @@ describe('UsersService', () => {
     it('throws NotFoundException when user does not exist', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.deactivate('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.deactivate('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

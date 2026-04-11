@@ -113,10 +113,16 @@ export class SuppliersService {
     const byMonth: Record<string, number> = {};
     for (const order of orders) {
       const key = order.purchaseDate.toISOString().slice(0, 7);
-      const total = order.items.reduce((sum, i) => sum + Number(i.totalCostGbp), 0);
+      const total = order.items.reduce(
+        (sum, i) => sum + Number(i.totalCostGbp),
+        0,
+      );
       byMonth[key] = (byMonth[key] ?? 0) + total;
     }
 
-    return Object.entries(byMonth).map(([month, totalGbp]) => ({ month, totalGbp }));
+    return Object.entries(byMonth).map(([month, totalGbp]) => ({
+      month,
+      totalGbp,
+    }));
   }
 }

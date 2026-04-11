@@ -45,10 +45,17 @@ describe('AuditService', () => {
   });
 
   it('does not throw when the DB write fails — swallows the error silently', async () => {
-    (prisma.auditLog.create as jest.Mock).mockRejectedValue(new Error('DB error'));
+    (prisma.auditLog.create as jest.Mock).mockRejectedValue(
+      new Error('DB error'),
+    );
 
     await expect(
-      service.log({ userId: 'u1', actionType: 'create', entityType: 'T', entityId: 'e1' }),
+      service.log({
+        userId: 'u1',
+        actionType: 'create',
+        entityType: 'T',
+        entityId: 'e1',
+      }),
     ).resolves.toBeUndefined();
   });
 

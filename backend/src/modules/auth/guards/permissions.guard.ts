@@ -12,13 +12,16 @@ export class PermissionsGuard implements CanActivate {
   private cache = new Map<string, CacheEntry>();
   private readonly TTL_MS = 5 * 60 * 1000;
 
-  constructor(private reflector: Reflector, private prisma: PrismaService) {}
+  constructor(
+    private reflector: Reflector,
+    private prisma: PrismaService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredPermission = this.reflector.getAllAndOverride<string>('permission', [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredPermission = this.reflector.getAllAndOverride<string>(
+      'permission',
+      [context.getHandler(), context.getClass()],
+    );
     if (!requiredPermission) return true;
 
     const { user } = context.switchToHttp().getRequest();
@@ -29,7 +32,10 @@ export class PermissionsGuard implements CanActivate {
     return permissions.has(requiredPermission);
   }
 
-  private async getPermissions(cacheKey: string, roles: string[]): Promise<Set<string>> {
+  private async getPermissions(
+    cacheKey: string,
+    roles: string[],
+  ): Promise<Set<string>> {
     const cached = this.cache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       return cached.permissions;
@@ -47,7 +53,10 @@ export class PermissionsGuard implements CanActivate {
       }
     }
 
-    this.cache.set(cacheKey, { permissions, expiresAt: Date.now() + this.TTL_MS });
+    this.cache.set(cacheKey, {
+      permissions,
+      expiresAt: Date.now() + this.TTL_MS,
+    });
     return permissions;
   }
 }

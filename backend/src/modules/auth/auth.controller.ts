@@ -26,7 +26,10 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  async logout(@Request() req: { user: { sub: string } }, @Body() dto: RefreshTokenDto) {
+  async logout(
+    @Request() req: { user: { sub: string } },
+    @Body() dto: RefreshTokenDto,
+  ) {
     await this.authService.logout(req.user.sub, dto.refreshToken);
     return { data: { message: 'Logged out' } };
   }
@@ -42,7 +45,9 @@ export class AuthController {
   @Post('forgot-password')
   async forgotPassword(@Body() body: { email: string }) {
     await this.authService.forgotPassword(body.email);
-    return { data: { message: 'If that email exists, a reset link has been sent' } };
+    return {
+      data: { message: 'If that email exists, a reset link has been sent' },
+    };
   }
 
   @Public()

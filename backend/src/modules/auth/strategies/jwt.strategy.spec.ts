@@ -21,7 +21,11 @@ describe('JwtStrategy', () => {
 
   describe('validate()', () => {
     it('returns the decoded sub, email, roles payload for a valid token', async () => {
-      const payload = { sub: 'user-1', email: 'test@example.com', roles: ['admin'] };
+      const payload = {
+        sub: 'user-1',
+        email: 'test@example.com',
+        roles: ['admin'],
+      };
 
       const result = await strategy.validate(payload);
 
