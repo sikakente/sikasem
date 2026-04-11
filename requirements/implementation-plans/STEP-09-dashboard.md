@@ -232,7 +232,30 @@ export const dashboardApi = {
 12. Build Product Profitability drilldown
 13. Test on a real device with data from previous steps
 
+## Navigation Update
+
+No new tab is added. The existing `index` tab (labelled "Home" since STEP-04b) is upgraded to show the real Dashboard built in this step.
+
+Update `mobile/src/app/(app)/_layout.tsx` — change the `index` tab title and icon:
+
+```tsx
+<Tabs.Screen
+  name="index"
+  options={{
+    title: 'Dashboard',
+    tabBarIcon: ({ color, size }) => (
+      <TabIcon name="grid-outline" color={color} size={size} />
+    ),
+  }}
+/>
+```
+
+After this step the tab bar reads: **Dashboard · Suppliers · Products · Inventory · Purchasing · Shipments · Receiving · POS · Sales · FX · Invoices**
+
+---
+
 ## Acceptance Criteria
+- The Dashboard tab label and icon have been updated from "Home" to "Dashboard" with a grid icon
 - `GET /dashboard/summary` returns in <500ms and includes all KPI sections
 - Revenue figures match the sum of `sales.total_ghs` for the selected period
 - Low stock count matches products where `inventory_balances.quantity_available < products.minimum_stock_threshold`

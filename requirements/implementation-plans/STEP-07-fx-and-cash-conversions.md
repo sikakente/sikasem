@@ -168,7 +168,28 @@ export const fxApi = {
 12. Update POS Payment screen (STEP-06) to pre-populate FX rate from `GET /fx/latest-rate`
 13. Run `npm test` — all FX unit tests must pass
 
+## Navigation Update
+
+Update `mobile/src/app/(app)/_layout.tsx` — add the FX tab after the Sales entry:
+
+```tsx
+<Tabs.Screen
+  name="fx"
+  options={{
+    title: 'FX',
+    tabBarIcon: ({ color, size }) => (
+      <TabIcon name="cash-outline" color={color} size={size} />
+    ),
+  }}
+/>
+```
+
+After this step the tab bar reads: **Home · Suppliers · Products · Inventory · Purchasing · Shipments · Receiving · POS · Sales · FX**
+
+---
+
 ## Acceptance Criteria
+- Tapping the FX tab navigates to the FX Overview screen
 - `GET /fx/summary` returns accurate purchase/sale/conversion totals based on existing records
 - FX gain/loss calculation is correct: `actualGbpReceived - expectedGbpFromSales`
 - Creating a cash conversion creates both a `cash_conversions` row and an `fx_records` row with `event_type: 'conversion'`

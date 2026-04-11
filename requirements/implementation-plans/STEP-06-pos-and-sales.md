@@ -292,7 +292,38 @@ export const customersApi = {
 12. Build Customer CRUD screens
 13. Test full end-to-end POS flow on device: scan items → payment → receipt
 
+## Navigation Update
+
+Update `mobile/src/app/(app)/_layout.tsx` — add POS and Sales tabs after the Receiving entry:
+
+```tsx
+<Tabs.Screen
+  name="pos"
+  options={{
+    title: 'POS',
+    tabBarIcon: ({ color, size }) => (
+      <TabIcon name="storefront-outline" color={color} size={size} />
+    ),
+  }}
+/>
+<Tabs.Screen
+  name="sales"
+  options={{
+    title: 'Sales',
+    tabBarIcon: ({ color, size }) => (
+      <TabIcon name="receipt-outline" color={color} size={size} />
+    ),
+  }}
+/>
+```
+
+After this step the tab bar reads: **Home · Suppliers · Products · Inventory · Purchasing · Shipments · Receiving · POS · Sales**
+
+---
+
 ## Acceptance Criteria
+- Tapping the POS tab from any screen navigates to the POS cart screen
+- Tapping the Sales tab navigates to the Sales History list screen
 - `POST /sales` atomically deducts stock, creates FX record, and generates receipt PDF in one transaction
 - If any item is out of stock, the entire sale is rejected with a clear error message
 - Completed sale is immediately visible in sales history

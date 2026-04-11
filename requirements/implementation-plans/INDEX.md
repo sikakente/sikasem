@@ -14,6 +14,7 @@ Each document below covers one implementation session. Work through them in orde
 | 02 | [STEP-02-suppliers-and-products.md](./STEP-02-suppliers-and-products.md) | Supplier CRUD, product catalogue, barcode scanning, AuditService | STEP-00, 01 |
 | 03 | [STEP-03-purchasing-and-inventory.md](./STEP-03-purchasing-and-inventory.md) | Purchase orders, **inventory movement engine** (central), FX at purchase, inventory screens | STEP-00–02 |
 | 04 | [STEP-04-shipments.md](./STEP-04-shipments.md) | Shipment lifecycle, stock allocation and dispatch, shipping costs, status history | STEP-00–03 |
+| 04b | [STEP-04b-navigation-scaffold.md](./STEP-04b-navigation-scaffold.md) | Bottom tab bar covering all STEP-00–04 features; grows with each subsequent step | STEP-00–04 |
 | 05 | [STEP-05-receiving.md](./STEP-05-receiving.md) | Ghana receiving workflow, discrepancy tracking, transit time locking | STEP-00–01, 03–04 |
 | 06 | [STEP-06-pos-and-sales.md](./STEP-06-pos-and-sales.md) | POS checkout, cart, payments, FX at sale, receipt PDF, void, sales history, customers | STEP-00–03, 05 |
 | 07 | [STEP-07-fx-and-cash-conversions.md](./STEP-07-fx-and-cash-conversions.md) | FX overview, GHS→GBP conversion, gain/loss calculations | STEP-00–01, 03, 06 |
@@ -46,7 +47,7 @@ STEP-03's `InventoryService.recordMovement()` is the single most critical method
 
 ## Total Scope
 
-- **14 implementation sessions**
+- **15 implementation sessions**
 - **~236 files** created across backend and mobile
 - **Backend**: 19 NestJS modules, 37 Prisma tables, REST API under `/api/v1`
 - **Frontend**: 32 screens, Expo Router file-based navigation, Zustand state management

@@ -162,7 +162,28 @@ export const receivingApi = {
 10. Run `npm test` — all receiving unit tests must pass before building frontend
 11. Test full flow: dispatch shipment in STEP-04 → queue shows it → receive it → Ghana stock increases
 
+## Navigation Update
+
+Update `mobile/src/app/(app)/_layout.tsx` — add the Receiving tab after the Shipments entry:
+
+```tsx
+<Tabs.Screen
+  name="receiving"
+  options={{
+    title: 'Receiving',
+    tabBarIcon: ({ color, size }) => (
+      <TabIcon name="download-outline" color={color} size={size} />
+    ),
+  }}
+/>
+```
+
+After this step the tab bar reads: **Home · Suppliers · Products · Inventory · Purchasing · Shipments · Receiving**
+
+---
+
 ## Acceptance Criteria
+- Tapping the Receiving tab from any other tab navigates to the Receiving Queue screen
 - Submitting a receiving record atomically creates all movement records and updates shipment status in one transaction
 - Ghana `inventory_balances` shows the received quantity after submit
 - UK/transit `inventory_balances` is reduced by the full shipped quantity (received + damaged + lost)
