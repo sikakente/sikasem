@@ -21,16 +21,16 @@ export enum ShipmentCostType {
 export class CreateShipmentCostDto {
   @ApiProperty({ enum: ShipmentCostType })
   @IsEnum(ShipmentCostType)
-  costType: ShipmentCostType;
+  costType!: ShipmentCostType;
 
   @ApiProperty()
   @IsNumber()
   @IsPositive()
-  amountGbp: number;
+  amountGbp!: number;
 
   @ApiProperty()
   @IsDateString()
-  costDate: string;
+  costDate!: string;
 
   @ApiPropertyOptional()
   @IsOptional()

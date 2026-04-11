@@ -11,7 +11,7 @@ export class CreateShipmentDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  shipmentReference: string;
+  shipmentReference!: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -20,11 +20,11 @@ export class CreateShipmentDto {
 
   @ApiProperty()
   @IsUUID()
-  originLocationId: string;
+  originLocationId!: string;
 
   @ApiProperty()
   @IsUUID()
-  destinationLocationId: string;
+  destinationLocationId!: string;
 
   @ApiPropertyOptional()
   @IsOptional()
