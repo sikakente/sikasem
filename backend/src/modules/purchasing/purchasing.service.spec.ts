@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common';
 import { PurchasingService } from './purchasing.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { InventoryService } from '../inventory/inventory.service';
@@ -50,8 +50,8 @@ describe('PurchasingService', () => {
   let service: PurchasingService;
   let prisma: any;
   let inventoryService: any;
-  let locationsService: any;
-  let auditService: any;
+  let _locationsService: any;
+  let _auditService: any;
 
   beforeEach(async () => {
     const mockPrisma: any = {
@@ -61,7 +61,9 @@ describe('PurchasingService', () => {
         findMany: jest.fn().mockResolvedValue([]),
         count: jest.fn().mockResolvedValue(0),
         create: jest.fn().mockResolvedValue(mockPurchaseOrder),
-        update: jest.fn().mockResolvedValue({ ...mockPurchaseOrder, status: 'confirmed' }),
+        update: jest
+          .fn()
+          .mockResolvedValue({ ...mockPurchaseOrder, status: 'confirmed' }),
       },
       purchaseOrderItem: {
         createMany: jest.fn().mockResolvedValue({ count: 2 }),
@@ -77,7 +79,9 @@ describe('PurchasingService', () => {
     };
 
     const mockLocationsService = {
-      getUkWarehouse: jest.fn().mockResolvedValue({ id: 'uk-loc-1', name: 'UK Warehouse' }),
+      getUkWarehouse: jest
+        .fn()
+        .mockResolvedValue({ id: 'uk-loc-1', name: 'UK Warehouse' }),
     };
 
     const mockAuditService = {
@@ -97,14 +101,16 @@ describe('PurchasingService', () => {
     service = module.get<PurchasingService>(PurchasingService);
     prisma = mockPrisma;
     inventoryService = mockInventoryService;
-    locationsService = mockLocationsService;
-    auditService = mockAuditService;
+    _locationsService = mockLocationsService;
+    _auditService = mockAuditService;
   });
 
   it('confirm() calls InventoryService.recordMovement() once per purchase order item with movementType purchase_in', async () => {
     await service.confirm('po-1', 'user-1');
 
-    expect(inventoryService.recordMovement).toHaveBeenCalledTimes(mockPurchaseOrder.items.length);
+    expect(inventoryService.recordMovement).toHaveBeenCalledTimes(
+      mockPurchaseOrder.items.length,
+    );
 
     for (const item of mockPurchaseOrder.items) {
       expect(inventoryService.recordMovement).toHaveBeenCalledWith(
@@ -121,7 +127,9 @@ describe('PurchasingService', () => {
   it('confirm() creates an fx_records row for each item with eventType purchase', async () => {
     await service.confirm('po-1', 'user-1');
 
-    expect(prisma.fxRecord.create).toHaveBeenCalledTimes(mockPurchaseOrder.items.length);
+    expect(prisma.fxRecord.create).toHaveBeenCalledTimes(
+      mockPurchaseOrder.items.length,
+    );
 
     for (const item of mockPurchaseOrder.items) {
       expect(prisma.fxRecord.create).toHaveBeenCalledWith(
@@ -150,12 +158,16 @@ describe('PurchasingService', () => {
   });
 
   it('confirm() rolls back the entire transaction if any step fails', async () => {
-    inventoryService.recordMovement.mockRejectedValueOnce(new Error('DB error'));
+    inventoryService.recordMovement.mockRejectedValueOnce(
+      new Error('DB error'),
+    );
 
     // Make $transaction actually throw when the callback throws
-    prisma.$transaction.mockImplementationOnce(async (cb: (client: any) => any) => {
-      return cb(prisma);
-    });
+    prisma.$transaction.mockImplementationOnce(
+      async (cb: (client: any) => any) => {
+        return cb(prisma);
+      },
+    );
 
     await expect(service.confirm('po-1', 'user-1')).rejects.toThrow('DB error');
 
@@ -169,6 +181,8 @@ describe('PurchasingService', () => {
       status: 'confirmed',
     });
 
-    await expect(service.confirm('po-1', 'user-1')).rejects.toThrow(ConflictException);
+    await expect(service.confirm('po-1', 'user-1')).rejects.toThrow(
+      ConflictException,
+    );
   });
 });

@@ -1,11 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import {
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { useEffect, useState } from 'react';
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 
 interface BarcodeScannerProps {
@@ -15,7 +9,12 @@ interface BarcodeScannerProps {
   mode?: 'modal' | 'inline';
 }
 
-export function BarcodeScanner({ onScanned, onClose, visible, mode = 'modal' }: BarcodeScannerProps) {
+export function BarcodeScanner({
+  onScanned,
+  onClose,
+  visible,
+  mode = 'modal',
+}: BarcodeScannerProps) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
 
@@ -95,7 +94,12 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   text: { color: '#fff', fontSize: 16, textAlign: 'center', marginBottom: 16 },
-  button: { backgroundColor: '#2563eb', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
+  button: {
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
   buttonText: { color: '#fff', fontSize: 15, fontWeight: '600' },
   cameraContainer: { flex: 1 },
   overlay: { ...StyleSheet.absoluteFillObject },
@@ -128,5 +132,10 @@ const styles = StyleSheet.create({
   cornerTL: { top: 0, left: 0, borderTopWidth: CORNER_WIDTH, borderLeftWidth: CORNER_WIDTH },
   cornerTR: { top: 0, right: 0, borderTopWidth: CORNER_WIDTH, borderRightWidth: CORNER_WIDTH },
   cornerBL: { bottom: 0, left: 0, borderBottomWidth: CORNER_WIDTH, borderLeftWidth: CORNER_WIDTH },
-  cornerBR: { bottom: 0, right: 0, borderBottomWidth: CORNER_WIDTH, borderRightWidth: CORNER_WIDTH },
+  cornerBR: {
+    bottom: 0,
+    right: 0,
+    borderBottomWidth: CORNER_WIDTH,
+    borderRightWidth: CORNER_WIDTH,
+  },
 });

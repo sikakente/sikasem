@@ -10,7 +10,6 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { purchasingApi } from '../../../lib/api/purchasing.api';
@@ -100,14 +99,23 @@ export default function NewPurchaseScreen() {
     purchaseDate: purchaseDate.trim(),
     notes: notes.trim() || undefined,
     status,
-    items: items.map(({ productId, quantity, unitCostGbp, fxRatePurchase, totalCostGbp, totalCostGhsEquivalent }) => ({
-      productId,
-      quantity,
-      unitCostGbp,
-      fxRatePurchase,
-      totalCostGbp,
-      totalCostGhsEquivalent,
-    })),
+    items: items.map(
+      ({
+        productId,
+        quantity,
+        unitCostGbp,
+        fxRatePurchase,
+        totalCostGbp,
+        totalCostGhsEquivalent,
+      }) => ({
+        productId,
+        quantity,
+        unitCostGbp,
+        fxRatePurchase,
+        totalCostGbp,
+        totalCostGhsEquivalent,
+      }),
+    ),
   });
 
   const validate = (): boolean => {
@@ -197,7 +205,10 @@ export default function NewPurchaseScreen() {
           <Text style={styles.sectionTitle}>Line Items</Text>
           <TouchableOpacity
             style={styles.addItemBtn}
-            onPress={() => { resetAddItemForm(); setShowAddItem(true); }}
+            onPress={() => {
+              resetAddItemForm();
+              setShowAddItem(true);
+            }}
           >
             <Text style={styles.addItemBtnText}>+ Add Item</Text>
           </TouchableOpacity>
@@ -213,7 +224,8 @@ export default function NewPurchaseScreen() {
               <View style={styles.lineItemInfo}>
                 <Text style={styles.lineItemProduct}>{item.productId}</Text>
                 <Text style={styles.lineItemDetail}>
-                  Qty: {item.quantity} × £{item.unitCostGbp.toFixed(2)} = £{item.totalCostGbp.toFixed(2)}
+                  Qty: {item.quantity} × £{item.unitCostGbp.toFixed(2)} = £
+                  {item.totalCostGbp.toFixed(2)}
                 </Text>
                 <Text style={styles.lineItemDetail}>
                   FX: {item.fxRatePurchase} | GHS: ₵{item.totalCostGhsEquivalent.toFixed(2)}
@@ -278,9 +290,7 @@ export default function NewPurchaseScreen() {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Add Line Item</Text>
 
-            {addItemError && (
-              <Text style={styles.modalError}>{addItemError}</Text>
-            )}
+            {addItemError && <Text style={styles.modalError}>{addItemError}</Text>}
 
             <Text style={styles.label}>Product ID</Text>
             <TextInput
@@ -325,10 +335,16 @@ export default function NewPurchaseScreen() {
             {newQuantity && newUnitCost && newFxRate && (
               <View style={styles.calcPreview}>
                 <Text style={styles.calcText}>
-                  Total GBP: £{(parseFloat(newQuantity || '0') * parseFloat(newUnitCost || '0')).toFixed(2)}
+                  Total GBP: £
+                  {(parseFloat(newQuantity || '0') * parseFloat(newUnitCost || '0')).toFixed(2)}
                 </Text>
                 <Text style={styles.calcText}>
-                  GHS equiv: ₵{(parseFloat(newQuantity || '0') * parseFloat(newUnitCost || '0') * parseFloat(newFxRate || '0')).toFixed(2)}
+                  GHS equiv: ₵
+                  {(
+                    parseFloat(newQuantity || '0') *
+                    parseFloat(newUnitCost || '0') *
+                    parseFloat(newFxRate || '0')
+                  ).toFixed(2)}
                 </Text>
               </View>
             )}
@@ -336,7 +352,10 @@ export default function NewPurchaseScreen() {
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={styles.modalCancelBtn}
-                onPress={() => { resetAddItemForm(); setShowAddItem(false); }}
+                onPress={() => {
+                  resetAddItemForm();
+                  setShowAddItem(false);
+                }}
               >
                 <Text style={styles.modalCancelText}>Cancel</Text>
               </TouchableOpacity>

@@ -19,7 +19,14 @@ export class ProductsService {
   ) {}
 
   async findAll(query: ProductQueryDto) {
-    const { page = 1, limit = 20, search, categoryId, isActive, lowStock } = query;
+    const {
+      page = 1,
+      limit = 20,
+      search,
+      categoryId,
+      isActive,
+      lowStock,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {};
@@ -36,7 +43,7 @@ export class ProductsService {
       // Products where any balance location has stock below threshold
       // We filter via a raw subquery approach using a nested filter
       where.AND = [
-        ...(where.AND as unknown[] ?? []),
+        ...((where.AND as unknown[]) ?? []),
         {
           inventoryBalances: {
             some: {
@@ -85,7 +92,8 @@ export class ProductsService {
       product = extra?.product ?? null;
     }
 
-    if (!product) throw new NotFoundException(`Product with barcode ${barcode} not found`);
+    if (!product)
+      throw new NotFoundException(`Product with barcode ${barcode} not found`);
     return product;
   }
 
@@ -131,7 +139,7 @@ export class ProductsService {
 
   async update(id: string, dto: UpdateProductDto, userId: string) {
     const before = await this.findById(id);
-    const { additionalBarcodes, ...productData } = dto;
+    const { additionalBarcodes: _additionalBarcodes, ...productData } = dto;
 
     const product = await this.prisma.product.update({
       where: { id },
@@ -165,19 +173,33 @@ export class ProductsService {
     const [purchaseItems, shipmentItems, saleItems] = await Promise.all([
       this.prisma.purchaseOrderItem.findMany({
         where: { productId },
-        include: { purchaseOrder: { select: { referenceNo: true, purchaseDate: true, status: true } } },
+        include: {
+          purchaseOrder: {
+            select: { referenceNo: true, purchaseDate: true, status: true },
+          },
+        },
         orderBy: { purchaseOrder: { purchaseDate: 'desc' } },
         take: 20,
       }),
       this.prisma.shipmentItem.findMany({
         where: { productId },
-        include: { shipment: { select: { shipmentReference: true, dispatchDate: true, status: true } } },
+        include: {
+          shipment: {
+            select: {
+              shipmentReference: true,
+              dispatchDate: true,
+              status: true,
+            },
+          },
+        },
         orderBy: { shipment: { dispatchDate: 'desc' } },
         take: 20,
       }),
       this.prisma.saleItem.findMany({
         where: { productId },
-        include: { sale: { select: { saleReference: true, saleDatetime: true } } },
+        include: {
+          sale: { select: { saleReference: true, saleDatetime: true } },
+        },
         orderBy: { sale: { saleDatetime: 'desc' } },
         take: 20,
       }),

@@ -30,7 +30,7 @@ const makeProduct = (overrides = {}) => ({
 describe('ProductsService', () => {
   let service: ProductsService;
   let prisma: jest.Mocked<PrismaService>;
-  let audit: jest.Mocked<AuditService>;
+  let _audit: jest.Mocked<AuditService>;
 
   beforeEach(async () => {
     const mockPrisma = {
@@ -62,7 +62,7 @@ describe('ProductsService', () => {
 
     service = module.get<ProductsService>(ProductsService);
     prisma = mockPrisma as any;
-    audit = mockAudit as any;
+    _audit = mockAudit as any;
   });
 
   describe('findByBarcode()', () => {
@@ -79,7 +79,9 @@ describe('ProductsService', () => {
     it('resolves when the barcode matches a row in product_barcodes', async () => {
       const product = makeProduct({ barcode: 'other-barcode' });
       (prisma.product.findUnique as jest.Mock).mockResolvedValue(null);
-      (prisma.productBarcode.findFirst as jest.Mock).mockResolvedValue({ product });
+      (prisma.productBarcode.findFirst as jest.Mock).mockResolvedValue({
+        product,
+      });
 
       const result = await service.findByBarcode('extra-barcode');
 
@@ -90,7 +92,9 @@ describe('ProductsService', () => {
       (prisma.product.findUnique as jest.Mock).mockResolvedValue(null);
       (prisma.productBarcode.findFirst as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.findByBarcode('unknown')).rejects.toThrow(NotFoundException);
+      await expect(service.findByBarcode('unknown')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
