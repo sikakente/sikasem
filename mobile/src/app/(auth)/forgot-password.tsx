@@ -51,7 +51,7 @@ export default function ForgotPasswordScreen() {
         ) : (
           <>
             <Text style={styles.subtitle}>
-              Enter your email address and we'll send you a reset link.
+              Enter your email address and we&apos;ll send you a reset link.
             </Text>
 
             <TextInput
@@ -90,11 +90,33 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
   inner: { flex: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 40 },
-  title: { fontSize: 24, fontWeight: '700', color: '#111827', textAlign: 'center', marginBottom: 12 },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#111827',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
   subtitle: { fontSize: 14, color: '#6b7280', textAlign: 'center', marginBottom: 28 },
   successText: { fontSize: 15, color: '#059669', textAlign: 'center', marginBottom: 28 },
-  input: { height: 52, borderWidth: 1, borderColor: '#d1d5db', borderRadius: 10, paddingHorizontal: 16, fontSize: 16, color: '#111827', backgroundColor: '#fff', marginBottom: 14 },
-  button: { height: 52, backgroundColor: '#2563eb', borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  input: {
+    height: 52,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#111827',
+    backgroundColor: '#fff',
+    marginBottom: 14,
+  },
+  button: {
+    height: 52,
+    backgroundColor: '#2563eb',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   buttonDisabled: { opacity: 0.6 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   backLink: { marginTop: 18, alignItems: 'center' },

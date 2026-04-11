@@ -36,7 +36,7 @@ describe('InventoryService', () => {
   let service: InventoryService;
   let prisma: any;
   let audit: any;
-  let locations: any;
+  let _locations: any;
 
   beforeEach(async () => {
     const mockPrisma: any = {
@@ -59,7 +59,9 @@ describe('InventoryService', () => {
     };
 
     const mockLocations = {
-      findById: jest.fn().mockResolvedValue({ id: 'location-1', name: 'Test Location' }),
+      findById: jest
+        .fn()
+        .mockResolvedValue({ id: 'location-1', name: 'Test Location' }),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -74,7 +76,7 @@ describe('InventoryService', () => {
     service = module.get<InventoryService>(InventoryService);
     prisma = mockPrisma;
     audit = mockAudit;
-    locations = mockLocations;
+    _locations = mockLocations;
   });
 
   describe('recordMovement', () => {
@@ -117,13 +119,20 @@ describe('InventoryService', () => {
 
       expect(prisma.inventoryBalance.upsert).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { productId_locationId: { productId: 'product-1', locationId: 'location-1' } },
+          where: {
+            productId_locationId: {
+              productId: 'product-1',
+              locationId: 'location-1',
+            },
+          },
         }),
       );
     });
 
     it('throws ConflictException when deducting more than quantity_available and allowNegative is false', async () => {
-      prisma.inventoryBalance.findUnique.mockResolvedValue(makeBalance({ quantityAvailable: 5 }));
+      prisma.inventoryBalance.findUnique.mockResolvedValue(
+        makeBalance({ quantityAvailable: 5 }),
+      );
 
       await expect(
         service.recordMovement({
@@ -138,7 +147,9 @@ describe('InventoryService', () => {
     });
 
     it('allows deduction below zero when allowNegative is true', async () => {
-      prisma.inventoryBalance.findUnique.mockResolvedValue(makeBalance({ quantityAvailable: 5 }));
+      prisma.inventoryBalance.findUnique.mockResolvedValue(
+        makeBalance({ quantityAvailable: 5 }),
+      );
 
       await expect(
         service.recordMovement({
@@ -153,7 +164,9 @@ describe('InventoryService', () => {
     });
 
     it('allocate_shipment decrements quantity_available but NOT quantity_on_hand', async () => {
-      prisma.inventoryBalance.findUnique.mockResolvedValue(makeBalance({ quantityAvailable: 50 }));
+      prisma.inventoryBalance.findUnique.mockResolvedValue(
+        makeBalance({ quantityAvailable: 50 }),
+      );
 
       await service.recordMovement({
         productId: 'product-1',
@@ -192,15 +205,25 @@ describe('InventoryService', () => {
 
     it('uses passed-in tx client instead of opening new $transaction when tx is provided', async () => {
       const txClient = {
-        inventoryMovement: { create: jest.fn().mockResolvedValue({ id: 'move-1' }) },
+        inventoryMovement: {
+          create: jest.fn().mockResolvedValue({ id: 'move-1' }),
+        },
         inventoryBalance: {
-          findUnique: jest.fn().mockResolvedValue({ quantityAvailable: new Prisma.Decimal(100) }),
+          findUnique: jest
+            .fn()
+            .mockResolvedValue({ quantityAvailable: new Prisma.Decimal(100) }),
           upsert: jest.fn().mockResolvedValue({}),
         },
       } as unknown as Prisma.TransactionClient;
 
       await service.recordMovement(
-        { productId: 'p1', movementType: 'dispatch', quantity: 5, fromLocationId: 'loc-1', createdBy: 'u1' },
+        {
+          productId: 'p1',
+          movementType: 'dispatch',
+          quantity: 5,
+          fromLocationId: 'loc-1',
+          createdBy: 'u1',
+        },
         txClient,
       );
 

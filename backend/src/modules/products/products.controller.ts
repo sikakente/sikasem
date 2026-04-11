@@ -13,7 +13,6 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductQueryDto } from './dto/product-query.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Public } from '../auth/decorators/public.decorator';
 
 import { ApiBearerAuth } from '@nestjs/swagger';
 
@@ -30,7 +29,10 @@ export class ProductsController {
 
   @Post()
   @Roles('admin', 'operations')
-  create(@Body() dto: CreateProductDto, @Request() req: { user: { sub: string } }) {
+  create(
+    @Body() dto: CreateProductDto,
+    @Request() req: { user: { sub: string } },
+  ) {
     return this.productsService.create(dto, req.user.sub);
   }
 

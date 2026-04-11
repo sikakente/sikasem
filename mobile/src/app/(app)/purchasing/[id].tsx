@@ -6,9 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  Alert,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { purchasingApi } from '../../../lib/api/purchasing.api';
 
 interface PurchaseLineItem {
@@ -32,7 +31,6 @@ interface PurchaseOrder {
 
 export default function PurchaseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
   const [order, setOrder] = useState<PurchaseOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
@@ -73,7 +71,8 @@ export default function PurchaseDetailScreen() {
   };
 
   const totalGbp = order?.items?.reduce((sum, item) => sum + (item.totalCostGbp || 0), 0) ?? 0;
-  const totalGhs = order?.items?.reduce((sum, item) => sum + (item.totalCostGhsEquivalent || 0), 0) ?? 0;
+  const totalGhs =
+    order?.items?.reduce((sum, item) => sum + (item.totalCostGhsEquivalent || 0), 0) ?? 0;
 
   if (loading) {
     return (
@@ -88,7 +87,13 @@ export default function PurchaseDetailScreen() {
       <View style={styles.centered}>
         <Text style={styles.errorTitle}>Something went wrong</Text>
         <Text style={styles.errorSubtitle}>{error}</Text>
-        <TouchableOpacity style={styles.retryBtn} onPress={() => { setLoading(true); fetchOrder().finally(() => setLoading(false)); }}>
+        <TouchableOpacity
+          style={styles.retryBtn}
+          onPress={() => {
+            setLoading(true);
+            fetchOrder().finally(() => setLoading(false));
+          }}
+        >
           <Text style={styles.retryBtnText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -116,7 +121,12 @@ export default function PurchaseDetailScreen() {
       {/* Status Badge */}
       <View style={styles.statusRow}>
         <View style={[styles.badge, isConfirmed ? styles.badgeConfirmed : styles.badgeDraft]}>
-          <Text style={[styles.badgeText, isConfirmed ? styles.badgeTextConfirmed : styles.badgeTextDraft]}>
+          <Text
+            style={[
+              styles.badgeText,
+              isConfirmed ? styles.badgeTextConfirmed : styles.badgeTextDraft,
+            ]}
+          >
             {order.status}
           </Text>
         </View>
@@ -151,7 +161,9 @@ export default function PurchaseDetailScreen() {
       <View style={styles.tableCard}>
         {/* Table Header */}
         <View style={[styles.tableRow, styles.tableHeader]}>
-          <Text style={[styles.tableCell, styles.tableHeaderText, styles.cellProduct]}>Product</Text>
+          <Text style={[styles.tableCell, styles.tableHeaderText, styles.cellProduct]}>
+            Product
+          </Text>
           <Text style={[styles.tableCell, styles.tableHeaderText, styles.cellQty]}>Qty</Text>
           <Text style={[styles.tableCell, styles.tableHeaderText, styles.cellGbp]}>Unit £</Text>
           <Text style={[styles.tableCell, styles.tableHeaderText, styles.cellGbp]}>Total £</Text>
@@ -168,9 +180,15 @@ export default function PurchaseDetailScreen() {
                 {item.productId}
               </Text>
               <Text style={[styles.tableCell, styles.cellQty]}>{item.quantity}</Text>
-              <Text style={[styles.tableCell, styles.cellGbp]}>£{(item.unitCostGbp || 0).toFixed(2)}</Text>
-              <Text style={[styles.tableCell, styles.cellGbp]}>£{(item.totalCostGbp || 0).toFixed(2)}</Text>
-              <Text style={[styles.tableCell, styles.cellGhs]}>₵{(item.totalCostGhsEquivalent || 0).toFixed(2)}</Text>
+              <Text style={[styles.tableCell, styles.cellGbp]}>
+                £{(item.unitCostGbp || 0).toFixed(2)}
+              </Text>
+              <Text style={[styles.tableCell, styles.cellGbp]}>
+                £{(item.totalCostGbp || 0).toFixed(2)}
+              </Text>
+              <Text style={[styles.tableCell, styles.cellGhs]}>
+                ₵{(item.totalCostGhsEquivalent || 0).toFixed(2)}
+              </Text>
             </View>
           ))
         ) : (
