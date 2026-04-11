@@ -24,7 +24,7 @@ npm run build              # Compile to dist/
 npx prisma generate        # Regenerate Prisma client after schema changes
 npx prisma migrate dev     # Create + apply a new migration
 npx prisma migrate deploy  # Apply migrations (production)
-ts-node prisma/seed.ts     # Seed roles, permissions, admin user, warehouse locations
+npx prisma db seed         # Seed roles, permissions, and warehouse locations (no admin user)
 npx tsc --noEmit           # Type-check without emitting
 ```
 
@@ -108,7 +108,7 @@ Extend `PaginationDto` (`src/common/dto/pagination.dto.ts`) for any paginated qu
 
 Expo Router file-based routing under `src/app/`:
 - `(auth)/` — login, forgot-password, reset-password (redirects to `(app)` if authenticated)
-- `(app)/` — all authenticated screens
+- `(app)/` — all authenticated screens: dashboard (index), inventory, products, purchasing, shipments, suppliers
 
 Session is restored from `expo-secure-store` on app boot in `src/app/_layout.tsx`. Navigation guards live there, not in individual screens.
 
@@ -116,12 +116,13 @@ Session is restored from `expo-secure-store` on app boot in `src/app/_layout.tsx
 
 - `src/store/auth.store.ts` — Zustand; holds `accessToken`, `user`, `isAuthenticated`; refresh token persisted in SecureStore
 - `src/store/inventory.store.ts` — Zustand; holds `balances` and `lowStockCount` for dashboard use
+- `src/store/shipments.store.ts` — Zustand; holds shipment list and active shipment detail
 
 ### API client
 
 `src/lib/api/client.ts` — axios instance with base URL `/api/v1`, attaches Bearer token from auth store, auto-refreshes on 401 with queued retry.
 
-Feature API modules in `src/lib/api/` follow the pattern:
+Feature API modules in `src/lib/api/` (auth, inventory, products, purchasing, shipments, suppliers) follow the pattern:
 ```typescript
 export const featureApi = {
   list: (params?) => client.get('/resource', { params }),
@@ -146,6 +147,6 @@ Fix all reported errors before committing. Do not use `--no-verify` to bypass ch
 
 ## Implementation Plans
 
-Step-by-step plans for the full build live in `requirements/implementation-plans/`. Each STEP document contains exact file paths, key decisions, acceptance criteria, and unit test specifications. Completed steps: STEP-00 through STEP-03.
+Step-by-step plans for the full build live in `requirements/implementation-plans/`. Each STEP document contains exact file paths, key decisions, acceptance criteria, and unit test specifications. Completed steps: STEP-00 through STEP-04.
 
 When implementing a step, reference the plan file and the schema at `requirements/grocery_export_database_schema.md`.
