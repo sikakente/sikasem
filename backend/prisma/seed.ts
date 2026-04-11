@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -60,33 +59,6 @@ async function main() {
     }
   }
 
-  // Create default admin user
-  console.log('Creating default admin user...');
-  const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@exportapp.local';
-  const adminPassword = process.env.ADMIN_PASSWORD ?? 'Admin1234!';
-  const passwordHash = await bcrypt.hash(adminPassword, 12);
-
-  const adminUser = await prisma.user.upsert({
-    where: { email: adminEmail },
-    update: {},
-    create: {
-      fullName: 'System Admin',
-      email: adminEmail,
-      passwordHash,
-      isActive: true,
-    },
-  });
-
-  if (adminRole) {
-    await prisma.userRole.upsert({
-      where: {
-        userId_roleId: { userId: adminUser.id, roleId: adminRole.id },
-      },
-      update: {},
-      create: { userId: adminUser.id, roleId: adminRole.id },
-    });
-  }
-
   // Seed locations
   console.log('Seeding locations...');
   const LOCATIONS = [
@@ -106,7 +78,6 @@ async function main() {
   }
 
   console.log('Seed complete.');
-  console.log(`Admin user created: ${adminEmail}`);
 }
 
 main()
