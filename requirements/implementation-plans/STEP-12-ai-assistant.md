@@ -312,7 +312,28 @@ export const aiApi = {
 11. Build AI Chat screen — test the full conversation flow on device
 12. Test on device: ask a real question about test data and verify the answer cites actual numbers
 
+## Navigation Update
+
+Update `mobile/src/app/(app)/_layout.tsx` — add the AI tab after the Alerts entry:
+
+```tsx
+<Tabs.Screen
+  name="ai"
+  options={{
+    title: 'AI',
+    tabBarIcon: ({ color, size }) => (
+      <TabIcon name="chatbubble-ellipses-outline" color={color} size={size} />
+    ),
+  }}
+/>
+```
+
+After this step the tab bar reads: **Dashboard · Suppliers · Products · Inventory · Purchasing · Shipments · Receiving · POS · Sales · FX · Invoices · Reports · Alerts · AI**
+
+---
+
 ## Acceptance Criteria
+- Tapping the AI tab navigates to the AI Chat screen
 - `POST /ai/chat` invokes the Claude tool-use loop and returns a structured response
 - Claude only answers with data returned by the tools — if tools return empty, Claude says so
 - Response parsing correctly separates internal_data, external_trend, recommendation, risk, and opportunity sections

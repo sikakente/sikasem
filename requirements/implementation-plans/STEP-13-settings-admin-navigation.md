@@ -1,7 +1,7 @@
 # STEP-13: Settings, Admin, Audit Logs, and App Navigation Shell
 
 ## Goal
-Complete the application: persistent navigation shell with role-based tab visibility, Settings screens, User Management screens, Audit Log viewer, and Business Profile configuration. After this step the app is a fully navigable, production-ready product with every screen connected.
+Complete the application: upgrade the existing navigation shell (added in STEP-04b) with role-based tab visibility, add Settings screens, User Management screens, Audit Log viewer, and Business Profile configuration. After this step the app is a fully navigable, production-ready product with every screen role-filtered and connected.
 
 ## Prerequisites
 - All prior steps (STEP-00 through STEP-12)
@@ -279,7 +279,7 @@ export const adminApi = {
 6. Write unit tests for `usePermissions` hook first (covering all roles × modules), then implement until all pass
 7. Build `TabBar` component with role filtering — test on device with each role type
 8. Build `QuickActions` component — verify role-gated visibility
-9. Build `(app)/_layout.tsx` with tab bar and role-based routing
+9. Upgrade `(app)/_layout.tsx` — wrap each `<Tabs.Screen>` with role-based visibility using the `usePermissions` hook; add the Settings tab; collapse overflow tabs into the "More" menu
 10. Build More screen module grid
 11. Build Settings Home screen
 12. Build Business Profile screen — test logo upload and form save

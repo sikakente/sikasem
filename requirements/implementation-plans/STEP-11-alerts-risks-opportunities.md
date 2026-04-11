@@ -230,7 +230,28 @@ export const alertsApi = {
 14. Run `npm test` — all alert deduplication, rule, and detection unit tests must pass
 15. Test email notification for high-severity alert via SES in a staging environment
 
+## Navigation Update
+
+Update `mobile/src/app/(app)/_layout.tsx` — add the Alerts tab after the Reports entry:
+
+```tsx
+<Tabs.Screen
+  name="alerts"
+  options={{
+    title: 'Alerts',
+    tabBarIcon: ({ color, size }) => (
+      <TabIcon name="notifications-outline" color={color} size={size} />
+    ),
+  }}
+/>
+```
+
+After this step the tab bar reads: **Dashboard · Suppliers · Products · Inventory · Purchasing · Shipments · Receiving · POS · Sales · FX · Invoices · Reports · Alerts**
+
+---
+
 ## Acceptance Criteria
+- Tapping the Alerts tab navigates to the Alerts List screen
 - Low-stock alert is created when a product's available quantity drops below its threshold
 - Shipment-delay alert is created for shipments past their expected arrival date
 - Alert deduplication: running the job twice for the same condition creates only one open alert

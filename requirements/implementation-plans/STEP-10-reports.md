@@ -230,7 +230,28 @@ export const reportsApi = {
 12. Run `npm test` — all exporter and profitability report unit tests must pass
 13. Test the Profitability report with real data from previous steps — verify margin calculations match unit test expectations
 
+## Navigation Update
+
+Update `mobile/src/app/(app)/_layout.tsx` — add the Reports tab after the Invoices entry:
+
+```tsx
+<Tabs.Screen
+  name="reports"
+  options={{
+    title: 'Reports',
+    tabBarIcon: ({ color, size }) => (
+      <TabIcon name="bar-chart-outline" color={color} size={size} />
+    ),
+  }}
+/>
+```
+
+After this step the tab bar reads: **Dashboard · Suppliers · Products · Inventory · Purchasing · Shipments · Receiving · POS · Sales · FX · Invoices · Reports**
+
+---
+
 ## Acceptance Criteria
+- Tapping the Reports tab navigates to the Reports Home screen
 - All 8 report types return data matching the underlying database records
 - CSV, XLSX, and PDF exports download correctly on the device
 - Profitability report landed cost calculation is correct for a known test case

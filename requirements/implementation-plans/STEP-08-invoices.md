@@ -192,7 +192,28 @@ export const receiptsApi = {
 13. Run `npm test` — all PDF service and invoices unit tests must pass
 14. End-to-end test: create a wholesale customer → complete a sale → generate invoice from sale → download PDF
 
+## Navigation Update
+
+Update `mobile/src/app/(app)/_layout.tsx` — add the Invoices tab after the FX entry:
+
+```tsx
+<Tabs.Screen
+  name="invoices"
+  options={{
+    title: 'Invoices',
+    tabBarIcon: ({ color, size }) => (
+      <TabIcon name="document-text-outline" color={color} size={size} />
+    ),
+  }}
+/>
+```
+
+After this step the tab bar reads: **Home · Suppliers · Products · Inventory · Purchasing · Shipments · Receiving · POS · Sales · FX · Invoices**
+
+---
+
 ## Acceptance Criteria
+- Tapping the Invoices tab navigates to the Invoice List screen
 - `POST /invoices` with a `saleId` generates an invoice pre-populated with the sale's line items
 - PDF is uploaded to S3 and accessible via signed URL
 - `GET /invoices/:id/pdf` returns a signed URL that opens the PDF correctly
