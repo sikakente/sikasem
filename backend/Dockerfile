@@ -9,6 +9,7 @@ RUN npm ci
 COPY . .
 RUN npx prisma generate
 RUN npm run build
+RUN npx tsc --skipLibCheck --module commonjs --target ES2021 --esModuleInterop --outDir dist prisma/seed.ts
 
 # Stage 2: Run
 FROM node:20-alpine AS runner
@@ -26,4 +27,4 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npx ts-node --transpile-only prisma/seed.ts && node dist/src/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/prisma/seed.js && node dist/src/main"]
