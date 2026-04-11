@@ -19,14 +19,11 @@ export const authApi = {
   login: (email: string, password: string) =>
     client.post<AuthResponse>('/auth/login', { email, password }),
 
-  refresh: (refreshToken: string) =>
-    client.post<AuthResponse>('/auth/refresh', { refreshToken }),
+  refresh: (refreshToken: string) => client.post<AuthResponse>('/auth/refresh', { refreshToken }),
 
-  logout: (refreshToken: string) =>
-    client.post('/auth/logout', { refreshToken }),
+  logout: (refreshToken: string) => client.post('/auth/logout', { refreshToken }),
 
-  forgotPassword: (email: string) =>
-    client.post('/auth/forgot-password', { email }),
+  forgotPassword: (email: string) => client.post('/auth/forgot-password', { email }),
 
   resetPassword: (token: string, newPassword: string) =>
     client.post('/auth/reset-password', { token, newPassword }),

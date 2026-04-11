@@ -18,13 +18,19 @@ export class StorageService {
       region: this.configService.get<string>('AWS_REGION') ?? 'eu-west-1',
       credentials: {
         accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY_ID') ?? '',
-        secretAccessKey: this.configService.get<string>('AWS_SECRET_ACCESS_KEY') ?? '',
+        secretAccessKey:
+          this.configService.get<string>('AWS_SECRET_ACCESS_KEY') ?? '',
       },
     });
-    this.bucket = this.configService.get<string>('S3_BUCKET') ?? 'export-business-manager';
+    this.bucket =
+      this.configService.get<string>('S3_BUCKET') ?? 'export-business-manager';
   }
 
-  async uploadFile(key: string, buffer: Buffer, contentType: string): Promise<void> {
+  async uploadFile(
+    key: string,
+    buffer: Buffer,
+    contentType: string,
+  ): Promise<void> {
     await this.s3.send(
       new PutObjectCommand({
         Bucket: this.bucket,
@@ -41,6 +47,8 @@ export class StorageService {
   }
 
   async deleteFile(key: string): Promise<void> {
-    await this.s3.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
+    await this.s3.send(
+      new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
+    );
   }
 }

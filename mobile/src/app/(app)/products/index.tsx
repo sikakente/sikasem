@@ -1,13 +1,26 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator, Alert, FlatList, RefreshControl,
-  StyleSheet, Text, TextInput, TouchableOpacity, View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { productsApi } from '../../../lib/api/products.api';
 import { BarcodeScanner } from '../../../components/BarcodeScanner';
 
-interface Product { id: string; name: string; sku: string; barcode: string | null; isActive: boolean; }
+interface Product {
+  id: string;
+  name: string;
+  sku: string;
+  barcode: string | null;
+  isActive: boolean;
+}
 
 export default function ProductsScreen() {
   const router = useRouter();
@@ -29,7 +42,9 @@ export default function ProductsScreen() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleSearch = (text: string) => {
     setSearch(text);
@@ -41,7 +56,7 @@ export default function ProductsScreen() {
     setScannerOpen(false);
     try {
       const res = await productsApi.getByBarcode(barcode);
-      const product = (res.data as any);
+      const product = res.data as any;
       router.push(`/(app)/products/${product.id}`);
     } catch (err: any) {
       if (err?.response?.status === 404) {
@@ -60,7 +75,9 @@ export default function ProductsScreen() {
   const renderItem = ({ item }: { item: Product }) => (
     <TouchableOpacity style={styles.card} onPress={() => router.push(`/(app)/products/${item.id}`)}>
       <View style={styles.cardLeft}>
-        <View style={styles.imgPlaceholder}><Text style={styles.imgText}>{item.name[0]}</Text></View>
+        <View style={styles.imgPlaceholder}>
+          <Text style={styles.imgText}>{item.name[0]}</Text>
+        </View>
       </View>
       <View style={styles.cardBody}>
         <Text style={styles.cardName}>{item.name}</Text>
@@ -95,7 +112,15 @@ export default function ProductsScreen() {
           data={products}
           keyExtractor={(i) => i.id}
           renderItem={renderItem}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(search); }} />}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                load(search);
+              }}
+            />
+          }
           contentContainerStyle={styles.list}
           ListEmptyComponent={<Text style={styles.empty}>No products found</Text>}
         />
@@ -105,7 +130,11 @@ export default function ProductsScreen() {
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
-      <BarcodeScanner visible={scannerOpen} onScanned={handleBarcodeScan} onClose={() => setScannerOpen(false)} />
+      <BarcodeScanner
+        visible={scannerOpen}
+        onScanned={handleBarcodeScan}
+        onClose={() => setScannerOpen(false)}
+      />
     </View>
   );
 }
@@ -113,23 +142,77 @@ export default function ProductsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
   searchRow: { flexDirection: 'row', margin: 16, gap: 8 },
-  searchInput: { flex: 1, height: 44, borderWidth: 1, borderColor: '#d1d5db', borderRadius: 10, paddingHorizontal: 14, backgroundColor: '#fff', color: '#111827' },
-  scanBtn: { width: 44, height: 44, borderWidth: 1, borderColor: '#d1d5db', borderRadius: 10, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  searchInput: {
+    flex: 1,
+    height: 44,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    backgroundColor: '#fff',
+    color: '#111827',
+  },
+  scanBtn: {
+    width: 44,
+    height: 44,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   scanBtnText: { fontSize: 22, color: '#374151' },
   loader: { marginTop: 40 },
   list: { padding: 16, paddingTop: 0 },
-  card: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 10, borderWidth: 1, borderColor: '#e5e7eb', flexDirection: 'row', alignItems: 'center' },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   cardLeft: { marginRight: 12 },
-  imgPlaceholder: { width: 44, height: 44, borderRadius: 8, backgroundColor: '#e0e7ff', alignItems: 'center', justifyContent: 'center' },
+  imgPlaceholder: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    backgroundColor: '#e0e7ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   imgText: { fontSize: 18, fontWeight: '700', color: '#4f46e5' },
   cardBody: { flex: 1 },
   cardName: { fontSize: 14, fontWeight: '600', color: '#111827' },
   cardSku: { fontSize: 12, color: '#6b7280' },
   cardBarcode: { fontSize: 11, color: '#9ca3af', marginTop: 2 },
-  stockBadge: { backgroundColor: '#d1fae5', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 },
+  stockBadge: {
+    backgroundColor: '#d1fae5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
   stockBadgeInactive: { backgroundColor: '#fee2e2' },
   stockBadgeText: { fontSize: 11, fontWeight: '600', color: '#065f46' },
   empty: { textAlign: 'center', marginTop: 40, color: '#9ca3af' },
-  fab: { position: 'absolute', bottom: 24, right: 24, width: 54, height: 54, borderRadius: 27, backgroundColor: '#2563eb', alignItems: 'center', justifyContent: 'center', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4 },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: '#2563eb',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
   fabText: { color: '#fff', fontSize: 28, lineHeight: 32 },
 });

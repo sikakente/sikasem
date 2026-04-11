@@ -138,16 +138,18 @@ export default function ProductStockScreen() {
     const fromName = item.fromLocation?.name || item.fromLocationId || '—';
     const toName = item.toLocation?.name || item.toLocationId || '—';
     const dateStr = item.createdAt
-      ? new Date(item.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+      ? new Date(item.createdAt).toLocaleDateString(undefined, {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })
       : 'No date';
 
     return (
       <View style={styles.movementRow}>
         <View style={styles.movementLeft}>
           <View style={[styles.typeBadge, { backgroundColor: color.bg }]}>
-            <Text style={[styles.typeBadgeText, { color: color.text }]}>
-              {item.movementType}
-            </Text>
+            <Text style={[styles.typeBadgeText, { color: color.text }]}>{item.movementType}</Text>
           </View>
           <View style={styles.movementMeta}>
             <Text style={styles.movementDate}>{dateStr}</Text>
@@ -155,14 +157,12 @@ export default function ProductStockScreen() {
               {item.movementType?.toLowerCase() === 'transfer'
                 ? `${fromName} → ${toName}`
                 : item.toLocationId
-                ? `To: ${toName}`
-                : item.fromLocationId
-                ? `From: ${fromName}`
-                : '—'}
+                  ? `To: ${toName}`
+                  : item.fromLocationId
+                    ? `From: ${fromName}`
+                    : '—'}
             </Text>
-            {item.reference ? (
-              <Text style={styles.movementRef}>Ref: {item.reference}</Text>
-            ) : null}
+            {item.reference ? <Text style={styles.movementRef}>Ref: {item.reference}</Text> : null}
           </View>
         </View>
         <Text style={styles.movementQty}>

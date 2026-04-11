@@ -55,7 +55,9 @@ describe('SuppliersService', () => {
 
   describe('findAll()', () => {
     it('returns paginated results respecting page and limit', async () => {
-      (prisma.supplier.findMany as jest.Mock).mockResolvedValue([makeSupplier()]);
+      (prisma.supplier.findMany as jest.Mock).mockResolvedValue([
+        makeSupplier(),
+      ]);
       (prisma.supplier.count as jest.Mock).mockResolvedValue(1);
 
       const result = await service.findAll({ page: 2, limit: 5 });
@@ -75,7 +77,9 @@ describe('SuppliersService', () => {
 
       expect(prisma.supplier.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: expect.objectContaining({ name: { contains: 'Tesco', mode: 'insensitive' } }),
+          where: expect.objectContaining({
+            name: { contains: 'Tesco', mode: 'insensitive' },
+          }),
         }),
       );
     });
@@ -85,7 +89,9 @@ describe('SuppliersService', () => {
     it('throws NotFoundException for an unknown ID', async () => {
       (prisma.supplier.findUnique as jest.Mock).mockResolvedValue(null);
 
-      await expect(service.findById('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.findById('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -100,7 +106,7 @@ describe('SuppliersService', () => {
       );
 
       // Let the fire-and-forget settle
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(audit.log).toHaveBeenCalledWith(
         expect.objectContaining({ actionType: 'create', userId: 'user-1' }),
@@ -117,7 +123,7 @@ describe('SuppliersService', () => {
 
       await service.update('supplier-1', { name: 'New Name' }, 'user-1');
 
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(audit.log).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -131,8 +137,12 @@ describe('SuppliersService', () => {
 
   describe('deactivate()', () => {
     it('sets isActive to false without hard-deleting the record', async () => {
-      (prisma.supplier.findUnique as jest.Mock).mockResolvedValue(makeSupplier());
-      (prisma.supplier.update as jest.Mock).mockResolvedValue(makeSupplier({ isActive: false }));
+      (prisma.supplier.findUnique as jest.Mock).mockResolvedValue(
+        makeSupplier(),
+      );
+      (prisma.supplier.update as jest.Mock).mockResolvedValue(
+        makeSupplier({ isActive: false }),
+      );
 
       const result = await service.deactivate('supplier-1', 'user-1');
 

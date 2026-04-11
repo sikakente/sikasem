@@ -1,12 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  ActivityIndicator,
-  RefreshControl,
-} from 'react-native';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { inventoryApi } from '../../../lib/api/inventory.api';
 
 interface InventoryMovement {
@@ -74,17 +67,21 @@ export default function MovementsScreen() {
     const fromName = item.fromLocation?.name || item.fromLocationId || '—';
     const toName = item.toLocation?.name || item.toLocationId || '—';
     const dateStr = item.createdAt
-      ? new Date(item.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+      ? new Date(item.createdAt).toLocaleDateString(undefined, {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })
       : 'No date';
 
     return (
       <View style={styles.row}>
         <View style={styles.rowTop}>
-          <Text style={styles.productId} numberOfLines={1}>{item.product?.name || item.productId}</Text>
+          <Text style={styles.productId} numberOfLines={1}>
+            {item.product?.name || item.productId}
+          </Text>
           <View style={[styles.typeBadge, { backgroundColor: color.bg }]}>
-            <Text style={[styles.typeBadgeText, { color: color.text }]}>
-              {item.movementType}
-            </Text>
+            <Text style={[styles.typeBadgeText, { color: color.text }]}>{item.movementType}</Text>
           </View>
         </View>
         <View style={styles.rowMiddle}>
@@ -98,13 +95,15 @@ export default function MovementsScreen() {
             {item.movementType?.toLowerCase() === 'transfer'
               ? `${fromName} → ${toName}`
               : item.toLocationId
-              ? `To: ${toName}`
-              : item.fromLocationId
-              ? `From: ${fromName}`
-              : '—'}
+                ? `To: ${toName}`
+                : item.fromLocationId
+                  ? `From: ${fromName}`
+                  : '—'}
           </Text>
           {item.reference ? (
-            <Text style={styles.referenceText} numberOfLines={1}>Ref: {item.reference}</Text>
+            <Text style={styles.referenceText} numberOfLines={1}>
+              Ref: {item.reference}
+            </Text>
           ) : null}
         </View>
       </View>

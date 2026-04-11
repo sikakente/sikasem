@@ -27,13 +27,19 @@ export class UsersService {
   }
 
   async findById(id: string) {
-    const user = await this.prisma.user.findUnique({ where: { id }, include: USER_INCLUDE });
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      include: USER_INCLUDE,
+    });
     if (!user) throw new NotFoundException(`User ${id} not found`);
     return user;
   }
 
   async findByEmail(email: string) {
-    return this.prisma.user.findUnique({ where: { email }, include: USER_INCLUDE });
+    return this.prisma.user.findUnique({
+      where: { email },
+      include: USER_INCLUDE,
+    });
   }
 
   async create(dto: CreateUserDto) {
@@ -56,8 +62,13 @@ export class UsersService {
     if (dto.fullName !== undefined) data.fullName = dto.fullName;
     if (dto.email !== undefined) data.email = dto.email;
     if (dto.phone !== undefined) data.phone = dto.phone;
-    if (dto.password !== undefined) data.passwordHash = await bcrypt.hash(dto.password, 12);
-    return this.prisma.user.update({ where: { id }, data, include: USER_INCLUDE });
+    if (dto.password !== undefined)
+      data.passwordHash = await bcrypt.hash(dto.password, 12);
+    return this.prisma.user.update({
+      where: { id },
+      data,
+      include: USER_INCLUDE,
+    });
   }
 
   async deactivate(id: string) {

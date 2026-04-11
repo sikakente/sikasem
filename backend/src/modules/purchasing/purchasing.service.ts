@@ -21,7 +21,14 @@ export class PurchasingService {
   ) {}
 
   async findAll(query: PurchaseQueryDto) {
-    const { page = 1, limit = 20, supplierId, status, dateFrom, dateTo } = query;
+    const {
+      page = 1,
+      limit = 20,
+      supplierId,
+      status,
+      dateFrom,
+      dateTo,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -98,7 +105,9 @@ export class PurchasingService {
   }
 
   async update(id: string, dto: UpdatePurchaseDto, userId: string) {
-    const existing = await this.prisma.purchaseOrder.findUnique({ where: { id } });
+    const existing = await this.prisma.purchaseOrder.findUnique({
+      where: { id },
+    });
     if (!existing) {
       throw new NotFoundException(`Purchase order with id "${id}" not found`);
     }
@@ -111,7 +120,9 @@ export class PurchasingService {
     const order = await this.prisma.$transaction(async (tx) => {
       // Replace items if provided
       if (dto.items) {
-        await tx.purchaseOrderItem.deleteMany({ where: { purchaseOrderId: id } });
+        await tx.purchaseOrderItem.deleteMany({
+          where: { purchaseOrderId: id },
+        });
       }
 
       return tx.purchaseOrder.update({
@@ -129,7 +140,9 @@ export class PurchasingService {
                 totalCostGbp: item.totalCostGbp,
                 fxRatePurchase: item.fxRatePurchase,
                 totalCostGhsEquivalent: item.totalCostGhsEquivalent,
-                expiryDate: item.expiryDate ? new Date(item.expiryDate) : undefined,
+                expiryDate: item.expiryDate
+                  ? new Date(item.expiryDate)
+                  : undefined,
                 batchReference: item.batchReference,
                 notes: item.notes,
               })),

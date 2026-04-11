@@ -22,9 +22,7 @@ export const useInventoryStore = create<InventoryState>((set) => ({
   lowStockCount: 0,
 
   setBalances: (balances: InventoryBalance[]) => {
-    const lowStockCount = balances.filter(
-      (balance) => balance.quantityAvailable < 10,
-    ).length;
+    const lowStockCount = balances.filter((balance) => balance.quantityAvailable < 10).length;
     set({ balances, lowStockCount });
   },
 }));

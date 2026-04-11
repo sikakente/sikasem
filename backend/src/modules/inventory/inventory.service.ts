@@ -6,7 +6,14 @@ import { LocationsService } from '../locations/locations.service';
 import { CreateAdjustmentDto } from './dto/create-adjustment.dto';
 
 // Movement types that REDUCE stock
-const DEDUCTION_TYPES = ['sale_out', 'allocate_shipment', 'dispatch', 'damage_out', 'loss_out', 'adjust_out'];
+const DEDUCTION_TYPES = [
+  'sale_out',
+  'allocate_shipment',
+  'dispatch',
+  'damage_out',
+  'loss_out',
+  'adjust_out',
+];
 // Movement types that only reduce AVAILABLE (not on_hand) — reservation
 const ALLOCATION_TYPES = ['allocate_shipment'];
 
@@ -52,11 +59,18 @@ export class InventoryService {
 
     const isDeduction = DEDUCTION_TYPES.includes(movementType);
 
-    const executeInTx = async (client: Prisma.TransactionClient | typeof this.prisma) => {
+    const executeInTx = async (
+      client: Prisma.TransactionClient | typeof this.prisma,
+    ) => {
       // Stock check inside transaction to avoid race conditions
       if (isDeduction && !allowNegative && fromLocationId) {
         const balance = await (client as any).inventoryBalance.findUnique({
-          where: { productId_locationId: { productId: params.productId, locationId: fromLocationId } },
+          where: {
+            productId_locationId: {
+              productId: params.productId,
+              locationId: fromLocationId,
+            },
+          },
         });
         const available = new Prisma.Decimal(balance?.quantityAvailable ?? 0);
         if (new Prisma.Decimal(params.quantity).greaterThan(available)) {
@@ -84,7 +98,9 @@ export class InventoryService {
       // Update balances for toLocationId (incoming)
       if (toLocationId) {
         await (client as any).inventoryBalance.upsert({
-          where: { productId_locationId: { productId, locationId: toLocationId } },
+          where: {
+            productId_locationId: { productId, locationId: toLocationId },
+          },
           create: {
             productId,
             locationId: toLocationId,
@@ -106,7 +122,9 @@ export class InventoryService {
         if (isAllocation) {
           // Allocation: decrement available, increment allocated (reserve stock)
           await (client as any).inventoryBalance.upsert({
-            where: { productId_locationId: { productId, locationId: fromLocationId } },
+            where: {
+              productId_locationId: { productId, locationId: fromLocationId },
+            },
             create: {
               productId,
               locationId: fromLocationId,
@@ -122,7 +140,9 @@ export class InventoryService {
         } else {
           // Regular deduction: decrement both on_hand and available
           await (client as any).inventoryBalance.upsert({
-            where: { productId_locationId: { productId, locationId: fromLocationId } },
+            where: {
+              productId_locationId: { productId, locationId: fromLocationId },
+            },
             create: {
               productId,
               locationId: fromLocationId,
@@ -234,13 +254,15 @@ export class InventoryService {
   }
 
   async createAdjustment(dto: CreateAdjustmentDto, userId: string) {
-    const movementType = dto.adjustmentType === 'add' ? 'adjust_in' : 'adjust_out';
+    const movementType =
+      dto.adjustmentType === 'add' ? 'adjust_in' : 'adjust_out';
     const result = await this.recordMovement({
       productId: dto.productId,
       movementType,
       quantity: dto.quantity,
       toLocationId: dto.adjustmentType === 'add' ? dto.locationId : undefined,
-      fromLocationId: dto.adjustmentType === 'remove' ? dto.locationId : undefined,
+      fromLocationId:
+        dto.adjustmentType === 'remove' ? dto.locationId : undefined,
       referenceType: 'adjustment',
       referenceId: dto.productId,
       notes: dto.notes ?? dto.reason,
@@ -252,7 +274,11 @@ export class InventoryService {
       actionType: 'inventory_adjustment',
       entityType: 'inventory',
       entityId: dto.productId,
-      afterJson: { adjustmentType: dto.adjustmentType, quantity: dto.quantity, reason: dto.reason },
+      afterJson: {
+        adjustmentType: dto.adjustmentType,
+        quantity: dto.quantity,
+        reason: dto.reason,
+      },
     });
 
     return result;

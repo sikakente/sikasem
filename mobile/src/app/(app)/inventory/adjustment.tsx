@@ -143,7 +143,9 @@ export default function AdjustmentScreen() {
               onPress={() => setType('add')}
               activeOpacity={0.8}
             >
-              <Text style={[styles.toggleButtonText, type === 'add' && styles.toggleButtonTextActive]}>
+              <Text
+                style={[styles.toggleButtonText, type === 'add' && styles.toggleButtonTextActive]}
+              >
                 Add
               </Text>
             </TouchableOpacity>
@@ -152,7 +154,12 @@ export default function AdjustmentScreen() {
               onPress={() => setType('remove')}
               activeOpacity={0.8}
             >
-              <Text style={[styles.toggleButtonText, type === 'remove' && styles.toggleButtonTextActiveRemove]}>
+              <Text
+                style={[
+                  styles.toggleButtonText,
+                  type === 'remove' && styles.toggleButtonTextActiveRemove,
+                ]}
+              >
                 Remove
               </Text>
             </TouchableOpacity>
@@ -184,7 +191,9 @@ export default function AdjustmentScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.label}>Notes <Text style={styles.optional}>(optional)</Text></Text>
+          <Text style={styles.label}>
+            Notes <Text style={styles.optional}>(optional)</Text>
+          </Text>
           <TextInput
             style={styles.textArea}
             placeholder="Additional notes..."
