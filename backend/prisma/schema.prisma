@@ -419,6 +419,7 @@ model ReceivingRecord {
   receivedLocationId String
   receivedDate     DateTime @db.Date
   notes            String?
+  status           String   @default("partial")
   receivedBy       String
   createdAt        DateTime @default(now())
 
