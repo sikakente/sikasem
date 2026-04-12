@@ -14,12 +14,12 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 export class UpdateReceivingItemDto {
   @ApiPropertyOptional()
   @IsUUID()
-  id: string;
+  id!: string;
 
   @ApiPropertyOptional()
   @IsNumber()
   @Min(0)
-  receivedQuantity: number;
+  receivedQuantity!: number;
 
   @ApiPropertyOptional()
   @IsOptional()

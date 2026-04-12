@@ -4,16 +4,16 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateReceivingItemDto {
   @ApiProperty()
   @IsUUID()
-  shipmentItemId: string;
+  shipmentItemId!: string;
 
   @ApiProperty()
   @IsUUID()
-  productId: string;
+  productId!: string;
 
   @ApiProperty()
   @IsNumber()
   @Min(0)
-  receivedQuantity: number;
+  receivedQuantity!: number;
 
   @ApiPropertyOptional()
   @IsOptional()
