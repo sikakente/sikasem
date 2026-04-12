@@ -73,6 +73,33 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="pos"
+        options={{
+          title: 'POS',
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="storefront-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="sales"
+        options={{
+          title: 'Sales',
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="receipt-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="customers"
+        options={{
+          title: 'Customers',
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="person-outline" color={color} size={size} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
