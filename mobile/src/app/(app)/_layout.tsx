@@ -64,6 +64,15 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="receiving"
+        options={{
+          title: 'Receiving',
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="download-outline" color={color} size={size} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
