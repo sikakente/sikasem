@@ -13,7 +13,7 @@ import { CreateReceivingItemDto } from './create-receiving-item.dto';
 export class CreateReceivingDto {
   @ApiProperty()
   @IsUUID()
-  shipmentId: string;
+  shipmentId!: string;
 
   @ApiPropertyOptional({
     description: 'Defaults to Ghana Warehouse if omitted',
@@ -24,7 +24,7 @@ export class CreateReceivingDto {
 
   @ApiProperty()
   @IsDateString()
-  receivedDate: string;
+  receivedDate!: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -35,5 +35,5 @@ export class CreateReceivingDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateReceivingItemDto)
-  items: CreateReceivingItemDto[];
+  items!: CreateReceivingItemDto[];
 }
