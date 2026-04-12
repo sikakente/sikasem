@@ -9,3 +9,4 @@ dist/
 
 # OS
 .DS_Store
+.superpowers/
