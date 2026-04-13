@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { FxService } from '../fx/fx.service';
 import { DashboardQueryDto } from './dto/dashboard-query.dto';
@@ -65,8 +66,8 @@ export class DashboardService {
     const hasDateFilter = Object.keys(df).length > 0;
     const { start: thisMonthStart, end: thisMonthEnd } = this.monthBounds(0);
 
-    const saleWhere: any = { sale: { status: 'completed' } };
-    if (hasDateFilter) saleWhere.sale = { ...saleWhere.sale, saleDatetime: df };
+    let saleWhere: Prisma.SaleItemWhereInput = { sale: { status: 'completed' } };
+    if (hasDateFilter) saleWhere = { sale: { status: 'completed', saleDatetime: df } };
 
     const costWhere = hasDateFilter
       ? { costDate: df }
@@ -195,8 +196,8 @@ export class DashboardService {
   private async getTopProducts(query: DashboardQueryDto) {
     const df = this.dateFilter(query);
     const hasDateFilter = Object.keys(df).length > 0;
-    const saleWhere: any = { sale: { status: 'completed' } };
-    if (hasDateFilter) saleWhere.sale = { ...saleWhere.sale, saleDatetime: df };
+    let saleWhere: Prisma.SaleItemWhereInput = { sale: { status: 'completed' } };
+    if (hasDateFilter) saleWhere = { sale: { status: 'completed', saleDatetime: df } };
 
     const grouped = await this.prisma.saleItem.groupBy({
       by: ['productId'],
@@ -207,7 +208,7 @@ export class DashboardService {
     });
 
     if (grouped.length === 0) {
-      return { bestSelling: [], highMargin: [], slowMoving: [] };
+      return { bestSelling: [], highRevenue: [], slowMoving: [] };
     }
 
     const productIds = grouped.map((g) => g.productId);
@@ -229,7 +230,7 @@ export class DashboardService {
 
     return {
       bestSelling: byQuantity.slice(0, 3),
-      highMargin: byRevenue.slice(0, 3),
+      highRevenue: byRevenue.slice(0, 3),
       slowMoving: slowest.slice(0, 3),
     };
   }
@@ -260,7 +261,8 @@ export class DashboardService {
       bySeverity.map((b) => [b.severity, b._count.id]),
     );
 
-    return { totalOpen: topAlerts.length, countBySeverity, topAlerts };
+    const totalOpen = bySeverity.reduce((sum, b) => sum + b._count.id, 0);
+    return { totalOpen, countBySeverity, topAlerts };
   }
 
   private async getTopRisks() {
