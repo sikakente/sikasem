@@ -150,3 +150,12 @@ Fix all reported errors before committing. Do not use `--no-verify` to bypass ch
 Step-by-step plans for the full build live in `requirements/implementation-plans/`. Each STEP document contains exact file paths, key decisions, acceptance criteria, and unit test specifications. Completed steps: STEP-00 through STEP-04.
 
 When implementing a step, reference the plan file and the schema at `requirements/grocery_export_database_schema.md`.
+
+## graphify
+
+This project has a graphify knowledge graph at graphify-out/.
+
+Rules:
+- Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
+- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
+- After modifying code files in this session, run `python3 -c "from graphify.watch import _rebuild_code; from pathlib import Path; _rebuild_code(Path('.'))"` to keep the graph current
