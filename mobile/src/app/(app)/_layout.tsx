@@ -13,9 +13,9 @@ export default function AppLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: 'Dashboard',
           tabBarIcon: ({ color, size }) => (
-            <TabIcon name="home-outline" color={color} size={size} />
+            <TabIcon name="grid-outline" color={color} size={size} />
           ),
         }}
       />
