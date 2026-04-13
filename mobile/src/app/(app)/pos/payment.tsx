@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { salesApi } from '../../../lib/api/sales.api';
+import { fxApi } from '../../../lib/api/fx.api';
 import { usePosStore } from '../../../store/pos.store';
 
 type PaymentMethod = 'cash' | 'card' | 'mobile_money' | 'transfer';
@@ -34,6 +35,16 @@ export default function PaymentScreen() {
   const [paymentRef, setPaymentRef] = useState('');
   const [fxRate, setFxRate] = useState('1');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fxApi
+      .getLatestRate()
+      .then((res) => {
+        const rate = (res.data as any).data?.exchangeRate;
+        if (rate != null) setFxRate(String(rate));
+      })
+      .catch(() => {});
+  }, []);
   const [error, setError] = useState<string | null>(null);
 
   const fxRateNum = parseFloat(fxRate) || 1;
