@@ -101,6 +101,15 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
+        name="fx"
+        options={{
+          title: 'FX',
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="cash-outline" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="invoices"
         options={{
           title: 'Invoices',
