@@ -16,11 +16,16 @@ describe('DashboardService', () => {
   beforeEach(async () => {
     const mockPrisma: any = {
       sale: {
-        aggregate: jest.fn().mockResolvedValue({ _sum: { totalGhs: new Prisma.Decimal(0) }, _count: { id: 0 } }),
+        aggregate: jest.fn().mockResolvedValue({
+          _sum: { totalGhs: new Prisma.Decimal(0) },
+          _count: { id: 0 },
+        }),
         findMany: jest.fn().mockResolvedValue([]),
       },
       fxRecord: {
-        aggregate: jest.fn().mockResolvedValue({ _sum: { targetAmount: new Prisma.Decimal(0) } }),
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { targetAmount: new Prisma.Decimal(0) } }),
         findMany: jest.fn().mockResolvedValue([]),
       },
       saleItem: {
@@ -28,11 +33,15 @@ describe('DashboardService', () => {
         groupBy: jest.fn().mockResolvedValue([]),
       },
       shipmentCost: {
-        aggregate: jest.fn().mockResolvedValue({ _sum: { amountGbp: new Prisma.Decimal(0) } }),
+        aggregate: jest
+          .fn()
+          .mockResolvedValue({ _sum: { amountGbp: new Prisma.Decimal(0) } }),
       },
       inventoryBalance: {
         findMany: jest.fn().mockResolvedValue([]),
-        aggregate: jest.fn().mockResolvedValue({ _sum: { quantityAvailable: new Prisma.Decimal(0) } }),
+        aggregate: jest.fn().mockResolvedValue({
+          _sum: { quantityAvailable: new Prisma.Decimal(0) },
+        }),
       },
       shipment: {
         count: jest.fn().mockResolvedValue(0),
@@ -58,7 +67,12 @@ describe('DashboardService', () => {
       getSummary: jest.fn().mockResolvedValue({
         purchaseFx: { totalGbpSpent: 0, totalGhsEquivalent: 0, avgRate: 0.065 },
         saleFx: { totalGhsSales: 0, totalExpectedGbp: 0, avgRate: 0.065 },
-        conversionFx: { totalGhsConverted: 0, totalGbpReceived: 0, avgRate: 0, fees: 0 },
+        conversionFx: {
+          totalGhsConverted: 0,
+          totalGbpReceived: 0,
+          avgRate: 0,
+          fees: 0,
+        },
         realisedFxGainLoss: 5.5,
         unrealisedGhsBalance: 200,
         periodBreakdown: [],
@@ -94,7 +108,7 @@ describe('DashboardService', () => {
       const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
       prisma.sale.aggregate
-        .mockResolvedValueOnce(makeSaleAggregate(0))    // today
+        .mockResolvedValueOnce(makeSaleAggregate(0)) // today
         .mockResolvedValueOnce(makeSaleAggregate(1000)) // this month
         .mockResolvedValueOnce(makeSaleAggregate(800)); // last month
 
@@ -109,7 +123,7 @@ describe('DashboardService', () => {
 
     it('calculates monthOverMonthChange as (thisMonth - lastMonth) / lastMonth * 100', async () => {
       prisma.sale.aggregate
-        .mockResolvedValueOnce(makeSaleAggregate(0))    // today
+        .mockResolvedValueOnce(makeSaleAggregate(0)) // today
         .mockResolvedValueOnce(makeSaleAggregate(1100)) // this month
         .mockResolvedValueOnce(makeSaleAggregate(1000)); // last month
 
@@ -119,9 +133,9 @@ describe('DashboardService', () => {
 
     it('returns 0 monthOverMonthChange when lastMonth is 0 (avoids division by zero)', async () => {
       prisma.sale.aggregate
-        .mockResolvedValueOnce(makeSaleAggregate(0))   // today
+        .mockResolvedValueOnce(makeSaleAggregate(0)) // today
         .mockResolvedValueOnce(makeSaleAggregate(500)) // this month
-        .mockResolvedValueOnce(makeSaleAggregate(0));  // last month
+        .mockResolvedValueOnce(makeSaleAggregate(0)); // last month
 
       const result = await service.getSummary({});
       expect(result.revenue.monthOverMonthChange).toBe(0);
@@ -133,9 +147,27 @@ describe('DashboardService', () => {
   describe('getInventorySummary', () => {
     it('lowStockCount counts products where quantityAvailable > 0 but < minimumStockThreshold', async () => {
       prisma.inventoryBalance.findMany.mockResolvedValue([
-        { quantityAvailable: new Prisma.Decimal(2), product: { minimumStockThreshold: new Prisma.Decimal(10), defaultCostPriceGbp: new Prisma.Decimal(5) } },
-        { quantityAvailable: new Prisma.Decimal(0), product: { minimumStockThreshold: new Prisma.Decimal(10), defaultCostPriceGbp: new Prisma.Decimal(5) } },
-        { quantityAvailable: new Prisma.Decimal(50), product: { minimumStockThreshold: new Prisma.Decimal(10), defaultCostPriceGbp: new Prisma.Decimal(5) } },
+        {
+          quantityAvailable: new Prisma.Decimal(2),
+          product: {
+            minimumStockThreshold: new Prisma.Decimal(10),
+            defaultCostPriceGbp: new Prisma.Decimal(5),
+          },
+        },
+        {
+          quantityAvailable: new Prisma.Decimal(0),
+          product: {
+            minimumStockThreshold: new Prisma.Decimal(10),
+            defaultCostPriceGbp: new Prisma.Decimal(5),
+          },
+        },
+        {
+          quantityAvailable: new Prisma.Decimal(50),
+          product: {
+            minimumStockThreshold: new Prisma.Decimal(10),
+            defaultCostPriceGbp: new Prisma.Decimal(5),
+          },
+        },
       ]);
 
       const result = await service.getSummary({});
@@ -144,9 +176,27 @@ describe('DashboardService', () => {
 
     it('outOfStockCount counts products where quantityAvailable = 0', async () => {
       prisma.inventoryBalance.findMany.mockResolvedValue([
-        { quantityAvailable: new Prisma.Decimal(0), product: { minimumStockThreshold: new Prisma.Decimal(10), defaultCostPriceGbp: new Prisma.Decimal(5) } },
-        { quantityAvailable: new Prisma.Decimal(0), product: { minimumStockThreshold: new Prisma.Decimal(5), defaultCostPriceGbp: new Prisma.Decimal(3) } },
-        { quantityAvailable: new Prisma.Decimal(10), product: { minimumStockThreshold: new Prisma.Decimal(5), defaultCostPriceGbp: new Prisma.Decimal(3) } },
+        {
+          quantityAvailable: new Prisma.Decimal(0),
+          product: {
+            minimumStockThreshold: new Prisma.Decimal(10),
+            defaultCostPriceGbp: new Prisma.Decimal(5),
+          },
+        },
+        {
+          quantityAvailable: new Prisma.Decimal(0),
+          product: {
+            minimumStockThreshold: new Prisma.Decimal(5),
+            defaultCostPriceGbp: new Prisma.Decimal(3),
+          },
+        },
+        {
+          quantityAvailable: new Prisma.Decimal(10),
+          product: {
+            minimumStockThreshold: new Prisma.Decimal(5),
+            defaultCostPriceGbp: new Prisma.Decimal(3),
+          },
+        },
       ]);
 
       const result = await service.getSummary({});
@@ -159,7 +209,7 @@ describe('DashboardService', () => {
   describe('getShipmentSummary', () => {
     it('delayedCount queries where expectedArrivalDate < today AND actualArrivalDate is null', async () => {
       prisma.shipment.count
-        .mockResolvedValueOnce(3)  // in_transit count
+        .mockResolvedValueOnce(3) // in_transit count
         .mockResolvedValueOnce(2); // delayed count
 
       const result = await service.getSummary({});
@@ -189,9 +239,15 @@ describe('DashboardService', () => {
     });
 
     it('passes the same dateFrom/dateTo to FxService.getSummary', async () => {
-      await service.getSummary({ dateFrom: '2026-01-01', dateTo: '2026-03-31' });
+      await service.getSummary({
+        dateFrom: '2026-01-01',
+        dateTo: '2026-03-31',
+      });
       expect(fxService.getSummary).toHaveBeenCalledWith(
-        expect.objectContaining({ dateFrom: '2026-01-01', dateTo: '2026-03-31' }),
+        expect.objectContaining({
+          dateFrom: '2026-01-01',
+          dateTo: '2026-03-31',
+        }),
       );
     });
   });
