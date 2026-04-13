@@ -14,7 +14,15 @@ export class DashboardService {
   private monthBounds(offset = 0): { start: Date; end: Date } {
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-    const end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 0, 23, 59, 59, 999);
+    const end = new Date(
+      now.getFullYear(),
+      now.getMonth() + offset + 1,
+      0,
+      23,
+      59,
+      59,
+      999,
+    );
     return { start, end };
   }
 
@@ -25,28 +33,52 @@ export class DashboardService {
     return filter;
   }
 
-  private async getRevenueSummary(query: DashboardQueryDto) {
+  private async getRevenueSummary(_query: DashboardQueryDto) {
     const { start: thisMonthStart, end: thisMonthEnd } = this.monthBounds(0);
     const { start: lastMonthStart, end: lastMonthEnd } = this.monthBounds(-1);
     const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const todayEnd = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
 
     const [today, thisMonth, lastMonth, fxThisMonth] = await Promise.all([
       this.prisma.sale.aggregate({
-        where: { status: 'completed', saleDatetime: { gte: todayStart, lte: todayEnd } },
+        where: {
+          status: 'completed',
+          saleDatetime: { gte: todayStart, lte: todayEnd },
+        },
         _sum: { totalGhs: true },
       }),
       this.prisma.sale.aggregate({
-        where: { status: 'completed', saleDatetime: { gte: thisMonthStart, lte: thisMonthEnd } },
+        where: {
+          status: 'completed',
+          saleDatetime: { gte: thisMonthStart, lte: thisMonthEnd },
+        },
         _sum: { totalGhs: true },
       }),
       this.prisma.sale.aggregate({
-        where: { status: 'completed', saleDatetime: { gte: lastMonthStart, lte: lastMonthEnd } },
+        where: {
+          status: 'completed',
+          saleDatetime: { gte: lastMonthStart, lte: lastMonthEnd },
+        },
         _sum: { totalGhs: true },
       }),
       this.prisma.fxRecord.aggregate({
-        where: { eventType: 'sale', eventDatetime: { gte: thisMonthStart, lte: thisMonthEnd } },
+        where: {
+          eventType: 'sale',
+          eventDatetime: { gte: thisMonthStart, lte: thisMonthEnd },
+        },
         _sum: { targetAmount: true },
       }),
     ]);
@@ -55,10 +87,18 @@ export class DashboardService {
     const thisMonthGhs = Number(thisMonth._sum.totalGhs ?? 0);
     const lastMonthGhs = Number(lastMonth._sum.totalGhs ?? 0);
     const monthOverMonthChange =
-      lastMonthGhs > 0 ? ((thisMonthGhs - lastMonthGhs) / lastMonthGhs) * 100 : 0;
+      lastMonthGhs > 0
+        ? ((thisMonthGhs - lastMonthGhs) / lastMonthGhs) * 100
+        : 0;
     const thisMonthGbpEstimate = Number(fxThisMonth._sum.targetAmount ?? 0);
 
-    return { todayGhs, thisMonthGhs, lastMonthGhs, monthOverMonthChange, thisMonthGbpEstimate };
+    return {
+      todayGhs,
+      thisMonthGhs,
+      lastMonthGhs,
+      monthOverMonthChange,
+      thisMonthGbpEstimate,
+    };
   }
 
   private async getProfitSummary(query: DashboardQueryDto) {
@@ -66,8 +106,11 @@ export class DashboardService {
     const hasDateFilter = Object.keys(df).length > 0;
     const { start: thisMonthStart, end: thisMonthEnd } = this.monthBounds(0);
 
-    let saleWhere: Prisma.SaleItemWhereInput = { sale: { status: 'completed' } };
-    if (hasDateFilter) saleWhere = { sale: { status: 'completed', saleDatetime: df } };
+    let saleWhere: Prisma.SaleItemWhereInput = {
+      sale: { status: 'completed' },
+    };
+    if (hasDateFilter)
+      saleWhere = { sale: { status: 'completed', saleDatetime: df } };
 
     const costWhere = hasDateFilter
       ? { costDate: df }
@@ -79,10 +122,16 @@ export class DashboardService {
         select: { lineTotalGhs: true, estimatedLandedCostGbp: true },
       }),
       this.fx.getSummary(query),
-      this.prisma.shipmentCost.aggregate({ where: costWhere, _sum: { amountGbp: true } }),
+      this.prisma.shipmentCost.aggregate({
+        where: costWhere,
+        _sum: { amountGbp: true },
+      }),
     ]);
 
-    const totalRevenueGhs = saleItems.reduce((sum, i) => sum + Number(i.lineTotalGhs), 0);
+    const totalRevenueGhs = saleItems.reduce(
+      (sum, i) => sum + Number(i.lineTotalGhs),
+      0,
+    );
     const totalLandedCostGbp = saleItems.reduce(
       (sum, i) => sum + Number(i.estimatedLandedCostGbp ?? 0),
       0,
@@ -94,9 +143,14 @@ export class DashboardService {
     const estimatedGrossProfitMargin =
       totalRevenueGbp > 0 ? (estimatedGrossProfit / totalRevenueGbp) * 100 : 0;
     const shippingCostGbp = Number(shippingCosts._sum.amountGbp ?? 0);
-    const estimatedNetProfitAfterShipping = estimatedGrossProfit - shippingCostGbp;
+    const estimatedNetProfitAfterShipping =
+      estimatedGrossProfit - shippingCostGbp;
 
-    return { estimatedGrossProfit, estimatedGrossProfitMargin, estimatedNetProfitAfterShipping };
+    return {
+      estimatedGrossProfit,
+      estimatedGrossProfitMargin,
+      estimatedNetProfitAfterShipping,
+    };
   }
 
   private async getInventorySummary() {
@@ -104,7 +158,9 @@ export class DashboardService {
       this.prisma.inventoryBalance.findMany({
         select: {
           quantityAvailable: true,
-          product: { select: { minimumStockThreshold: true, defaultCostPriceGbp: true } },
+          product: {
+            select: { minimumStockThreshold: true, defaultCostPriceGbp: true },
+          },
         },
       }),
       this.prisma.inventoryBalance.aggregate({
@@ -122,9 +178,14 @@ export class DashboardService {
         Number(b.quantityAvailable) > 0 &&
         Number(b.quantityAvailable) < Number(b.product.minimumStockThreshold),
     ).length;
-    const outOfStockCount = balances.filter((b) => Number(b.quantityAvailable) === 0).length;
+    const outOfStockCount = balances.filter(
+      (b) => Number(b.quantityAvailable) === 0,
+    ).length;
     const totalStockValueGbp = balances.reduce((sum, b) => {
-      return sum + Number(b.product.defaultCostPriceGbp ?? 0) * Number(b.quantityAvailable);
+      return (
+        sum +
+        Number(b.product.defaultCostPriceGbp ?? 0) * Number(b.quantityAvailable)
+      );
     }, 0);
 
     return {
@@ -145,29 +206,37 @@ export class DashboardService {
       ? { costDate: df }
       : { costDate: { gte: thisMonthStart, lte: thisMonthEnd } };
 
-    const [inTransitCount, delayedCount, completedShipments, shippingCost] = await Promise.all([
-      this.prisma.shipment.count({ where: { status: 'in_transit' } }),
-      this.prisma.shipment.count({
-        where: {
-          expectedArrivalDate: { lt: now },
-          actualArrivalDate: null,
-          status: { not: 'received' },
-        },
-      }),
-      this.prisma.shipment.findMany({
-        where: { actualArrivalDate: { not: null }, dispatchDate: { not: null } },
-        select: { dispatchDate: true, actualArrivalDate: true },
-        orderBy: { actualArrivalDate: 'desc' },
-        take: 50,
-      }),
-      this.prisma.shipmentCost.aggregate({ where: costWhere, _sum: { amountGbp: true } }),
-    ]);
+    const [inTransitCount, delayedCount, completedShipments, shippingCost] =
+      await Promise.all([
+        this.prisma.shipment.count({ where: { status: 'in_transit' } }),
+        this.prisma.shipment.count({
+          where: {
+            expectedArrivalDate: { lt: now },
+            actualArrivalDate: null,
+            status: { not: 'received' },
+          },
+        }),
+        this.prisma.shipment.findMany({
+          where: {
+            actualArrivalDate: { not: null },
+            dispatchDate: { not: null },
+          },
+          select: { dispatchDate: true, actualArrivalDate: true },
+          orderBy: { actualArrivalDate: 'desc' },
+          take: 50,
+        }),
+        this.prisma.shipmentCost.aggregate({
+          where: costWhere,
+          _sum: { amountGbp: true },
+        }),
+      ]);
 
     let avgTransitDays = 0;
     if (completedShipments.length > 0) {
       const totalDays = completedShipments.reduce((sum, s) => {
         const days =
-          (new Date(s.actualArrivalDate!).getTime() - new Date(s.dispatchDate!).getTime()) /
+          (new Date(s.actualArrivalDate!).getTime() -
+            new Date(s.dispatchDate!).getTime()) /
           86400000;
         return sum + days;
       }, 0);
@@ -196,8 +265,11 @@ export class DashboardService {
   private async getTopProducts(query: DashboardQueryDto) {
     const df = this.dateFilter(query);
     const hasDateFilter = Object.keys(df).length > 0;
-    let saleWhere: Prisma.SaleItemWhereInput = { sale: { status: 'completed' } };
-    if (hasDateFilter) saleWhere = { sale: { status: 'completed', saleDatetime: df } };
+    let saleWhere: Prisma.SaleItemWhereInput = {
+      sale: { status: 'completed' },
+    };
+    if (hasDateFilter)
+      saleWhere = { sale: { status: 'completed', saleDatetime: df } };
 
     const grouped = await this.prisma.saleItem.groupBy({
       by: ['productId'],
@@ -224,9 +296,15 @@ export class DashboardService {
       totalRevenueGhs: Number(g._sum.lineTotalGhs ?? 0),
     }));
 
-    const byQuantity = [...enriched].sort((a, b) => b.totalQuantity - a.totalQuantity);
-    const byRevenue = [...enriched].sort((a, b) => b.totalRevenueGhs - a.totalRevenueGhs);
-    const slowest = [...enriched].sort((a, b) => a.totalQuantity - b.totalQuantity);
+    const byQuantity = [...enriched].sort(
+      (a, b) => b.totalQuantity - a.totalQuantity,
+    );
+    const byRevenue = [...enriched].sort(
+      (a, b) => b.totalRevenueGhs - a.totalRevenueGhs,
+    );
+    const slowest = [...enriched].sort(
+      (a, b) => a.totalQuantity - b.totalQuantity,
+    );
 
     return {
       bestSelling: byQuantity.slice(0, 3),
@@ -282,23 +360,42 @@ export class DashboardService {
   }
 
   async getSummary(query: DashboardQueryDto) {
-    const [revenue, profit, inventory, shipments, fx, topProducts, alerts, risks, opportunities] =
-      await Promise.all([
-        this.getRevenueSummary(query),
-        this.getProfitSummary(query),
-        this.getInventorySummary(),
-        this.getShipmentSummary(query),
-        this.getFxSummary(query),
-        this.getTopProducts(query),
-        this.getActiveAlerts(),
-        this.getTopRisks(),
-        this.getTopOpportunities(),
-      ]);
+    const [
+      revenue,
+      profit,
+      inventory,
+      shipments,
+      fx,
+      topProducts,
+      alerts,
+      risks,
+      opportunities,
+    ] = await Promise.all([
+      this.getRevenueSummary(query),
+      this.getProfitSummary(query),
+      this.getInventorySummary(),
+      this.getShipmentSummary(query),
+      this.getFxSummary(query),
+      this.getTopProducts(query),
+      this.getActiveAlerts(),
+      this.getTopRisks(),
+      this.getTopOpportunities(),
+    ]);
 
-    return { revenue, profit, inventory, shipments, fx, topProducts, alerts, risks, opportunities };
+    return {
+      revenue,
+      profit,
+      inventory,
+      shipments,
+      fx,
+      topProducts,
+      alerts,
+      risks,
+      opportunities,
+    };
   }
 
-  async getRevenueDrilldown(query: DashboardQueryDto) {
+  async getRevenueDrilldown(_query: DashboardQueryDto) {
     const months: { label: string; start: Date; end: Date }[] = [];
     for (let i = 5; i >= 0; i--) {
       const { start, end } = this.monthBounds(-i);
@@ -310,12 +407,18 @@ export class DashboardService {
       months.map(async ({ label, start, end }) => {
         const [sales, fx] = await Promise.all([
           this.prisma.sale.aggregate({
-            where: { status: 'completed', saleDatetime: { gte: start, lte: end } },
+            where: {
+              status: 'completed',
+              saleDatetime: { gte: start, lte: end },
+            },
             _sum: { totalGhs: true },
             _count: { id: true },
           }),
           this.prisma.fxRecord.aggregate({
-            where: { eventType: 'sale', eventDatetime: { gte: start, lte: end } },
+            where: {
+              eventType: 'sale',
+              eventDatetime: { gte: start, lte: end },
+            },
             _sum: { targetAmount: true },
           }),
         ]);
@@ -333,36 +436,41 @@ export class DashboardService {
 
   async getShipmentDrilldown() {
     const now = new Date();
-    const [statusBreakdown, delayedShipments, completedShipments] = await Promise.all([
-      this.prisma.shipment.groupBy({
-        by: ['status'],
-        _count: { id: true },
-      }),
-      this.prisma.shipment.findMany({
-        where: {
-          expectedArrivalDate: { lt: now },
-          actualArrivalDate: null,
-          status: { not: 'received' },
-        },
-        select: {
-          id: true,
-          shipmentReference: true,
-          expectedArrivalDate: true,
-          carrierName: true,
-          status: true,
-        },
-      }),
-      this.prisma.shipment.findMany({
-        where: { actualArrivalDate: { not: null }, dispatchDate: { not: null } },
-        select: { dispatchDate: true, actualArrivalDate: true },
-        orderBy: { actualArrivalDate: 'desc' },
-        take: 30,
-      }),
-    ]);
+    const [statusBreakdown, delayedShipments, completedShipments] =
+      await Promise.all([
+        this.prisma.shipment.groupBy({
+          by: ['status'],
+          _count: { id: true },
+        }),
+        this.prisma.shipment.findMany({
+          where: {
+            expectedArrivalDate: { lt: now },
+            actualArrivalDate: null,
+            status: { not: 'received' },
+          },
+          select: {
+            id: true,
+            shipmentReference: true,
+            expectedArrivalDate: true,
+            carrierName: true,
+            status: true,
+          },
+        }),
+        this.prisma.shipment.findMany({
+          where: {
+            actualArrivalDate: { not: null },
+            dispatchDate: { not: null },
+          },
+          select: { dispatchDate: true, actualArrivalDate: true },
+          orderBy: { actualArrivalDate: 'desc' },
+          take: 30,
+        }),
+      ]);
 
     const transitTimes = completedShipments.map((s) => ({
       days: Math.round(
-        (new Date(s.actualArrivalDate!).getTime() - new Date(s.dispatchDate!).getTime()) /
+        (new Date(s.actualArrivalDate!).getTime() -
+          new Date(s.dispatchDate!).getTime()) /
           86400000,
       ),
     }));
