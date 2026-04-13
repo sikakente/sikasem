@@ -100,6 +100,15 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="invoices"
+        options={{
+          title: 'Invoices',
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="document-text-outline" color={color} size={size} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }

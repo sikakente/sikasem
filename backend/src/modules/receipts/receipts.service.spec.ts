@@ -3,6 +3,7 @@ import { NotFoundException } from '@nestjs/common';
 import { ReceiptsService } from './receipts.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StorageService } from '../../common/services/storage.service';
+import { PdfService } from '../../common/services/pdf.service';
 
 const mockSale = {
   id: 'sale-1',
@@ -62,6 +63,10 @@ describe('ReceiptsService', () => {
   let storageService: any;
 
   beforeEach(async () => {
+    const mockPdfService = {
+      renderReceipt: jest.fn().mockResolvedValue(Buffer.from('%PDF-mock')),
+    };
+
     const mockPrisma: any = {
       receipt: {
         findUnique: jest.fn().mockResolvedValue(mockReceipt),
@@ -86,6 +91,7 @@ describe('ReceiptsService', () => {
         ReceiptsService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: StorageService, useValue: mockStorageService },
+        { provide: PdfService, useValue: mockPdfService },
       ],
     }).compile();
 
