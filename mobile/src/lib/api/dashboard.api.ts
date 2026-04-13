@@ -10,9 +10,7 @@ export const dashboardApi = {
   getRevenue: (params?: DashboardQueryParams) => client.get('/dashboard/revenue', { params }),
   getShipments: () => client.get('/dashboard/shipments'),
   getFx: (params?: DashboardQueryParams) => client.get('/dashboard/fx', { params }),
-  getTopProducts: (params?: DashboardQueryParams) => client.get(
-    '/dashboard/top-products',
-    { params },
-  ),
+  getTopProducts: (params?: DashboardQueryParams) =>
+    client.get('/dashboard/top-products', { params }),
   getRisks: () => client.get('/dashboard/risks'),
 };
