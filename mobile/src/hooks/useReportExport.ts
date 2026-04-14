@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Buffer } from 'buffer';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { Alert } from 'react-native';
@@ -19,24 +20,13 @@ export function useReportExport() {
     format: 'csv' | 'xlsx' | 'pdf',
   ) => {
     setIsExporting(true);
+    let uri: string | null = null;
     try {
       const response = await reportsApi.export(reportType, params, format);
-      const blob = response.data as Blob;
-
-      // Convert blob to base64
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          // result is "data:<mime>;base64,<data>" — strip the prefix
-          resolve(result.split(',')[1]);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
+      const base64 = Buffer.from(response.data as ArrayBuffer).toString('base64');
 
       const filename = `${reportType}-${Date.now()}.${format}`;
-      const uri = `${FileSystem.cacheDirectory}${filename}`;
+      uri = `${FileSystem.cacheDirectory}${filename}`;
 
       await FileSystem.writeAsStringAsync(uri, base64, {
         encoding: FileSystem.EncodingType.Base64,
@@ -48,10 +38,14 @@ export function useReportExport() {
           mimeType: MIME_TYPES[format],
           dialogTitle: `Share ${reportType} report`,
         });
+        await FileSystem.deleteAsync(uri, { idempotent: true });
       } else {
         Alert.alert('Export saved', `File saved to: ${uri}`);
       }
     } catch {
+      if (uri) {
+        await FileSystem.deleteAsync(uri, { idempotent: true }).catch(() => undefined);
+      }
       Alert.alert('Export failed', 'Could not export the report. Please try again.');
     } finally {
       setIsExporting(false);

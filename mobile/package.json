@@ -13,6 +13,7 @@
   "dependencies": {
     "@shopify/flash-list": "^2.0.2",
     "axios": "^1.6.0",
+    "buffer": "^6.0.3",
     "expo": "54",
     "expo-camera": "~17.0.10",
     "expo-constants": "~18.0.13",

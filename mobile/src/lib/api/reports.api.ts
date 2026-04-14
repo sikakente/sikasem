@@ -24,6 +24,6 @@ export const reportsApi = {
   export: (type: string, params: ReportParams, format: 'csv' | 'xlsx' | 'pdf') =>
     client.get(`/reports/${type}`, {
       params: { ...params, format },
-      responseType: 'blob',
+      responseType: 'arraybuffer',
     }),
 };
