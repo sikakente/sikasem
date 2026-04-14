@@ -18,8 +18,16 @@ interface ConversionRow {
 export function groupFxByMonth(
   fxRecords: FxEventRow[],
   conversions: ConversionRow[],
-): Array<{ month: string; expectedGbp: number; actualGbp: number; gainLossGbp: number }> {
-  const monthMap = new Map<string, { expectedGbp: number; actualGbp: number }>();
+): Array<{
+  month: string;
+  expectedGbp: number;
+  actualGbp: number;
+  gainLossGbp: number;
+}> {
+  const monthMap = new Map<
+    string,
+    { expectedGbp: number; actualGbp: number }
+  >();
 
   for (const rec of fxRecords) {
     if (rec.eventType !== 'sale') continue;
@@ -50,12 +58,36 @@ export const FxGainLossReport: ReportDefinition = {
   title: 'FX Gain/Loss Report',
   columns: [
     { header: 'Month', key: 'month' },
-    { header: 'Purchase FX Avg Rate', key: 'purchaseAvgRate', format: (v) => Number(v).toFixed(6) },
-    { header: 'Purchase GHS Equiv.', key: 'purchaseGhsEquiv', format: (v) => Number(v).toFixed(2) },
-    { header: 'Sale FX Avg Rate', key: 'saleAvgRate', format: (v) => Number(v).toFixed(6) },
-    { header: 'Sale GBP Expected', key: 'saleGbpExpected', format: (v) => Number(v).toFixed(2) },
-    { header: 'Conversion GBP Received', key: 'convGbpReceived', format: (v) => Number(v).toFixed(2) },
-    { header: 'FX Gain/Loss GBP', key: 'gainLossGbp', format: (v) => Number(v).toFixed(2) },
+    {
+      header: 'Purchase FX Avg Rate',
+      key: 'purchaseAvgRate',
+      format: (v) => Number(v).toFixed(6),
+    },
+    {
+      header: 'Purchase GHS Equiv.',
+      key: 'purchaseGhsEquiv',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Sale FX Avg Rate',
+      key: 'saleAvgRate',
+      format: (v) => Number(v).toFixed(6),
+    },
+    {
+      header: 'Sale GBP Expected',
+      key: 'saleGbpExpected',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Conversion GBP Received',
+      key: 'convGbpReceived',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'FX Gain/Loss GBP',
+      key: 'gainLossGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
   ],
 
   async query(params: ReportQueryDto, prisma: PrismaService) {
@@ -65,12 +97,17 @@ export const FxGainLossReport: ReportDefinition = {
 
     const [fxRecords, conversions] = await Promise.all([
       prisma.fxRecord.findMany({
-        where: Object.keys(dateWhere).length > 0 ? { eventDatetime: dateWhere } : undefined,
+        where:
+          Object.keys(dateWhere).length > 0
+            ? { eventDatetime: dateWhere }
+            : undefined,
         orderBy: { eventDatetime: 'asc' },
       }),
       prisma.cashConversion.findMany({
         where:
-          Object.keys(dateWhere).length > 0 ? { conversionDate: dateWhere } : undefined,
+          Object.keys(dateWhere).length > 0
+            ? { conversionDate: dateWhere }
+            : undefined,
         orderBy: { conversionDate: 'asc' },
       }),
     ]);
@@ -124,7 +161,8 @@ export const FxGainLossReport: ReportDefinition = {
       .map(([month, d]) => {
         const purchaseAvgRate =
           d.purchaseRates.length > 0
-            ? d.purchaseRates.reduce((s, r) => s + r, 0) / d.purchaseRates.length
+            ? d.purchaseRates.reduce((s, r) => s + r, 0) /
+              d.purchaseRates.length
             : 0;
         const saleAvgRate =
           d.saleRates.length > 0
@@ -143,7 +181,10 @@ export const FxGainLossReport: ReportDefinition = {
   },
 
   summary(rows) {
-    const totalGainLoss = rows.reduce((s, r) => s + (r.gainLossGbp as number), 0);
+    const totalGainLoss = rows.reduce(
+      (s, r) => s + (r.gainLossGbp as number),
+      0,
+    );
     return {
       'Total FX Gain/Loss GBP': totalGainLoss.toFixed(2),
     };

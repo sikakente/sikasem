@@ -7,8 +7,16 @@ export const SupplierSpendReport: ReportDefinition = {
   columns: [
     { header: 'Supplier', key: 'supplier' },
     { header: 'Products Count', key: 'productsCount' },
-    { header: 'Total Spend GBP', key: 'totalSpendGbp', format: (v) => Number(v).toFixed(2) },
-    { header: 'Avg Unit Cost GBP', key: 'avgUnitCostGbp', format: (v) => Number(v).toFixed(4) },
+    {
+      header: 'Total Spend GBP',
+      key: 'totalSpendGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Avg Unit Cost GBP',
+      key: 'avgUnitCostGbp',
+      format: (v) => Number(v).toFixed(4),
+    },
     { header: 'Last Purchase Date', key: 'lastPurchaseDate' },
   ],
 
@@ -19,7 +27,9 @@ export const SupplierSpendReport: ReportDefinition = {
 
     const orders = await prisma.purchaseOrder.findMany({
       where: {
-        ...(Object.keys(dateWhere).length > 0 ? { purchaseDate: dateWhere } : {}),
+        ...(Object.keys(dateWhere).length > 0
+          ? { purchaseDate: dateWhere }
+          : {}),
         ...(params.supplierId ? { supplierId: params.supplierId } : {}),
       },
       include: {
@@ -31,7 +41,13 @@ export const SupplierSpendReport: ReportDefinition = {
 
     const supplierMap = new Map<
       string,
-      { name: string; totalSpend: number; totalQty: number; productIds: Set<string>; lastDate: string }
+      {
+        name: string;
+        totalSpend: number;
+        totalQty: number;
+        productIds: Set<string>;
+        lastDate: string;
+      }
     >();
 
     for (const order of orders) {

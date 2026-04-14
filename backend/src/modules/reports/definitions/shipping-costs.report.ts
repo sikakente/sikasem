@@ -7,7 +7,11 @@ export const ShippingCostsReport: ReportDefinition = {
   columns: [
     { header: 'Shipment', key: 'shipment' },
     { header: 'Cost Type', key: 'costType' },
-    { header: 'Amount GBP', key: 'amountGbp', format: (v) => Number(v).toFixed(2) },
+    {
+      header: 'Amount GBP',
+      key: 'amountGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
     { header: 'Vendor', key: 'vendor' },
     { header: 'Date', key: 'date' },
   ],
@@ -18,7 +22,8 @@ export const ShippingCostsReport: ReportDefinition = {
     if (params.dateTo) dateWhere.lte = new Date(params.dateTo);
 
     const costs = await prisma.shipmentCost.findMany({
-      where: Object.keys(dateWhere).length > 0 ? { costDate: dateWhere } : undefined,
+      where:
+        Object.keys(dateWhere).length > 0 ? { costDate: dateWhere } : undefined,
       include: { shipment: true },
       orderBy: { costDate: 'desc' },
     });
@@ -39,7 +44,9 @@ export const ShippingCostsReport: ReportDefinition = {
       return acc;
     }, {});
     const result: Record<string, unknown> = {
-      'Total Cost GBP': rows.reduce((s, r) => s + (r.amountGbp as number), 0).toFixed(2),
+      'Total Cost GBP': rows
+        .reduce((s, r) => s + (r.amountGbp as number), 0)
+        .toFixed(2),
     };
     for (const [type, amt] of Object.entries(byType)) {
       result[`${type} GBP`] = amt.toFixed(2);

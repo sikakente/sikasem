@@ -9,11 +9,31 @@ export const InventoryReport: ReportDefinition = {
     { header: 'SKU', key: 'sku' },
     { header: 'Category', key: 'category' },
     { header: 'UK Qty', key: 'ukQty', format: (v) => Number(v).toFixed(2) },
-    { header: 'In Transit', key: 'inTransitQty', format: (v) => Number(v).toFixed(2) },
-    { header: 'Ghana Qty', key: 'ghanaQty', format: (v) => Number(v).toFixed(2) },
-    { header: 'Total Qty', key: 'totalQty', format: (v) => Number(v).toFixed(2) },
-    { header: 'Est. Value GBP', key: 'estValueGbp', format: (v) => Number(v).toFixed(2) },
-    { header: 'Min Threshold', key: 'minThreshold', format: (v) => Number(v).toFixed(2) },
+    {
+      header: 'In Transit',
+      key: 'inTransitQty',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Ghana Qty',
+      key: 'ghanaQty',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Total Qty',
+      key: 'totalQty',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Est. Value GBP',
+      key: 'estValueGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Min Threshold',
+      key: 'minThreshold',
+      format: (v) => Number(v).toFixed(2),
+    },
     { header: 'Status', key: 'status' },
   ],
 
@@ -56,13 +76,15 @@ export const InventoryReport: ReportDefinition = {
 
       row.totalQty = (row.totalQty as number) + qty;
       row.estValueGbp =
-        (row.estValueGbp as number) + qty * Number(b.product.defaultCostPriceGbp ?? 0);
+        (row.estValueGbp as number) +
+        qty * Number(b.product.defaultCostPriceGbp ?? 0);
     }
 
     for (const row of productMap.values()) {
       const qty = row.totalQty as number;
       const min = row.minThreshold as number;
-      row.status = qty === 0 ? 'Out of Stock' : qty < min ? 'Low Stock' : 'In Stock';
+      row.status =
+        qty === 0 ? 'Out of Stock' : qty < min ? 'Low Stock' : 'In Stock';
     }
 
     return Array.from(productMap.values());

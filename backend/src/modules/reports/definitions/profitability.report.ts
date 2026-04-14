@@ -12,7 +12,10 @@ export function calcLandedCostPerUnit(
   return purchaseUnitCostGbp + totalShipmentCostsGbp / totalUnitsInShipment;
 }
 
-export function calcRevenueGbp(lineTotalGhs: number, fxRateGbpPerGhs: number): number {
+export function calcRevenueGbp(
+  lineTotalGhs: number,
+  fxRateGbpPerGhs: number,
+): number {
   return lineTotalGhs * fxRateGbpPerGhs;
 }
 
@@ -24,7 +27,10 @@ export function calcGrossProfitGbp(
   return revenueGbp - quantity * landedCostPerUnitGbp;
 }
 
-export function calcMarginPct(grossProfitGbp: number, revenueGbp: number): number {
+export function calcMarginPct(
+  grossProfitGbp: number,
+  revenueGbp: number,
+): number {
   if (revenueGbp === 0) return 0;
   return Math.round((grossProfitGbp / revenueGbp) * 10000) / 100;
 }
@@ -34,14 +40,46 @@ export const ProfitabilityReport: ReportDefinition = {
   columns: [
     { header: 'Product', key: 'product' },
     { header: 'SKU', key: 'sku' },
-    { header: 'Units Sold', key: 'unitsSold', format: (v) => Number(v).toFixed(2) },
-    { header: 'Revenue GHS', key: 'revenueGhs', format: (v) => Number(v).toFixed(2) },
-    { header: 'Revenue GBP', key: 'revenueGbp', format: (v) => Number(v).toFixed(2) },
-    { header: 'Purchase Cost GBP', key: 'purchaseCostGbp', format: (v) => Number(v).toFixed(2) },
-    { header: 'Shipping Cost Alloc. GBP', key: 'shippingCostGbp', format: (v) => Number(v).toFixed(2) },
-    { header: 'Landed Cost GBP', key: 'landedCostGbp', format: (v) => Number(v).toFixed(2) },
-    { header: 'Gross Profit GBP', key: 'grossProfitGbp', format: (v) => Number(v).toFixed(2) },
-    { header: 'Margin %', key: 'marginPct', format: (v) => Number(v).toFixed(2) },
+    {
+      header: 'Units Sold',
+      key: 'unitsSold',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Revenue GHS',
+      key: 'revenueGhs',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Revenue GBP',
+      key: 'revenueGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Purchase Cost GBP',
+      key: 'purchaseCostGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Shipping Cost Alloc. GBP',
+      key: 'shippingCostGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Landed Cost GBP',
+      key: 'landedCostGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Gross Profit GBP',
+      key: 'grossProfitGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Margin %',
+      key: 'marginPct',
+      format: (v) => Number(v).toFixed(2),
+    },
   ],
 
   async query(params: ReportQueryDto, prisma: PrismaService) {
@@ -54,7 +92,9 @@ export const ProfitabilityReport: ReportDefinition = {
       where: {
         sale: {
           status: { not: 'voided' },
-          ...(Object.keys(dateWhere).length > 0 ? { saleDatetime: dateWhere } : {}),
+          ...(Object.keys(dateWhere).length > 0
+            ? { saleDatetime: dateWhere }
+            : {}),
         },
       },
       include: {
@@ -70,10 +110,19 @@ export const ProfitabilityReport: ReportDefinition = {
     });
 
     // Build per-product shipment cost allocation map
-    const productShipmentCost = new Map<string, { totalCost: number; totalUnits: number }>();
+    const productShipmentCost = new Map<
+      string,
+      { totalCost: number; totalUnits: number }
+    >();
     for (const si of shipmentItems) {
-      const entry = productShipmentCost.get(si.productId) ?? { totalCost: 0, totalUnits: 0 };
-      const shipmentTotalCost = si.shipment.costs.reduce((s, c) => s + Number(c.amountGbp), 0);
+      const entry = productShipmentCost.get(si.productId) ?? {
+        totalCost: 0,
+        totalUnits: 0,
+      };
+      const shipmentTotalCost = si.shipment.costs.reduce(
+        (s, c) => s + Number(c.amountGbp),
+        0,
+      );
       const shipmentTotalUnits = shipmentItems
         .filter((i) => i.shipmentId === si.shipmentId)
         .reduce((s, i) => s + Number(i.quantity), 0);
@@ -95,7 +144,9 @@ export const ProfitabilityReport: ReportDefinition = {
       const lineTotal = Number(item.lineTotalGhs);
       const qty = Number(item.quantity);
       const revenueGbp = calcRevenueGbp(lineTotal, fxRate);
-      const purchaseUnitCost = Number(item.batch?.sourcePurchaseItem?.unitCostGbp ?? 0);
+      const purchaseUnitCost = Number(
+        item.batch?.sourcePurchaseItem?.unitCostGbp ?? 0,
+      );
       const shipAlloc = productShipmentCost.get(item.productId);
       const landedCost = calcLandedCostPerUnit(
         purchaseUnitCost,
@@ -123,7 +174,8 @@ export const ProfitabilityReport: ReportDefinition = {
       row.unitsSold = (row.unitsSold as number) + qty;
       row.revenueGhs = (row.revenueGhs as number) + lineTotal;
       row.revenueGbp = (row.revenueGbp as number) + revenueGbp;
-      row.purchaseCostGbp = (row.purchaseCostGbp as number) + qty * purchaseUnitCost;
+      row.purchaseCostGbp =
+        (row.purchaseCostGbp as number) + qty * purchaseUnitCost;
       row.shippingCostGbp =
         (row.shippingCostGbp as number) +
         (shipAlloc && shipAlloc.totalUnits > 0
@@ -135,7 +187,10 @@ export const ProfitabilityReport: ReportDefinition = {
 
     // Compute margin %
     for (const row of productMap.values()) {
-      row.marginPct = calcMarginPct(row.grossProfitGbp as number, row.revenueGbp as number);
+      row.marginPct = calcMarginPct(
+        row.grossProfitGbp as number,
+        row.revenueGbp as number,
+      );
     }
 
     return Array.from(productMap.values());
@@ -143,8 +198,12 @@ export const ProfitabilityReport: ReportDefinition = {
 
   summary(rows) {
     const totalRevGbp = rows.reduce((s, r) => s + (r.revenueGbp as number), 0);
-    const totalProfit = rows.reduce((s, r) => s + (r.grossProfitGbp as number), 0);
-    const avgMargin = totalRevGbp > 0 ? calcMarginPct(totalProfit, totalRevGbp) : 0;
+    const totalProfit = rows.reduce(
+      (s, r) => s + (r.grossProfitGbp as number),
+      0,
+    );
+    const avgMargin =
+      totalRevGbp > 0 ? calcMarginPct(totalProfit, totalRevGbp) : 0;
     return {
       'Total Revenue GBP': totalRevGbp.toFixed(2),
       'Total Gross Profit GBP': totalProfit.toFixed(2),

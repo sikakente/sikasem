@@ -8,7 +8,11 @@ export const StockMovementReport: ReportDefinition = {
     { header: 'Date', key: 'date' },
     { header: 'Product', key: 'product' },
     { header: 'Movement Type', key: 'movementType' },
-    { header: 'Quantity', key: 'quantity', format: (v) => Number(v).toFixed(2) },
+    {
+      header: 'Quantity',
+      key: 'quantity',
+      format: (v) => Number(v).toFixed(2),
+    },
     { header: 'From Location', key: 'fromLocation' },
     { header: 'To Location', key: 'toLocation' },
     { header: 'Reference', key: 'reference' },
@@ -25,9 +29,16 @@ export const StockMovementReport: ReportDefinition = {
 
     const movements = await prisma.inventoryMovement.findMany({
       where: {
-        ...(Object.keys(dateWhere).length > 0 ? { movementDate: dateWhere } : {}),
+        ...(Object.keys(dateWhere).length > 0
+          ? { movementDate: dateWhere }
+          : {}),
         ...(params.locationId
-          ? { OR: [{ fromLocationId: params.locationId }, { toLocationId: params.locationId }] }
+          ? {
+              OR: [
+                { fromLocationId: params.locationId },
+                { toLocationId: params.locationId },
+              ],
+            }
           : {}),
       },
       include: {

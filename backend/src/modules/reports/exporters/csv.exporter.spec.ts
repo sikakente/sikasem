@@ -26,7 +26,10 @@ describe('CsvExporter', () => {
   });
 
   it('returns one data row per item plus the header', () => {
-    const rows = [{ name: 'A', amount: 1 }, { name: 'B', amount: 2 }];
+    const rows = [
+      { name: 'A', amount: 1 },
+      { name: 'B', amount: 2 },
+    ];
     const csv = exporter.export(columns, rows).toString('utf-8');
     const lines = csv.split('\r\n').filter(Boolean);
     expect(lines).toHaveLength(3);

@@ -13,7 +13,11 @@ export const ShipmentsReport: ReportDefinition = {
     { header: 'Transit Days', key: 'transitDays' },
     { header: 'Status', key: 'status' },
     { header: 'Item Count', key: 'itemCount' },
-    { header: 'Total Shipping Cost GBP', key: 'totalShippingCostGbp', format: (v) => Number(v).toFixed(2) },
+    {
+      header: 'Total Shipping Cost GBP',
+      key: 'totalShippingCostGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
   ],
 
   async query(params: ReportQueryDto, prisma: PrismaService) {
@@ -23,17 +27,23 @@ export const ShipmentsReport: ReportDefinition = {
 
     const shipments = await prisma.shipment.findMany({
       where:
-        Object.keys(dateWhere).length > 0 ? { dispatchDate: dateWhere } : undefined,
+        Object.keys(dateWhere).length > 0
+          ? { dispatchDate: dateWhere }
+          : undefined,
       include: { costs: true, items: true },
       orderBy: { dispatchDate: 'desc' },
     });
 
     return shipments.map((s) => {
-      const totalCost = s.costs.reduce((sum, c) => sum + Number(c.amountGbp), 0);
+      const totalCost = s.costs.reduce(
+        (sum, c) => sum + Number(c.amountGbp),
+        0,
+      );
       let transitDays = '';
       if (s.dispatchDate && s.actualArrivalDate) {
         const diff = Math.round(
-          (s.actualArrivalDate.getTime() - s.dispatchDate.getTime()) / (1000 * 60 * 60 * 24),
+          (s.actualArrivalDate.getTime() - s.dispatchDate.getTime()) /
+            (1000 * 60 * 60 * 24),
         );
         transitDays = String(diff);
       }
@@ -41,7 +51,8 @@ export const ShipmentsReport: ReportDefinition = {
         reference: s.shipmentReference,
         carrier: s.carrierName ?? '',
         dispatchDate: s.dispatchDate?.toISOString().split('T')[0] ?? '',
-        expectedArrival: s.expectedArrivalDate?.toISOString().split('T')[0] ?? '',
+        expectedArrival:
+          s.expectedArrivalDate?.toISOString().split('T')[0] ?? '',
         actualArrival: s.actualArrivalDate?.toISOString().split('T')[0] ?? '',
         transitDays,
         status: s.status,
@@ -52,7 +63,10 @@ export const ShipmentsReport: ReportDefinition = {
   },
 
   summary(rows) {
-    const total = rows.reduce((s, r) => s + (r.totalShippingCostGbp as number), 0);
+    const total = rows.reduce(
+      (s, r) => s + (r.totalShippingCostGbp as number),
+      0,
+    );
     const avgDays =
       rows
         .filter((r) => r.transitDays !== '')

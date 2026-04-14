@@ -19,7 +19,10 @@ export class PdfExporter {
 
       // Title and date
       doc.fontSize(16).font('Helvetica-Bold').text(title, { align: 'center' });
-      doc.fontSize(9).font('Helvetica').text(new Date().toLocaleDateString(), { align: 'center' });
+      doc
+        .fontSize(9)
+        .font('Helvetica')
+        .text(new Date().toLocaleDateString(), { align: 'center' });
       doc.moveDown(1);
 
       // Column layout: equal widths across page

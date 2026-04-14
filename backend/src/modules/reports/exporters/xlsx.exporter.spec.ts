@@ -23,7 +23,11 @@ describe('XlsxExporter', () => {
   });
 
   it('first row of the sheet contains column headers in bold', async () => {
-    const buf = await exporter.export(columns, [{ product: 'Rice', qty: 10 }], 'Report');
+    const buf = await exporter.export(
+      columns,
+      [{ product: 'Rice', qty: 10 }],
+      'Report',
+    );
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load(buf as any);
     const ws = wb.getWorksheet('Report')!;

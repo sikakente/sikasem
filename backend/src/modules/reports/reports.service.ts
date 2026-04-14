@@ -27,19 +27,70 @@ const REPORT_MAP: Record<string, ReportDefinition> = {
 };
 
 const REPORT_META = [
-  { type: 'inventory', title: 'Inventory Report', description: 'Current stock levels by location with estimated value and status.' },
-  { type: 'stock-movements', title: 'Stock Movement Report', description: 'All inventory movements with movement type, quantity, and location.' },
-  { type: 'shipments', title: 'Shipment Performance Report', description: 'Shipment timeline, transit days, status, and total shipping costs.' },
-  { type: 'shipping-costs', title: 'Shipping Cost Report', description: 'Granular shipment costs by type with vendor and date.' },
-  { type: 'sales', title: 'Sales Report', description: 'Sales transactions with FX rate, GBP equivalent, and payment method.' },
-  { type: 'profitability', title: 'Profitability Report', description: 'Per-product gross profit and margin using landed cost allocation.' },
-  { type: 'supplier-spend', title: 'Supplier Spend Report', description: 'Total spend per supplier with average unit cost and last purchase date.' },
-  { type: 'fx-gain-loss', title: 'FX Gain/Loss Report', description: 'Monthly FX gain/loss comparing expected GBP from sales vs actual GBP from conversions.' },
+  {
+    type: 'inventory',
+    title: 'Inventory Report',
+    description:
+      'Current stock levels by location with estimated value and status.',
+  },
+  {
+    type: 'stock-movements',
+    title: 'Stock Movement Report',
+    description:
+      'All inventory movements with movement type, quantity, and location.',
+  },
+  {
+    type: 'shipments',
+    title: 'Shipment Performance Report',
+    description:
+      'Shipment timeline, transit days, status, and total shipping costs.',
+  },
+  {
+    type: 'shipping-costs',
+    title: 'Shipping Cost Report',
+    description: 'Granular shipment costs by type with vendor and date.',
+  },
+  {
+    type: 'sales',
+    title: 'Sales Report',
+    description:
+      'Sales transactions with FX rate, GBP equivalent, and payment method.',
+  },
+  {
+    type: 'profitability',
+    title: 'Profitability Report',
+    description:
+      'Per-product gross profit and margin using landed cost allocation.',
+  },
+  {
+    type: 'supplier-spend',
+    title: 'Supplier Spend Report',
+    description:
+      'Total spend per supplier with average unit cost and last purchase date.',
+  },
+  {
+    type: 'fx-gain-loss',
+    title: 'FX Gain/Loss Report',
+    description:
+      'Monthly FX gain/loss comparing expected GBP from sales vs actual GBP from conversions.',
+  },
 ];
 
 export type ReportResult =
-  | { format: 'json'; data: Record<string, unknown>[]; summary?: Record<string, unknown>; total: number; page: number; limit: number }
-  | { format: 'csv' | 'xlsx' | 'pdf'; buffer: Buffer; contentType: string; filename: string };
+  | {
+      format: 'json';
+      data: Record<string, unknown>[];
+      summary?: Record<string, unknown>;
+      total: number;
+      page: number;
+      limit: number;
+    }
+  | {
+      format: 'csv' | 'xlsx' | 'pdf';
+      buffer: Buffer;
+      contentType: string;
+      filename: string;
+    };
 
 @Injectable()
 export class ReportsService {
@@ -58,22 +109,37 @@ export class ReportsService {
 
     if (format === 'csv') {
       const buffer = new CsvExporter().export(def.columns, rows);
-      return { format: 'csv', buffer, contentType: 'text/csv', filename: `${reportType}.csv` };
+      return {
+        format: 'csv',
+        buffer,
+        contentType: 'text/csv',
+        filename: `${reportType}.csv`,
+      };
     }
 
     if (format === 'xlsx') {
-      const buffer = await new XlsxExporter().export(def.columns, rows, def.title);
+      const buffer = await new XlsxExporter().export(
+        def.columns,
+        rows,
+        def.title,
+      );
       return {
         format: 'xlsx',
         buffer,
-        contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        contentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         filename: `${reportType}.xlsx`,
       };
     }
 
     if (format === 'pdf') {
       const summary = def.summary?.(rows);
-      const buffer = await new PdfExporter().export(def.title, def.columns, rows, summary);
+      const buffer = await new PdfExporter().export(
+        def.title,
+        def.columns,
+        rows,
+        summary,
+      );
       return {
         format: 'pdf',
         buffer,

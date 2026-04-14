@@ -9,10 +9,18 @@ export const SalesReport: ReportDefinition = {
     { header: 'Receipt No.', key: 'receiptNo' },
     { header: 'Customer', key: 'customer' },
     { header: 'Items', key: 'items' },
-    { header: 'Total GHS', key: 'totalGhs', format: (v) => Number(v).toFixed(2) },
+    {
+      header: 'Total GHS',
+      key: 'totalGhs',
+      format: (v) => Number(v).toFixed(2),
+    },
     { header: 'Payment Method', key: 'paymentMethod' },
     { header: 'FX Rate', key: 'fxRate', format: (v) => Number(v).toFixed(6) },
-    { header: 'GBP Equivalent', key: 'gbpEquivalent', format: (v) => Number(v).toFixed(2) },
+    {
+      header: 'GBP Equivalent',
+      key: 'gbpEquivalent',
+      format: (v) => Number(v).toFixed(2),
+    },
     { header: 'Status', key: 'status' },
   ],
 
@@ -26,7 +34,9 @@ export const SalesReport: ReportDefinition = {
 
     const sales = await prisma.sale.findMany({
       where: {
-        ...(Object.keys(dateWhere).length > 0 ? { saleDatetime: dateWhere } : {}),
+        ...(Object.keys(dateWhere).length > 0
+          ? { saleDatetime: dateWhere }
+          : {}),
         ...(params.locationId ? { locationId: params.locationId } : {}),
       },
       include: {
@@ -41,10 +51,14 @@ export const SalesReport: ReportDefinition = {
     });
 
     return sales.map((s) => {
-      const fxRate = s.fxRecords[0]?.exchangeRate ? Number(s.fxRecords[0].exchangeRate) : 0;
+      const fxRate = s.fxRecords[0]?.exchangeRate
+        ? Number(s.fxRecords[0].exchangeRate)
+        : 0;
       const totalGhs = Number(s.totalGhs);
       const gbpEquivalent = fxRate > 0 ? totalGhs * fxRate : 0;
-      const paymentMethods = [...new Set(s.payments.map((p) => p.paymentMethod))].join(', ');
+      const paymentMethods = [
+        ...new Set(s.payments.map((p) => p.paymentMethod)),
+      ].join(', ');
 
       return {
         date: s.saleDatetime.toISOString().split('T')[0],
@@ -68,7 +82,7 @@ export const SalesReport: ReportDefinition = {
       'Total Sales': rows.length,
       'Total Revenue GHS': totalGhs.toFixed(2),
       'Total Revenue GBP Equiv.': totalGbp.toFixed(2),
-      'Voided': voided,
+      Voided: voided,
     };
   },
 };
