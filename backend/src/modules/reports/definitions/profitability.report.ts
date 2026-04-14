@@ -51,8 +51,13 @@ export const ProfitabilityReport: ReportDefinition = {
       format: (v) => Number(v).toFixed(2),
     },
     {
-      header: 'Revenue GBP',
+      header: 'Est. Revenue GBP',
       key: 'revenueGbp',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Actual Revenue GBP',
+      key: 'revenueGbpActual',
       format: (v) => Number(v).toFixed(2),
     },
     {
@@ -71,13 +76,23 @@ export const ProfitabilityReport: ReportDefinition = {
       format: (v) => Number(v).toFixed(2),
     },
     {
-      header: 'Gross Profit GBP',
+      header: 'Est. Gross Profit GBP',
       key: 'grossProfitGbp',
       format: (v) => Number(v).toFixed(2),
     },
     {
-      header: 'Margin %',
+      header: 'Actual Gross Profit GBP',
+      key: 'grossProfitGbpActual',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Est. Margin %',
       key: 'marginPct',
+      format: (v) => Number(v).toFixed(2),
+    },
+    {
+      header: 'Actual Margin %',
+      key: 'marginPctActual',
       format: (v) => Number(v).toFixed(2),
     },
   ],
@@ -134,7 +149,40 @@ export const ProfitabilityReport: ReportDefinition = {
       productShipmentCost.set(si.productId, entry);
     }
 
-    // 3. Aggregate by product
+    // 3. Build per-sale actual GBP map from cash conversion links.
+    // For each linked conversion: actualGbp = (amountGhsAllocated / sourceAmount) * destinationAmount.
+    // Falls back to estimated revenue (fxRate × GHS) for sales with no conversion record.
+    const saleIds = [...new Set(saleItems.map((i) => i.saleId))];
+    const conversionLinks = await prisma.cashConversionSaleLink.findMany({
+      where: { saleId: { in: saleIds } },
+      include: { cashConversion: true },
+    });
+
+    const saleActualGbp = new Map<string, number>();
+    for (const link of conversionLinks) {
+      if (!link.saleId) continue;
+      const sourceAmount = Number(link.cashConversion.sourceAmount);
+      const actualGbp =
+        sourceAmount > 0
+          ? (Number(link.amountGhsAllocated) / sourceAmount) *
+            Number(link.cashConversion.destinationAmount)
+          : 0;
+      saleActualGbp.set(
+        link.saleId,
+        (saleActualGbp.get(link.saleId) ?? 0) + actualGbp,
+      );
+    }
+
+    // Pre-compute per-sale total GHS for item-level proration of actual GBP
+    const saleTotalGhs = new Map<string, number>();
+    for (const item of saleItems) {
+      saleTotalGhs.set(
+        item.saleId,
+        (saleTotalGhs.get(item.saleId) ?? 0) + Number(item.lineTotalGhs),
+      );
+    }
+
+    // 4. Aggregate by product
     const productMap = new Map<string, Record<string, unknown>>();
 
     for (const item of saleItems) {
@@ -144,6 +192,16 @@ export const ProfitabilityReport: ReportDefinition = {
       const lineTotal = Number(item.lineTotalGhs);
       const qty = Number(item.quantity);
       const revenueGbp = calcRevenueGbp(lineTotal, fxRate);
+
+      // Actual revenue: prorate the sale's confirmed GBP by this item's GHS share.
+      // Falls back to estimated when no conversion record exists for the sale.
+      const saleGbpActual = saleActualGbp.get(item.saleId);
+      const totalGhsForSale = saleTotalGhs.get(item.saleId) ?? lineTotal;
+      const revenueGbpActual =
+        saleGbpActual !== undefined && totalGhsForSale > 0
+          ? (lineTotal / totalGhsForSale) * saleGbpActual
+          : revenueGbp;
+
       const purchaseUnitCost = Number(
         item.batch?.sourcePurchaseItem?.unitCostGbp ?? 0,
       );
@@ -154,6 +212,11 @@ export const ProfitabilityReport: ReportDefinition = {
         shipAlloc?.totalUnits ?? 0,
       );
       const grossProfit = calcGrossProfitGbp(revenueGbp, qty, landedCost);
+      const grossProfitActual = calcGrossProfitGbp(
+        revenueGbpActual,
+        qty,
+        landedCost,
+      );
 
       if (!productMap.has(item.productId)) {
         productMap.set(item.productId, {
@@ -162,11 +225,14 @@ export const ProfitabilityReport: ReportDefinition = {
           unitsSold: 0,
           revenueGhs: 0,
           revenueGbp: 0,
+          revenueGbpActual: 0,
           purchaseCostGbp: 0,
           shippingCostGbp: 0,
           landedCostGbp: 0,
           grossProfitGbp: 0,
+          grossProfitGbpActual: 0,
           marginPct: 0,
+          marginPctActual: 0,
         });
       }
 
@@ -174,6 +240,7 @@ export const ProfitabilityReport: ReportDefinition = {
       row.unitsSold = (row.unitsSold as number) + qty;
       row.revenueGhs = (row.revenueGhs as number) + lineTotal;
       row.revenueGbp = (row.revenueGbp as number) + revenueGbp;
+      row.revenueGbpActual = (row.revenueGbpActual as number) + revenueGbpActual;
       row.purchaseCostGbp =
         (row.purchaseCostGbp as number) + qty * purchaseUnitCost;
       row.shippingCostGbp =
@@ -183,6 +250,8 @@ export const ProfitabilityReport: ReportDefinition = {
           : 0);
       row.landedCostGbp = (row.landedCostGbp as number) + qty * landedCost;
       row.grossProfitGbp = (row.grossProfitGbp as number) + grossProfit;
+      row.grossProfitGbpActual =
+        (row.grossProfitGbpActual as number) + grossProfitActual;
     }
 
     // Compute margin %
@@ -191,6 +260,10 @@ export const ProfitabilityReport: ReportDefinition = {
         row.grossProfitGbp as number,
         row.revenueGbp as number,
       );
+      row.marginPctActual = calcMarginPct(
+        row.grossProfitGbpActual as number,
+        row.revenueGbpActual as number,
+      );
     }
 
     return Array.from(productMap.values());
@@ -198,16 +271,32 @@ export const ProfitabilityReport: ReportDefinition = {
 
   summary(rows) {
     const totalRevGbp = rows.reduce((s, r) => s + (r.revenueGbp as number), 0);
+    const totalRevGbpActual = rows.reduce(
+      (s, r) => s + (r.revenueGbpActual as number),
+      0,
+    );
     const totalProfit = rows.reduce(
       (s, r) => s + (r.grossProfitGbp as number),
       0,
     );
+    const totalProfitActual = rows.reduce(
+      (s, r) => s + (r.grossProfitGbpActual as number),
+      0,
+    );
     const avgMargin =
       totalRevGbp > 0 ? calcMarginPct(totalProfit, totalRevGbp) : 0;
+    const avgMarginActual =
+      totalRevGbpActual > 0
+        ? calcMarginPct(totalProfitActual, totalRevGbpActual)
+        : 0;
     return {
-      'Total Revenue GBP': totalRevGbp.toFixed(2),
-      'Total Gross Profit GBP': totalProfit.toFixed(2),
-      'Overall Margin %': avgMargin.toFixed(2),
+      'Est. Revenue GBP': totalRevGbp.toFixed(2),
+      'Actual Revenue GBP': totalRevGbpActual.toFixed(2),
+      'FX Slippage GBP': (totalRevGbpActual - totalRevGbp).toFixed(2),
+      'Est. Gross Profit GBP': totalProfit.toFixed(2),
+      'Actual Gross Profit GBP': totalProfitActual.toFixed(2),
+      'Est. Margin %': avgMargin.toFixed(2),
+      'Actual Margin %': avgMarginActual.toFixed(2),
     };
   },
 };
