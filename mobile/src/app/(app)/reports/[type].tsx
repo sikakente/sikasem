@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -46,6 +47,7 @@ export default function ReportDetailScreen() {
     async (filter: string) => {
       try {
         setLoading(true);
+        setColumns([]);
         const params = getDateRange(filter);
         const res = await reportsApi.run(type, params);
 
@@ -55,7 +57,7 @@ export default function ReportDetailScreen() {
           setColumns(Object.keys(data[0]));
         }
       } catch {
-        // silently ignore
+        Alert.alert('Error', 'Could not load report data. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -124,7 +126,10 @@ export default function ReportDetailScreen() {
             </View>
             {/* Rows */}
             {rows.map((row, i) => (
-              <View key={i} style={[styles.tableRow, i % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
+              <View
+                key={`${i}-${String(Object.values(row)[0] ?? i)}`}
+                style={[styles.tableRow, i % 2 === 0 ? styles.rowEven : styles.rowOdd]}
+              >
                 {columns.map((col) => (
                   <Text key={col} style={styles.cell}>
                     {String(row[col] ?? '')}
