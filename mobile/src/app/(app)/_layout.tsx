@@ -118,6 +118,15 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="reports"
+        options={{
+          title: 'Reports',
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="bar-chart-outline" color={color} size={size} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
