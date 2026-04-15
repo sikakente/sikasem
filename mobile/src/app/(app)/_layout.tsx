@@ -127,6 +127,15 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="alerts"
+        options={{
+          title: 'Alerts',
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="notifications-outline" color={color} size={size} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
