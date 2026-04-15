@@ -25,6 +25,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
 import { RisksModule } from './modules/risks/risks.module';
 import { OpportunitiesModule } from './modules/opportunities/opportunities.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { AiModule } from './modules/ai/ai.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { StorageModule } from './modules/storage/storage.module';
@@ -56,6 +57,7 @@ import { LocationsModule } from './modules/locations/locations.module';
     AlertsModule,
     RisksModule,
     OpportunitiesModule,
+    AdminModule,
     AiModule,
     AuditModule,
     StorageModule,
