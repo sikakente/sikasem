@@ -240,7 +240,8 @@ export const ProfitabilityReport: ReportDefinition = {
       row.unitsSold = (row.unitsSold as number) + qty;
       row.revenueGhs = (row.revenueGhs as number) + lineTotal;
       row.revenueGbp = (row.revenueGbp as number) + revenueGbp;
-      row.revenueGbpActual = (row.revenueGbpActual as number) + revenueGbpActual;
+      row.revenueGbpActual =
+        (row.revenueGbpActual as number) + revenueGbpActual;
       row.purchaseCostGbp =
         (row.purchaseCostGbp as number) + qty * purchaseUnitCost;
       row.shippingCostGbp =
