@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AiService } from './ai.service';
 import { PrismaService } from '../../prisma/prisma.service';
+import { SYSTEM_PROMPT } from './prompts/system-prompt';
 
 const mockPrismaService = {
   aiInsightLog: {
@@ -109,7 +110,6 @@ describe('AiService', () => {
 
       // Verify the date placeholder substitution in system prompt
       const today = new Date().toISOString().split('T')[0];
-      const SYSTEM_PROMPT = require('./prompts/system-prompt').SYSTEM_PROMPT;
       const rendered = SYSTEM_PROMPT.replace('{date}', today);
       expect(rendered).toContain(today);
       expect(rendered).not.toContain('{date}');

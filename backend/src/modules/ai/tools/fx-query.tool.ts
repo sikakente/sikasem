@@ -41,7 +41,7 @@ export async function fxQueryTool(
   const ghsToGbpRecords = fxRecords.filter(
     (r) => r.fromCurrency === 'GHS' && r.toCurrency === 'GBP',
   );
-  const gbpToGhsRecords = fxRecords.filter(
+  const _gbpToGhsRecords = fxRecords.filter(
     (r) => r.fromCurrency === 'GBP' && r.toCurrency === 'GHS',
   );
 
