@@ -90,7 +90,10 @@ describe('SettingsService', () => {
       expect(prisma.setting.upsert).toHaveBeenCalledTimes(2);
       expect(prisma.setting.upsert).toHaveBeenNthCalledWith(2, {
         where: { key: 'business_profile' },
-        update: { value: { businessName: 'Acme Updated' }, updatedBy: 'user-1' },
+        update: {
+          value: { businessName: 'Acme Updated' },
+          updatedBy: 'user-1',
+        },
         create: {
           key: 'business_profile',
           value: { businessName: 'Acme Updated' },
@@ -147,7 +150,10 @@ describe('SettingsService', () => {
         expect.objectContaining({
           where: { key: 'business_profile' },
           update: expect.objectContaining({ value: dto }),
-          create: expect.objectContaining({ key: 'business_profile', value: dto }),
+          create: expect.objectContaining({
+            key: 'business_profile',
+            value: dto,
+          }),
         }),
       );
       expect(audit.log).toHaveBeenCalled();
@@ -156,14 +162,18 @@ describe('SettingsService', () => {
 
   describe('getNotificationSettings()', () => {
     it('delegates to get("notification_settings")', async () => {
-      const getSpy = jest
-        .spyOn(service, 'get')
-        .mockResolvedValue({ alertEmailEnabled: true, alertEmailRecipients: [] });
+      const getSpy = jest.spyOn(service, 'get').mockResolvedValue({
+        alertEmailEnabled: true,
+        alertEmailRecipients: [],
+      });
 
       const result = await service.getNotificationSettings();
 
       expect(getSpy).toHaveBeenCalledWith('notification_settings');
-      expect(result).toEqual({ alertEmailEnabled: true, alertEmailRecipients: [] });
+      expect(result).toEqual({
+        alertEmailEnabled: true,
+        alertEmailRecipients: [],
+      });
     });
   });
 

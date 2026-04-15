@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { CreateLocationDto } from './dto/create-location.dto';
+import { UpdateLocationDto } from './dto/update-location.dto';
 
 @Injectable()
 export class LocationsService {
@@ -41,5 +43,14 @@ export class LocationsService {
       throw new NotFoundException('Ghana Warehouse location not found');
     }
     return location;
+  }
+
+  async create(dto: CreateLocationDto) {
+    return this.prisma.location.create({ data: dto });
+  }
+
+  async update(id: string, dto: UpdateLocationDto) {
+    await this.findById(id);
+    return this.prisma.location.update({ where: { id }, data: dto });
   }
 }
