@@ -136,6 +136,15 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="ai"
+        options={{
+          title: 'AI',
+          tabBarIcon: ({ color, size }) => (
+            <TabIcon name="chatbubble-ellipses-outline" color={color} size={size} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
