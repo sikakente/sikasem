@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Roles } from '../../auth/decorators/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { OpportunitiesService } from './opportunities.service';
 import { OpportunityQueryDto } from './dto/opportunity-query.dto';
 

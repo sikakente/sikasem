@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Query, Request } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Roles } from '../../auth/decorators/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { AlertsService } from './alerts.service';
 import { AlertQueryDto } from './dto/alert-query.dto';
 

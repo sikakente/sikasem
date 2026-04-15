@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Roles } from '../../auth/decorators/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { RisksService } from './risks.service';
 import { RiskQueryDto } from './dto/risk-query.dto';
 
