@@ -13,38 +13,21 @@ Monorepo with two workspaces:
 
 ```bash
 cd backend
-
-npm run start:dev          # Dev server with hot reload (port 3000)
-npm test                   # Run all unit tests
-npm test -- --testPathPattern=inventory   # Run a single test file
-npm run test:cov           # Coverage report
-npm run lint               # ESLint + auto-fix
-npm run build              # Compile to dist/
-
-npx prisma generate        # Regenerate Prisma client after schema changes
-npx prisma migrate dev     # Create + apply a new migration
-npx prisma migrate deploy  # Apply migrations (production)
-npx prisma db seed         # Seed roles, permissions, and warehouse locations (no admin user)
-npx tsc --noEmit           # Type-check without emitting
+npm run start:dev | npm test | npm run test:cov | npm run lint | npm run build
+npm test -- --testPathPattern=<name>
+npx prisma generate | npx prisma migrate dev | npx prisma db seed | npx tsc --noEmit
 ```
 
-Local database: `docker compose up postgres` then set `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/exportmanager`.
-
-Swagger UI available at `http://localhost:3000/api/v1/docs` when running.
+DB: `docker compose up postgres`, `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/exportmanager`. Swagger: `http://localhost:3000/api/v1/docs`.
 
 ## Mobile Commands
 
 ```bash
 cd mobile
-
-npm start          # Expo dev server
-npm run ios        # iOS simulator
-npm run android    # Android emulator
-npm test           # Jest
-npm run lint       # ESLint
+npm start | npm run ios | npm run android | npm test | npm run lint
 ```
 
-Set `EXPO_PUBLIC_API_URL` in a `.env` file to point at the backend (defaults to `http://localhost:3000/api/v1`).
+Set `EXPO_PUBLIC_API_URL` in `.env` (defaults to `http://localhost:3000/api/v1`).
 
 ## Backend Architecture
 
@@ -120,42 +103,16 @@ Session is restored from `expo-secure-store` on app boot in `src/app/_layout.tsx
 
 ### API client
 
-`src/lib/api/client.ts` — axios instance with base URL `/api/v1`, attaches Bearer token from auth store, auto-refreshes on 401 with queued retry.
-
-Feature API modules in `src/lib/api/` (auth, inventory, products, purchasing, shipments, suppliers) follow the pattern:
-```typescript
-export const featureApi = {
-  list: (params?) => client.get('/resource', { params }),
-  get: (id) => client.get(`/resource/${id}`),
-  create: (data) => client.post('/resource', data),
-};
-```
+`src/lib/api/client.ts` — axios instance, base URL `/api/v1`, attaches Bearer token, auto-refreshes on 401 with queued retry. Feature API modules in `src/lib/api/` export `{ list, get, create, ... }` functions.
 
 ## Before Pushing a PR
 
-Always run and fix linting errors before creating a pull request:
-
-```bash
-# Backend
-cd backend && npm run lint
-
-# Mobile
-cd mobile && npm run lint
-```
-
-Fix all reported errors before committing. Do not use `--no-verify` to bypass checks.
+Run `cd backend && npm run lint` and `cd mobile && npm run lint`. Fix all errors. Do not use `--no-verify`.
 
 ## Implementation Plans
 
-Step-by-step plans for the full build live in `requirements/implementation-plans/`. Each STEP document contains exact file paths, key decisions, acceptance criteria, and unit test specifications. Completed steps: STEP-00 through STEP-04.
-
-When implementing a step, reference the plan file and the schema at `requirements/grocery_export_database_schema.md`.
+Plans in `requirements/implementation-plans/`. Completed: STEP-00 through STEP-10. Reference the plan file and `requirements/grocery_export_database_schema.md` when implementing a step.
 
 ## graphify
 
-This project has a graphify knowledge graph at graphify-out/.
-
-Rules:
-- Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
-- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
-- After modifying code files in this session, run `python3 -c "from graphify.watch import _rebuild_code; from pathlib import Path; _rebuild_code(Path('.'))"` to keep the graph current
+Knowledge graph at `graphify-out/`. Read `graphify-out/GRAPH_REPORT.md` before architecture questions; use `graphify-out/wiki/index.md` if it exists.
