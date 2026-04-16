@@ -106,12 +106,6 @@ export default function DashboardScreen() {
       contentContainerStyle={styles.content}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Dashboard</Text>
-        <Text style={styles.headerSubtitle}>Business performance overview</Text>
-      </View>
-
       {/* Date Filter */}
       <View style={styles.filterRow}>
         {DATE_FILTERS.map((f) => (
@@ -277,14 +271,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f9fafb' },
   content: { padding: 16, paddingBottom: 40 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: {
-    backgroundColor: '#2563eb',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
-  },
-  headerTitle: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  headerSubtitle: { fontSize: 13, color: 'rgba(255,255,255,0.75)' },
   filterRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
   chip: {
     paddingHorizontal: 12,
