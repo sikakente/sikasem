@@ -30,6 +30,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { StorageModule } from './modules/storage/storage.module';
 import { LocationsModule } from './modules/locations/locations.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { LocationsModule } from './modules/locations/locations.module';
     AiModule,
     AuditModule,
     StorageModule,
+    SettingsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
