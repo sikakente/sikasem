@@ -9,18 +9,18 @@ import {
 export class BusinessProfileDto {
   @IsString()
   @IsNotEmpty()
-  businessName: string;
+  businessName!: string;
 
   @IsEmail()
-  contactEmail: string;
+  contactEmail!: string;
 
   @IsString()
   @IsNotEmpty()
-  contactPhone: string;
+  contactPhone!: string;
 
   @IsString()
   @IsNotEmpty()
-  addressLine1: string;
+  addressLine1!: string;
 
   @IsOptional()
   @IsString()
@@ -28,11 +28,11 @@ export class BusinessProfileDto {
 
   @IsString()
   @IsNotEmpty()
-  city: string;
+  city!: string;
 
   @IsString()
   @IsNotEmpty()
-  country: string;
+  country!: string;
 
   @IsOptional()
   @IsUrl()
