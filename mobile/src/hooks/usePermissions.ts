@@ -17,6 +17,8 @@ type AppModule =
   | 'settings'
   | 'users';
 
+export type { AppModule };
+
 export function usePermissions() {
   const { user } = useAuthStore();
 
