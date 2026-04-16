@@ -35,7 +35,7 @@ export default function EditProductScreen() {
     if (!id) return;
     Promise.all([productsApi.get(id), productsApi.getCategories()])
       .then(([p, c]) => {
-        const prod = p.data as any;
+        const prod = (p.data as any)?.data;
         setForm({
           name: prod.name ?? '',
           sku: prod.sku ?? '',
@@ -50,7 +50,7 @@ export default function EditProductScreen() {
           expiryTrackingEnabled: prod.expiryTrackingEnabled ?? false,
           isActive: prod.isActive ?? true,
         });
-        setCategories((c.data as any) ?? []);
+        setCategories((c.data as any)?.data ?? []);
       })
       .finally(() => setLoading(false));
   }, [id]);

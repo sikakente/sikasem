@@ -3,12 +3,14 @@ import {
   View,
   Text,
   FlatList,
+  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
   ScrollView,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { inventoryApi } from '../../../../lib/api/inventory.api';
 
 interface ProductBalance {
@@ -48,6 +50,7 @@ function getMovementColor(type: string) {
 
 export default function ProductStockScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const [balances, setBalances] = useState<ProductBalance[]>([]);
   const [movements, setMovements] = useState<InventoryMovement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -189,6 +192,21 @@ export default function ProductStockScreen() {
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
+
+      <TouchableOpacity
+        style={styles.adjustBtn}
+        onPress={() =>
+          router.push({
+            pathname: '/inventory/adjustment',
+            params: { productId: id },
+          } as never)
+        }
+        activeOpacity={0.85}
+        accessibilityRole="button"
+      >
+        <Ionicons name="swap-vertical-outline" size={18} color="#fff" />
+        <Text style={styles.adjustBtnText}>Adjust Stock</Text>
+      </TouchableOpacity>
 
       <Text style={styles.sectionHeading}>Stock by Location</Text>
       {balances.length === 0 ? (
@@ -365,5 +383,25 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     textAlign: 'center',
     paddingVertical: 20,
+  },
+  adjustBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#2563eb',
+    borderRadius: 12,
+    paddingVertical: 14,
+    marginBottom: 20,
+    shadowColor: '#1d4ed8',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  adjustBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
   },
 });

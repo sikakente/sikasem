@@ -10,6 +10,7 @@ import {
   TextInput,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { inventoryApi } from '../../../lib/api/inventory.api';
 import { useInventoryStore, InventoryBalance } from '../../../store/inventory.store';
 
@@ -171,6 +172,17 @@ export default function InventoryScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />
         }
       />
+
+      {/* FAB — adjust stock */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/inventory/adjustment' as never)}
+        activeOpacity={0.85}
+        accessibilityLabel="Adjust stock"
+        accessibilityRole="button"
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -319,5 +331,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#9ca3af',
     textAlign: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#2563eb',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#1d4ed8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });

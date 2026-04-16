@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface KpiCardProps {
   label: string;
@@ -10,12 +11,38 @@ interface KpiCardProps {
   color?: 'default' | 'warning' | 'danger' | 'success';
 }
 
-const TREND_COLORS = { up: '#16a34a', down: '#dc2626', neutral: '#6b7280' };
-const CARD_BORDER = {
-  default: '#e5e7eb',
-  warning: '#fbbf24',
-  danger: '#f87171',
-  success: '#34d399',
+// Design tokens — Analytics Dashboard palette
+const TOKENS = {
+  default: {
+    accent: '#3B82F6',
+    tint: '#FFFFFF',
+    badge: '#EFF6FF',
+    badgeText: '#1D4ED8',
+  },
+  success: {
+    accent: '#16A34A',
+    tint: '#F0FDF4',
+    badge: '#DCFCE7',
+    badgeText: '#15803D',
+  },
+  warning: {
+    accent: '#D97706',
+    tint: '#FFFBEB',
+    badge: '#FEF3C7',
+    badgeText: '#92400E',
+  },
+  danger: {
+    accent: '#DC2626',
+    tint: '#FEF2F2',
+    badge: '#FEE2E2',
+    badgeText: '#991B1B',
+  },
+};
+
+const TREND_COLORS = {
+  up: { bg: '#DCFCE7', text: '#15803D', icon: 'arrow-up' as const },
+  down: { bg: '#FEE2E2', text: '#991B1B', icon: 'arrow-down' as const },
+  neutral: { bg: '#F1F5F9', text: '#64748B', icon: 'remove' as const },
 };
 
 export default function KpiCard({
@@ -27,63 +54,137 @@ export default function KpiCard({
   onPress,
   color = 'default',
 }: KpiCardProps) {
-  const trendArrow = trend === 'up' ? '↑' : trend === 'down' ? '↓' : '';
-  const trendColor = trend ? TREND_COLORS[trend] : '#6b7280';
-  const borderColor = CARD_BORDER[color];
+  const token = TOKENS[color];
+  const trendToken = trend ? TREND_COLORS[trend] : null;
 
   const content = (
-    <View style={[styles.card, { borderLeftColor: borderColor }]}>
-      <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value}</Text>
-      {(subValue || (trend && trendPercent != null)) && (
-        <View style={styles.footer}>
-          {trend && trendPercent != null && (
-            <Text style={[styles.trend, { color: trendColor }]}>
-              {trendArrow} {Math.abs(trendPercent).toFixed(1)}%
-            </Text>
-          )}
-          {subValue && <Text style={styles.subValue}>{subValue}</Text>}
+    <View style={[styles.card, { backgroundColor: token.tint }]}>
+      {/* Accent bar */}
+      <View style={[styles.accentBar, { backgroundColor: token.accent }]} />
+
+      <View style={styles.body}>
+        {/* Label */}
+        <Text style={styles.label} numberOfLines={1}>
+          {label.toUpperCase()}
+        </Text>
+
+        {/* Value */}
+        <Text style={styles.value} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+          {value}
+        </Text>
+
+        {/* Footer row */}
+        {(subValue || (trendToken && trendPercent != null)) && (
+          <View style={styles.footer}>
+            {trendToken && trendPercent != null && (
+              <View style={[styles.trendPill, { backgroundColor: trendToken.bg }]}>
+                <Ionicons name={trendToken.icon} size={10} color={trendToken.text} />
+                <Text style={[styles.trendText, { color: trendToken.text }]}>
+                  {Math.abs(trendPercent).toFixed(1)}%
+                </Text>
+              </View>
+            )}
+            {subValue && (
+              <Text style={styles.subValue} numberOfLines={1}>
+                {subValue}
+              </Text>
+            )}
+          </View>
+        )}
+      </View>
+
+      {/* Chevron for interactive cards */}
+      {onPress && (
+        <View style={styles.chevronWrap}>
+          <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
         </View>
       )}
-      {onPress && <Text style={styles.chevron}>›</Text>}
     </View>
   );
 
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.75}>
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.78}
+        accessibilityRole="button"
+        accessibilityLabel={`${label}: ${value}`}
+        hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+      >
         {content}
       </TouchableOpacity>
     );
   }
+
   return content;
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 14,
-    borderLeftWidth: 4,
-    borderLeftColor: '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-    position: 'relative',
+    borderRadius: 12,
+    overflow: 'hidden',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+    minHeight: 80,
+  },
+  accentBar: {
+    width: 4,
+    backgroundColor: '#3B82F6',
+  },
+  body: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    justifyContent: 'space-between',
   },
   label: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#6b7280',
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: 0.8,
     marginBottom: 4,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
-  value: { fontSize: 22, fontWeight: '700', color: '#111827', marginBottom: 4 },
-  footer: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  trend: { fontSize: 12, fontWeight: '600' },
-  subValue: { fontSize: 11, color: '#9ca3af' },
-  chevron: { position: 'absolute', right: 12, top: '50%', fontSize: 20, color: '#9ca3af' },
+  value: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: '#0F172A',
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  trendPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  trendText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  subValue: {
+    fontSize: 11,
+    color: '#94A3B8',
+    fontWeight: '500',
+  },
+  chevronWrap: {
+    justifyContent: 'center',
+    paddingRight: 12,
+    paddingLeft: 4,
+  },
 });

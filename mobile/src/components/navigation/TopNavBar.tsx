@@ -93,16 +93,21 @@ export function TopNavBar() {
       {/* App header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
+          <View style={styles.logoMark}>
+            <Ionicons name="airplane" size={16} color="#FFFFFF" />
+          </View>
           <Text style={styles.appName}>ExportBiz</Text>
-          <View style={styles.headerDot} />
-          <Text style={styles.appTagline}>Manager</Text>
+          <Text style={styles.appTagline}>/ Manager</Text>
         </View>
         <TouchableOpacity
           style={styles.notifBtn}
           onPress={() => router.navigate('/alerts' as never)}
           activeOpacity={0.7}
+          accessibilityLabel="Alerts"
+          accessibilityRole="button"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Ionicons name="notifications-outline" size={20} color="rgba(255,255,255,0.75)" />
+          <Ionicons name="notifications-outline" size={18} color="rgba(255,255,255,0.8)" />
         </TouchableOpacity>
       </View>
 
@@ -159,40 +164,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
-  appName: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: -0.3,
-  },
-  headerDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#3B82F6',
-    marginBottom: 1,
-  },
-  appTagline: {
-    fontSize: 17,
-    fontWeight: '300',
-    color: 'rgba(255,255,255,0.55)',
-    letterSpacing: 0.2,
-  },
-  notifBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+  logoMark: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: '#D97706',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  appName: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.4,
+  },
+  appTagline: {
+    fontSize: 16,
+    fontWeight: '300',
+    color: 'rgba(255,255,255,0.45)',
+    letterSpacing: 0.1,
+  },
+  notifBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
   },
 
   // ── Tab strip ───────────────────────────────────────────────────────────────
