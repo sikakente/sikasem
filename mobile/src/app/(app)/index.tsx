@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { dashboardApi } from '../../lib/api/dashboard.api';
 import { useDashboardStore, DashboardSummary } from '../../store/dashboard.store';
 import KpiCard from '../../components/KpiCard';
@@ -43,10 +44,25 @@ function fmt(n: number, decimals = 0) {
   return n.toLocaleString('en-US', { maximumFractionDigits: decimals });
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon?: React.ComponentProps<typeof Ionicons>['name'];
+  children: React.ReactNode;
+}) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={styles.sectionHeader}>
+        {icon && (
+          <View style={styles.sectionIconWrap}>
+            <Ionicons name={icon} size={14} color="#3B82F6" />
+          </View>
+        )}
+        <Text style={styles.sectionTitle}>{title}</Text>
+      </View>
       {children}
     </View>
   );
@@ -122,7 +138,7 @@ export default function DashboardScreen() {
       </View>
 
       {/* Revenue + Profit */}
-      <Section title="Revenue &amp; Profit">
+      <Section title="Revenue & Profit" icon="cash-outline">
         <View style={styles.row}>
           <View style={styles.half}>
             <KpiCard
@@ -165,7 +181,7 @@ export default function DashboardScreen() {
       </Section>
 
       {/* Inventory */}
-      <Section title="Inventory Health">
+      <Section title="Inventory Health" icon="layers-outline">
         <View style={styles.row}>
           <View style={styles.half}>
             <KpiCard
@@ -193,7 +209,7 @@ export default function DashboardScreen() {
       </Section>
 
       {/* Shipments */}
-      <Section title="Shipments">
+      <Section title="Shipments" icon="airplane-outline">
         <View style={styles.row}>
           <View style={styles.half}>
             <KpiCard
@@ -220,7 +236,7 @@ export default function DashboardScreen() {
       </Section>
 
       {/* FX */}
-      <Section title="FX Impact">
+      <Section title="FX Impact" icon="swap-horizontal-outline">
         <KpiCard
           label="Realised FX Gain / Loss"
           value={`£${fmt(d?.fx.realisedFxGainLoss ?? 0, 2)}`}
@@ -232,7 +248,7 @@ export default function DashboardScreen() {
 
       {/* Top Products */}
       {(d?.topProducts.bestSelling.length ?? 0) > 0 && (
-        <Section title="Best Sellers">
+        <Section title="Best Sellers" icon="star-outline">
           {d!.topProducts.bestSelling.map((p) => (
             <View key={p.id} style={styles.productRow}>
               <Text style={styles.productName}>{p.name}</Text>
@@ -248,18 +264,18 @@ export default function DashboardScreen() {
       )}
 
       {/* Risks */}
-      <Section title="Top Risks">
+      <Section title="Top Risks" icon="warning-outline">
         <RiskPanel risks={d?.risks ?? []} onPress={() => {}} />
       </Section>
 
       {/* Opportunities */}
-      <Section title="Opportunities">
+      <Section title="Opportunities" icon="bulb-outline">
         <OpportunityPanel opportunities={d?.opportunities ?? []} onPress={() => {}} />
       </Section>
 
       {/* Alerts */}
       {(d?.alerts.totalOpen ?? 0) > 0 && (
-        <Section title="Active Alerts">
+        <Section title="Active Alerts" icon="notifications-outline">
           <KpiCard label="Open Alerts" value={`${d?.alerts.totalOpen ?? 0}`} color="warning" />
         </Section>
       )}
@@ -268,34 +284,67 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f9fafb' },
-  content: { padding: 16, paddingBottom: 40 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  filterRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  content: { padding: 16, paddingBottom: 48 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAFC' },
+
+  // Date filter chips
+  filterRow: { flexDirection: 'row', gap: 8, marginBottom: 20 },
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#E2E8F0',
   },
-  chipActive: { backgroundColor: '#2563eb', borderColor: '#2563eb' },
-  chipText: { fontSize: 12, fontWeight: '500', color: '#374151' },
-  chipTextActive: { color: '#fff' },
-  section: { marginBottom: 20 },
+  chipActive: { backgroundColor: '#1E40AF', borderColor: '#1E40AF' },
+  chipText: { fontSize: 13, fontWeight: '600', color: '#64748B' },
+  chipTextActive: { color: '#FFFFFF' },
+
+  // Sections
+  section: { marginBottom: 24 },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  sectionIconWrap: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   sectionTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#374151',
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#334155',
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 10,
+    letterSpacing: 0.8,
   },
+
+  // KPI grid
   row: { flexDirection: 'row', gap: 10, marginBottom: 10 },
   half: { flex: 1 },
-  productRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f3f4f6' },
-  productName: { fontSize: 13, fontWeight: '600', color: '#111827' },
-  productStat: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  viewAll: { marginTop: 10, fontSize: 13, color: '#2563eb', fontWeight: '600' },
+
+  // Product list
+  productRow: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    backgroundColor: '#FFFFFF',
+  },
+  productName: { fontSize: 13, fontWeight: '700', color: '#0F172A' },
+  productStat: { fontSize: 12, color: '#64748B', marginTop: 2 },
+  viewAll: {
+    marginTop: 12,
+    fontSize: 13,
+    color: '#2563EB',
+    fontWeight: '700',
+    textAlign: 'right',
+  },
 });

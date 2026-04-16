@@ -44,7 +44,7 @@ export default function NewProductScreen() {
   });
 
   useEffect(() => {
-    productsApi.getCategories().then((res) => setCategories((res.data as any) ?? []));
+    productsApi.getCategories().then((res) => setCategories((res.data as any)?.data ?? []));
   }, []);
 
   const set = (key: string) => (val: string) => setForm((f) => ({ ...f, [key]: val }));

@@ -25,9 +25,9 @@ export default function ProductDetailScreen() {
     if (!id) return;
     Promise.all([productsApi.get(id), productsApi.getStock(id), productsApi.getHistory(id)])
       .then(([p, s, h]) => {
-        setProduct(p.data as any);
-        setStock((s.data as any) ?? []);
-        setHistory(h.data as any);
+        setProduct((p.data as any)?.data);
+        setStock((s.data as any)?.data ?? []);
+        setHistory((h.data as any)?.data);
       })
       .finally(() => setLoading(false));
   }, [id]);

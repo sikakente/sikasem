@@ -34,7 +34,7 @@ export default function ProductsScreen() {
   const load = useCallback(async (searchVal = '') => {
     try {
       const res = await productsApi.list({ search: searchVal || undefined });
-      setProducts((res.data as any).products ?? []);
+      setProducts((res.data as any)?.data?.products ?? (res.data as any)?.data ?? []);
     } catch {
     } finally {
       setLoading(false);
@@ -56,7 +56,7 @@ export default function ProductsScreen() {
     setScannerOpen(false);
     try {
       const res = await productsApi.getByBarcode(barcode);
-      const product = res.data as any;
+      const product = (res.data as any)?.data;
       router.push(`/(app)/products/${product.id}`);
     } catch (err: any) {
       if (err?.response?.status === 404) {
