@@ -8,11 +8,11 @@ import {
 
 export class NotificationSettingsDto {
   @IsBoolean()
-  alertEmailEnabled: boolean;
+  alertEmailEnabled!: boolean;
 
   @IsArray()
   @IsEmail({}, { each: true })
-  alertEmailRecipients: string[];
+  alertEmailRecipients!: string[];
 
   @IsOptional()
   @IsNumber()

@@ -11,7 +11,7 @@ export class CreateLocationDto {
   @ApiProperty({ description: 'Location name' })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'Location type',
@@ -20,12 +20,12 @@ export class CreateLocationDto {
   @IsString()
   @IsNotEmpty()
   @IsIn(['UK_warehouse', 'Ghana_warehouse', 'Ghana_shop', 'shipment'])
-  locationType: string;
+  locationType!: string;
 
   @ApiProperty({ description: 'Country' })
   @IsString()
   @IsNotEmpty()
-  country: string;
+  country!: string;
 
   @ApiPropertyOptional({ description: 'City' })
   @IsOptional()
