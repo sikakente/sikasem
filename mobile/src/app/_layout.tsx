@@ -1,3 +1,4 @@
+import 'expo-dev-client';
 import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
