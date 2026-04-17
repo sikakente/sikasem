@@ -45,7 +45,7 @@ export default function InvoicesScreen() {
       if (f.value) params.status = f.value;
       if (f.overdue) params.overdue = true;
       const res = await invoicesApi.list(params);
-      setInvoices((res.data as any).data?.data ?? []);
+      setInvoices((res.data as any).data ?? []);
     } catch {
       // silently ignore
     } finally {

@@ -37,7 +37,7 @@ export default function CustomersScreen() {
   const load = useCallback(async (searchVal = '') => {
     try {
       const res = await customersApi.list({ search: searchVal || undefined });
-      setCustomers((res.data as any).data?.data ?? []);
+      setCustomers((res.data as any).data ?? []);
     } catch {
       // silently ignore
     } finally {

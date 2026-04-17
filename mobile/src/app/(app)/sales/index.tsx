@@ -42,7 +42,7 @@ export default function SalesHistoryScreen() {
   const load = useCallback(async (status?: string) => {
     try {
       const res = await salesApi.list({ status, limit: 50 });
-      setSales((res.data as any).data?.data ?? []);
+      setSales((res.data as any).data ?? []);
     } catch {
       // silently ignore
     } finally {
