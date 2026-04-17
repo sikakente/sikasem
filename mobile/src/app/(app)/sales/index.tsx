@@ -80,8 +80,8 @@ export default function SalesHistoryScreen() {
           </View>
         </View>
         <Text style={styles.cardMeta}>
-          {formatDate(item.saleDatetime)} ·{' '}
-          {item.customer?.fullName ?? 'Walk-in'} · {item._count.items} item
+          {formatDate(item.saleDatetime)} · {item.customer?.fullName ?? 'Walk-in'} ·{' '}
+          {item._count.items} item
           {item._count.items !== 1 ? 's' : ''}
         </Text>
         <Text style={styles.cardTotal}>GHS {Number(item.totalGhs).toFixed(2)}</Text>

@@ -123,7 +123,12 @@ export default function CustomersScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/customers/new')} accessibilityLabel="Add new customer" accessibilityRole="button">
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/(app)/customers/new')}
+        accessibilityLabel="Add new customer"
+        accessibilityRole="button"
+      >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
     </View>

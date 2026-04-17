@@ -89,14 +89,10 @@ export default function ShipmentsScreen() {
           {item._count.items !== 1 ? 's' : ''}
         </Text>
         {item.dispatchDate && (
-          <Text style={styles.cardMetaText}>
-            Dispatched {formatDate(item.dispatchDate)}
-          </Text>
+          <Text style={styles.cardMetaText}>Dispatched {formatDate(item.dispatchDate)}</Text>
         )}
         {item.expectedArrivalDate && (
-          <Text style={styles.cardMetaText}>
-            ETA {formatDate(item.expectedArrivalDate)}
-          </Text>
+          <Text style={styles.cardMetaText}>ETA {formatDate(item.expectedArrivalDate)}</Text>
         )}
       </View>
     </TouchableOpacity>
@@ -154,7 +150,12 @@ export default function ShipmentsScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/shipments/new')} accessibilityLabel="Create new shipment" accessibilityRole="button">
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/(app)/shipments/new')}
+        accessibilityLabel="Create new shipment"
+        accessibilityRole="button"
+      >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
     </View>
