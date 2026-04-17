@@ -34,9 +34,9 @@ export class PurchasingController {
   @Roles('admin', 'operations')
   create(
     @Body() dto: CreatePurchaseDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.purchasingService.create(dto, req.user.id);
+    return this.purchasingService.create(dto, req.user.sub);
   }
 
   @Get(':id')
@@ -50,14 +50,14 @@ export class PurchasingController {
   update(
     @Param('id') id: string,
     @Body() dto: UpdatePurchaseDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.purchasingService.update(id, dto, req.user.id);
+    return this.purchasingService.update(id, dto, req.user.sub);
   }
 
   @Post(':id/confirm')
   @Roles('admin', 'operations')
-  confirm(@Param('id') id: string, @Request() req: { user: { id: string } }) {
-    return this.purchasingService.confirm(id, req.user.id);
+  confirm(@Param('id') id: string, @Request() req: { user: { sub: string } }) {
+    return this.purchasingService.confirm(id, req.user.sub);
   }
 }

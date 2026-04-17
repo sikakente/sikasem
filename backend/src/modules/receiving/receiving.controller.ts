@@ -44,9 +44,9 @@ export class ReceivingController {
   @UseGuards(PermissionsGuard)
   create(
     @Body() dto: CreateReceivingDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.receivingService.create(dto, req.user.id);
+    return this.receivingService.create(dto, req.user.sub);
   }
 
   @Get(':id')
@@ -60,16 +60,16 @@ export class ReceivingController {
   update(
     @Param('id') id: string,
     @Body() dto: UpdateReceivingDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.receivingService.update(id, dto, req.user.id);
+    return this.receivingService.update(id, dto, req.user.sub);
   }
 
   @Post(':id/submit')
   @Roles('admin', 'operations', 'warehouse')
   @RequirePermission('shipments.receive')
   @UseGuards(PermissionsGuard)
-  submit(@Param('id') id: string, @Request() req: { user: { id: string } }) {
-    return this.receivingService.submit(id, req.user.id);
+  submit(@Param('id') id: string, @Request() req: { user: { sub: string } }) {
+    return this.receivingService.submit(id, req.user.sub);
   }
 }
