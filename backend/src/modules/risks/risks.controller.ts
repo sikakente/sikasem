@@ -3,10 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RisksService } from './risks.service';
 import { RiskQueryDto } from './dto/risk-query.dto';
-
-class UpdateRiskStatusDto {
-  status!: string;
-}
+import { UpdateRiskStatusDto } from './dto/update-risk-status.dto';
 
 @ApiTags('risks')
 @Controller('risks')

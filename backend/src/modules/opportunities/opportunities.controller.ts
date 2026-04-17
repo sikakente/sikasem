@@ -3,10 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { OpportunitiesService } from './opportunities.service';
 import { OpportunityQueryDto } from './dto/opportunity-query.dto';
-
-class UpdateOpportunityStatusDto {
-  status!: string;
-}
+import { UpdateOpportunityStatusDto } from './dto/update-opportunity-status.dto';
 
 @ApiTags('opportunities')
 @Controller('opportunities')
