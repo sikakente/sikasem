@@ -153,7 +153,7 @@ export default function ShipmentsScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/shipments/new')}>
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/shipments/new')} accessibilityLabel="Create new shipment" accessibilityRole="button">
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
     </View>

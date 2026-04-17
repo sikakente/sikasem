@@ -139,7 +139,7 @@ export default function ProductsScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/products/new')}>
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/products/new')} accessibilityLabel="Add new product" accessibilityRole="button">
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 

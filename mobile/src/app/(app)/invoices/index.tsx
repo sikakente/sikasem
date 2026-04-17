@@ -122,7 +122,7 @@ export default function InvoicesScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/invoices/new')}>
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/invoices/new')} accessibilityLabel="Create new invoice" accessibilityRole="button">
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
     </View>
