@@ -32,14 +32,16 @@ export default function CustomersScreen() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async (searchVal = '') => {
     try {
+      setError(null);
       const res = await customersApi.list({ search: searchVal || undefined });
       setCustomers((res.data as any).data ?? []);
     } catch {
-      // silently ignore
+      setError('Failed to load customers. Tap to retry.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -100,6 +102,16 @@ export default function CustomersScreen() {
 
       {loading ? (
         <ActivityIndicator style={styles.loader} color="#2563eb" />
+      ) : error ? (
+        <TouchableOpacity
+          style={styles.errorBanner}
+          onPress={() => {
+            setLoading(true);
+            load(search);
+          }}
+        >
+          <Text style={styles.errorText}>{error}</Text>
+        </TouchableOpacity>
       ) : (
         <FlatList
           data={customers}
@@ -153,6 +165,14 @@ const styles = StyleSheet.create({
   typeBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 },
   typeBadgeText: { fontSize: 11, fontWeight: '600', textTransform: 'capitalize' },
   empty: { textAlign: 'center', marginTop: 40, color: '#9ca3af' },
+  errorBanner: {
+    backgroundColor: '#fee2e2',
+    padding: 16,
+    margin: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  errorText: { color: '#dc2626', fontSize: 14, textAlign: 'center' },
   fab: {
     position: 'absolute',
     bottom: 24,

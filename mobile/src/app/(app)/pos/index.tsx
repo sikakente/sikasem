@@ -41,7 +41,7 @@ export default function PosScreen() {
         const res = await productsApi.list({ search: text, limit: 20 });
         setSearchResults((res.data as any).data ?? []);
       } catch {
-        // silently ignore
+        setSearchResults([]);
       } finally {
         setSearching(false);
       }

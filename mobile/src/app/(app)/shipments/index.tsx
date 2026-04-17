@@ -38,17 +38,19 @@ export default function ShipmentsScreen() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async (searchVal = '', status?: string) => {
     try {
+      setError(null);
       const res = await shipmentsApi.list({
         search: searchVal || undefined,
         status,
       });
       setShipments((res.data as any).data ?? []);
     } catch {
-      // silently ignore
+      setError('Failed to load shipments. Tap to retry.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -130,6 +132,16 @@ export default function ShipmentsScreen() {
 
       {loading ? (
         <ActivityIndicator style={styles.loader} color="#2563eb" />
+      ) : error ? (
+        <TouchableOpacity
+          style={styles.errorBanner}
+          onPress={() => {
+            setLoading(true);
+            load(search, statusFilter);
+          }}
+        >
+          <Text style={styles.errorText}>{error}</Text>
+        </TouchableOpacity>
       ) : (
         <FlatList
           data={shipments}
@@ -194,6 +206,14 @@ const styles = StyleSheet.create({
   cardMeta: { gap: 2, marginTop: 4 },
   cardMetaText: { fontSize: 12, color: '#6b7280' },
   empty: { textAlign: 'center', marginTop: 40, color: '#9ca3af' },
+  errorBanner: {
+    backgroundColor: '#fee2e2',
+    padding: 16,
+    margin: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  errorText: { color: '#dc2626', fontSize: 14, textAlign: 'center' },
   fab: {
     position: 'absolute',
     bottom: 24,

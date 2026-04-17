@@ -38,13 +38,15 @@ export default function SalesHistoryScreen() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (status?: string) => {
     try {
+      setError(null);
       const res = await salesApi.list({ status, limit: 50 });
       setSales((res.data as any).data ?? []);
     } catch {
-      // silently ignore
+      setError('Failed to load sales. Tap to retry.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -109,6 +111,16 @@ export default function SalesHistoryScreen() {
 
       {loading ? (
         <ActivityIndicator style={styles.loader} color="#2563eb" />
+      ) : error ? (
+        <TouchableOpacity
+          style={styles.errorBanner}
+          onPress={() => {
+            setLoading(true);
+            load(statusFilter);
+          }}
+        >
+          <Text style={styles.errorText}>{error}</Text>
+        </TouchableOpacity>
       ) : (
         <FlatList
           data={sales}
@@ -159,4 +171,12 @@ const styles = StyleSheet.create({
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 },
   badgeText: { fontSize: 11, fontWeight: '600' },
   empty: { textAlign: 'center', marginTop: 40, color: '#9ca3af' },
+  errorBanner: {
+    backgroundColor: '#fee2e2',
+    padding: 16,
+    margin: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  errorText: { color: '#dc2626', fontSize: 14, textAlign: 'center' },
 });
