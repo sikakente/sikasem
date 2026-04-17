@@ -34,7 +34,10 @@ export class SalesController {
 
   @Post()
   @Roles('admin', 'operations', 'pos_cashier')
-  create(@Body() dto: CreateSaleDto, @Request() req: { user: { sub: string } }) {
+  create(
+    @Body() dto: CreateSaleDto,
+    @Request() req: { user: { sub: string } },
+  ) {
     return this.salesService.create(dto, req.user.sub);
   }
 

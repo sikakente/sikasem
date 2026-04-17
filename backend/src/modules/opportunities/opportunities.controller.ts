@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Query, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Request,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { OpportunitiesService } from './opportunities.service';
@@ -30,6 +38,10 @@ export class OpportunitiesController {
     @Body() body: UpdateOpportunityStatusDto,
     @Request() req: { user: { sub: string } },
   ) {
-    return this.opportunitiesService.updateStatus(id, body.status, req.user.sub);
+    return this.opportunitiesService.updateStatus(
+      id,
+      body.status,
+      req.user.sub,
+    );
   }
 }

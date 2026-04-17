@@ -16,4 +16,6 @@ export const inventoryApi = {
 
   getProductStock: (productId: string) =>
     client.get<InventoryResponse>(`/inventory/product/${productId}`),
+
+  listLocations: () => client.get<InventoryResponse>('/locations'),
 };

@@ -23,7 +23,7 @@ export class ReportsController {
   async runReport(
     @Param('type') type: string,
     @Query() query: ReportQueryDto,
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const result = await this.reportsService.run(type, query);
 
@@ -37,6 +37,6 @@ export class ReportsController {
       return;
     }
 
-    return result;
+    res.json({ data: result, meta: { timestamp: new Date().toISOString() } });
   }
 }
