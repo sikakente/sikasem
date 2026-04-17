@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query, Request } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { OpportunitiesService } from './opportunities.service';
@@ -30,7 +30,8 @@ export class OpportunitiesController {
   updateStatus(
     @Param('id') id: string,
     @Body() body: UpdateOpportunityStatusDto,
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.opportunitiesService.updateStatus(id, body.status, '');
+    return this.opportunitiesService.updateStatus(id, body.status, req.user.sub);
   }
 }
