@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { invoicesApi } from '../../../lib/api/invoices.api';
 import { InvoiceStatusBadge } from '../../../components/InvoiceStatusBadge';
+import { formatDate } from '../../../lib/utils/date';
 
 interface InvoiceCard {
   id: string;
@@ -73,7 +74,7 @@ export default function InvoicesScreen() {
       </View>
       {item.customer && <Text style={styles.cardName}>{item.customer.fullName}</Text>}
       <View style={styles.cardFooter}>
-        <Text style={styles.cardMeta}>Due {new Date(item.dueDate).toLocaleDateString()}</Text>
+        <Text style={styles.cardMeta}>Due {formatDate(item.dueDate)}</Text>
         <Text style={styles.cardTotal}>
           {item.currencyCode} {Number(item.total).toFixed(2)}
         </Text>

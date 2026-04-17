@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { shipmentsApi } from '../../../lib/api/shipments.api';
 import { ShipmentStatusBadge } from '../../../components/ShipmentStatusBadge';
+import { formatDate } from '../../../lib/utils/date';
 
 interface ShipmentCard {
   id: string;
@@ -89,12 +90,12 @@ export default function ShipmentsScreen() {
         </Text>
         {item.dispatchDate && (
           <Text style={styles.cardMetaText}>
-            Dispatched {new Date(item.dispatchDate).toLocaleDateString()}
+            Dispatched {formatDate(item.dispatchDate)}
           </Text>
         )}
         {item.expectedArrivalDate && (
           <Text style={styles.cardMetaText}>
-            ETA {new Date(item.expectedArrivalDate).toLocaleDateString()}
+            ETA {formatDate(item.expectedArrivalDate)}
           </Text>
         )}
       </View>

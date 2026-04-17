@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { salesApi } from '../../../lib/api/sales.api';
+import { formatDate } from '../../../lib/utils/date';
 
 interface SaleCard {
   id: string;
@@ -79,7 +80,7 @@ export default function SalesHistoryScreen() {
           </View>
         </View>
         <Text style={styles.cardMeta}>
-          {new Date(item.saleDatetime).toLocaleDateString()} ·{' '}
+          {formatDate(item.saleDatetime)} ·{' '}
           {item.customer?.fullName ?? 'Walk-in'} · {item._count.items} item
           {item._count.items !== 1 ? 's' : ''}
         </Text>
