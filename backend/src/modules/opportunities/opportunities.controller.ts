@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Param, Patch, Query, Request } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { OpportunitiesService } from './opportunities.service';
 import { OpportunityQueryDto } from './dto/opportunity-query.dto';
 import { UpdateOpportunityStatusDto } from './dto/update-opportunity-status.dto';
 
 @ApiTags('opportunities')
+@ApiBearerAuth()
 @Controller('opportunities')
 export class OpportunitiesController {
   constructor(private readonly opportunitiesService: OpportunitiesService) {}

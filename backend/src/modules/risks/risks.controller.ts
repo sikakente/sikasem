@@ -1,11 +1,12 @@
 import { Body, Controller, Get, Param, Patch, Query, Request } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RisksService } from './risks.service';
 import { RiskQueryDto } from './dto/risk-query.dto';
 import { UpdateRiskStatusDto } from './dto/update-risk-status.dto';
 
 @ApiTags('risks')
+@ApiBearerAuth()
 @Controller('risks')
 export class RisksController {
   constructor(private readonly risksService: RisksService) {}
