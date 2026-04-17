@@ -55,6 +55,14 @@ export default function PaymentScreen() {
   const handleCompleteSale = async () => {
     setError(null);
     setLoading(true);
+
+    const parsedRate = parseFloat(fxRate);
+    if (!parsedRate || parsedRate <= 0) {
+      setError('FX rate must be a positive number.');
+      setLoading(false);
+      return;
+    }
+
     try {
       // TODO: get locationId from config or user session
       // The backend seeds a 'Ghana Warehouse' location; replace this placeholder with the actual seeded UUID
