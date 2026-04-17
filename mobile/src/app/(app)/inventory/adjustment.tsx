@@ -317,39 +317,41 @@ export default function AdjustmentScreen() {
           ) : locationOptions.length === 0 ? (
             <Text style={styles.hintText}>No stock locations found for this product.</Text>
           ) : (
-            <View style={styles.locationGrid}>
-              {locationOptions.map((loc) => (
-                <TouchableOpacity
-                  key={loc.id}
-                  style={[
-                    styles.locationCard,
-                    selectedLocation?.id === loc.id && styles.locationCardActive,
-                  ]}
-                  onPress={() => setSelectedLocation(loc)}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons
-                    name="location-outline"
-                    size={16}
-                    color={selectedLocation?.id === loc.id ? '#2563eb' : '#94a3b8'}
-                  />
-                  <Text
+            <>
+              <View style={styles.locationGrid}>
+                {locationOptions.map((loc) => (
+                  <TouchableOpacity
+                    key={loc.id}
                     style={[
-                      styles.locationName,
-                      selectedLocation?.id === loc.id && styles.locationNameActive,
+                      styles.locationCard,
+                      selectedLocation?.id === loc.id && styles.locationCardActive,
                     ]}
+                    onPress={() => setSelectedLocation(loc)}
+                    activeOpacity={0.8}
                   >
-                    {loc.name}
-                  </Text>
-                  <Text style={styles.locationStock}>{loc.quantityOnHand} on hand</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            {locationOptions.length === 1 && (
-              <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
-                Only one location available — auto-selected.
-              </Text>
-            )}
+                    <Ionicons
+                      name="location-outline"
+                      size={16}
+                      color={selectedLocation?.id === loc.id ? '#2563eb' : '#94a3b8'}
+                    />
+                    <Text
+                      style={[
+                        styles.locationName,
+                        selectedLocation?.id === loc.id && styles.locationNameActive,
+                      ]}
+                    >
+                      {loc.name}
+                    </Text>
+                    <Text style={styles.locationStock}>{loc.quantityOnHand} on hand</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {locationOptions.length === 1 && (
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+                  Only one location available — auto-selected.
+                </Text>
+              )}
+            </>
           )}
         </View>
 
