@@ -34,9 +34,9 @@ export class CustomersController {
   @Roles('admin', 'operations', 'pos_cashier')
   create(
     @Body() dto: CreateCustomerDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.customersService.create(dto, req.user.id);
+    return this.customersService.create(dto, req.user.sub);
   }
 
   @Get(':id')
@@ -50,9 +50,9 @@ export class CustomersController {
   update(
     @Param('id') id: string,
     @Body() dto: UpdateCustomerDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.customersService.update(id, dto, req.user.id);
+    return this.customersService.update(id, dto, req.user.sub);
   }
 
   @Get(':id/sales')

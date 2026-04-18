@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -207,6 +208,18 @@ export class ReceivingService {
     }
     if (record.status === 'completed') {
       throw new ConflictException('Receiving record is already completed');
+    }
+
+    for (const item of record.items) {
+      const received = Number(item.receivedQuantity) || 0;
+      const damaged = Number(item.damagedQuantity) || 0;
+      const lost = Number(item.lostQuantity) || 0;
+      const expected = Number(item.expectedQuantity) || 0;
+      if (received + damaged + lost > expected) {
+        throw new BadRequestException(
+          `Item ${item.productId}: total received (${received}) + damaged (${damaged}) + lost (${lost}) exceeds expected (${expected})`,
+        );
+      }
     }
 
     const virtualLocation = await this.prisma.location.findFirst({

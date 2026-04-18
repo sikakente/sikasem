@@ -101,6 +101,18 @@ export class PurchasingService {
       },
     });
 
+    await this.audit.log({
+      userId,
+      actionType: 'purchase_order_create',
+      entityType: 'purchase_order',
+      entityId: order.id,
+      afterJson: {
+        referenceNo,
+        supplierId: dto.supplierId,
+        itemCount: dto.items.length,
+      },
+    });
+
     return order;
   }
 

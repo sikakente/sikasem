@@ -1,14 +1,20 @@
-import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Request,
+} from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { OpportunitiesService } from './opportunities.service';
 import { OpportunityQueryDto } from './dto/opportunity-query.dto';
-
-class UpdateOpportunityStatusDto {
-  status!: string;
-}
+import { UpdateOpportunityStatusDto } from './dto/update-opportunity-status.dto';
 
 @ApiTags('opportunities')
+@ApiBearerAuth()
 @Controller('opportunities')
 export class OpportunitiesController {
   constructor(private readonly opportunitiesService: OpportunitiesService) {}
@@ -30,7 +36,12 @@ export class OpportunitiesController {
   updateStatus(
     @Param('id') id: string,
     @Body() body: UpdateOpportunityStatusDto,
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.opportunitiesService.updateStatus(id, body.status, '');
+    return this.opportunitiesService.updateStatus(
+      id,
+      body.status,
+      req.user.sub,
+    );
   }
 }

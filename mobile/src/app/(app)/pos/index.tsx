@@ -41,7 +41,7 @@ export default function PosScreen() {
         const res = await productsApi.list({ search: text, limit: 20 });
         setSearchResults((res.data as any).data ?? []);
       } catch {
-        // silently ignore
+        setSearchResults([]);
       } finally {
         setSearching(false);
       }
@@ -77,6 +77,8 @@ export default function PosScreen() {
             <TouchableOpacity
               style={styles.stepBtn}
               onPress={() => store.updateQuantity(item.productId, item.quantity - 1)}
+              accessibilityLabel={`Decrease ${item.productName} quantity`}
+              accessibilityRole="button"
             >
               <Text style={styles.stepBtnText}>−</Text>
             </TouchableOpacity>
@@ -84,6 +86,8 @@ export default function PosScreen() {
             <TouchableOpacity
               style={styles.stepBtn}
               onPress={() => store.updateQuantity(item.productId, item.quantity + 1)}
+              accessibilityLabel={`Increase ${item.productName} quantity`}
+              accessibilityRole="button"
             >
               <Text style={styles.stepBtnText}>+</Text>
             </TouchableOpacity>
@@ -92,6 +96,8 @@ export default function PosScreen() {
           <TouchableOpacity
             style={styles.removeBtn}
             onPress={() => store.removeItem(item.productId)}
+            accessibilityLabel={`Remove ${item.productName} from cart`}
+            accessibilityRole="button"
           >
             <Text style={styles.removeBtnText}>Remove</Text>
           </TouchableOpacity>
@@ -239,8 +245,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   stepBtn: {
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f3f4f6',

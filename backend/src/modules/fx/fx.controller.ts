@@ -54,9 +54,9 @@ export class FxController {
   @UseGuards(PermissionsGuard)
   createConversion(
     @Body() dto: CreateConversionDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.fxService.createConversion(dto, req.user.id);
+    return this.fxService.createConversion(dto, req.user.sub);
   }
 
   @Get('conversions/:id')

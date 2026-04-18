@@ -34,8 +34,11 @@ export class SalesController {
 
   @Post()
   @Roles('admin', 'operations', 'pos_cashier')
-  create(@Body() dto: CreateSaleDto, @Request() req: { user: { id: string } }) {
-    return this.salesService.create(dto, req.user.id);
+  create(
+    @Body() dto: CreateSaleDto,
+    @Request() req: { user: { sub: string } },
+  ) {
+    return this.salesService.create(dto, req.user.sub);
   }
 
   @Get(':id')
@@ -52,9 +55,9 @@ export class SalesController {
   void(
     @Param('id') id: string,
     @Body() dto: VoidSaleDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.salesService.void(id, dto, req.user.id);
+    return this.salesService.void(id, dto, req.user.sub);
   }
 
   @Post(':id/refund')

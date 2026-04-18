@@ -163,7 +163,7 @@ export default function InventoryScreen() {
         data={filteredBalances}
         keyExtractor={(item) => item.id}
         renderItem={renderRow}
-        ListHeaderComponent={renderHeader}
+        ListHeaderComponent={renderHeader()}
         contentContainerStyle={
           filteredBalances.length === 0 ? styles.listEmpty : styles.listContent
         }
