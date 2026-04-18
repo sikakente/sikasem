@@ -51,7 +51,9 @@ export default function ReportDetailScreen() {
         const params = getDateRange(filter);
         const res = await reportsApi.run(type, params);
 
-        const data = (res.data as any).data as ReportRow[];
+        // ResponseInterceptor wraps payload: res.data = { data: { data: [...], ... }, meta }
+        const reportResult = (res.data as any).data;
+        const data: ReportRow[] = Array.isArray(reportResult?.data) ? reportResult.data : [];
         setRows(data);
         if (data.length > 0) {
           setColumns(Object.keys(data[0]));

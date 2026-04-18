@@ -15,19 +15,40 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { inventoryApi } from '../../../lib/api/inventory.api';
 import { productsApi } from '../../../lib/api/products.api';
+import { adminApi } from '../../../lib/api/admin.api';
 
 type AdjustmentType = 'add' | 'remove';
-
-interface ProductOption {
-  id: string;
-  name: string;
-  sku: string;
-}
 
 interface LocationOption {
   id: string;
   name: string;
   quantityOnHand: number;
+}
+
+async function loadLocationsForProduct(productId: string): Promise<LocationOption[]> {
+  const res = await inventoryApi.getProductStock(productId);
+  const balances: any[] = (res.data as any)?.data ?? [];
+  if (balances.length > 0) {
+    return balances.map((b: any) => ({
+      id: b.locationId,
+      name: b.location?.name ?? b.locationId,
+      quantityOnHand: Number(b.quantityOnHand) || 0,
+    }));
+  }
+  // Product has no stock yet — fall back to all warehouse locations
+  const locRes = await adminApi.getLocations();
+  const allLocs: any[] = (locRes.data as any)?.data ?? [];
+  return allLocs.map((l: any) => ({
+    id: l.id,
+    name: l.name,
+    quantityOnHand: 0,
+  }));
+}
+
+interface ProductOption {
+  id: string;
+  name: string;
+  sku: string;
 }
 
 export default function AdjustmentScreen() {
@@ -61,27 +82,16 @@ export default function AdjustmentScreen() {
   useEffect(() => {
     if (!initialProductId) return;
     setLocationsLoading(true);
-    Promise.all([productsApi.get(initialProductId), inventoryApi.getProductStock(initialProductId)])
-      .then(([pRes, sRes]) => {
+    productsApi
+      .get(initialProductId)
+      .then(async (pRes) => {
         const prod = (pRes.data as any)?.data;
         if (prod) {
           setSelectedProduct({ id: prod.id, name: prod.name, sku: prod.sku });
         }
-        const balances: any[] = (sRes.data as any)?.data ?? [];
-        setLocationOptions(
-          balances.map((b: any) => ({
-            id: b.locationId,
-            name: b.location?.name ?? b.locationId,
-            quantityOnHand: Number(b.quantityOnHand) || 0,
-          })),
-        );
-        if (balances.length === 1) {
-          setSelectedLocation({
-            id: balances[0].locationId,
-            name: balances[0].location?.name ?? balances[0].locationId,
-            quantityOnHand: Number(balances[0].quantityOnHand) || 0,
-          });
-        }
+        const locs = await loadLocationsForProduct(initialProductId);
+        setLocationOptions(locs);
+        if (locs.length === 1) setSelectedLocation(locs[0]);
       })
       .finally(() => setLocationsLoading(false));
   }, [initialProductId]);
@@ -116,13 +126,7 @@ export default function AdjustmentScreen() {
     setLocationsLoading(true);
     setStep('details');
     try {
-      const res = await inventoryApi.getProductStock(product.id);
-      const balances: any[] = (res.data as any)?.data ?? [];
-      const locs = balances.map((b: any) => ({
-        id: b.locationId,
-        name: b.location?.name ?? b.locationId,
-        quantityOnHand: Number(b.quantityOnHand) || 0,
-      }));
+      const locs = await loadLocationsForProduct(product.id);
       setLocationOptions(locs);
       if (locs.length === 1) setSelectedLocation(locs[0]);
     } catch {
