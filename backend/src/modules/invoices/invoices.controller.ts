@@ -33,9 +33,9 @@ export class InvoicesController {
   @Roles('admin', 'finance')
   create(
     @Body() dto: CreateInvoiceDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.invoicesService.create(dto, req.user.id);
+    return this.invoicesService.create(dto, req.user.sub);
   }
 
   @Get(':id')
@@ -49,15 +49,15 @@ export class InvoicesController {
   update(
     @Param('id') id: string,
     @Body() dto: UpdateInvoiceDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.invoicesService.update(id, dto, req.user.id);
+    return this.invoicesService.update(id, dto, req.user.sub);
   }
 
   @Post(':id/mark-paid')
   @Roles('admin', 'finance')
-  markPaid(@Param('id') id: string, @Request() req: { user: { id: string } }) {
-    return this.invoicesService.markPaid(id, req.user.id);
+  markPaid(@Param('id') id: string, @Request() req: { user: { sub: string } }) {
+    return this.invoicesService.markPaid(id, req.user.sub);
   }
 
   @Get(':id/pdf')

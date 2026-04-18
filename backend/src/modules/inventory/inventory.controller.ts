@@ -40,9 +40,9 @@ export class InventoryController {
   @UseGuards(PermissionsGuard)
   createAdjustment(
     @Body() dto: CreateAdjustmentDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.inventoryService.createAdjustment(dto, req.user.id);
+    return this.inventoryService.createAdjustment(dto, req.user.sub);
   }
 
   @Get('product/:id')

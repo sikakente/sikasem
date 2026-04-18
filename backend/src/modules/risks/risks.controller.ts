@@ -1,14 +1,20 @@
-import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Request,
+} from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RisksService } from './risks.service';
 import { RiskQueryDto } from './dto/risk-query.dto';
-
-class UpdateRiskStatusDto {
-  status!: string;
-}
+import { UpdateRiskStatusDto } from './dto/update-risk-status.dto';
 
 @ApiTags('risks')
+@ApiBearerAuth()
 @Controller('risks')
 export class RisksController {
   constructor(private readonly risksService: RisksService) {}
@@ -27,7 +33,11 @@ export class RisksController {
 
   @Patch(':id/status')
   @Roles('admin', 'operations', 'finance')
-  updateStatus(@Param('id') id: string, @Body() body: UpdateRiskStatusDto) {
-    return this.risksService.updateStatus(id, body.status, '');
+  updateStatus(
+    @Param('id') id: string,
+    @Body() body: UpdateRiskStatusDto,
+    @Request() req: { user: { sub: string } },
+  ) {
+    return this.risksService.updateStatus(id, body.status, req.user.sub);
   }
 }

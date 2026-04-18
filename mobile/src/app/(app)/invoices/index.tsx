@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { invoicesApi } from '../../../lib/api/invoices.api';
 import { InvoiceStatusBadge } from '../../../components/InvoiceStatusBadge';
+import { formatDate } from '../../../lib/utils/date';
 
 interface InvoiceCard {
   id: string;
@@ -37,17 +38,19 @@ export default function InvoicesScreen() {
   const [activeFilter, setActiveFilter] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (filterIndex: number) => {
     try {
+      setError(null);
       const f = STATUS_FILTERS[filterIndex];
       const params: Record<string, unknown> = {};
       if (f.value) params.status = f.value;
       if (f.overdue) params.overdue = true;
       const res = await invoicesApi.list(params);
-      setInvoices((res.data as any).data?.data ?? []);
+      setInvoices((res.data as any).data ?? []);
     } catch {
-      // silently ignore
+      setError('Failed to load invoices. Tap to retry.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -71,7 +74,7 @@ export default function InvoicesScreen() {
       </View>
       {item.customer && <Text style={styles.cardName}>{item.customer.fullName}</Text>}
       <View style={styles.cardFooter}>
-        <Text style={styles.cardMeta}>Due {new Date(item.dueDate).toLocaleDateString()}</Text>
+        <Text style={styles.cardMeta}>Due {formatDate(item.dueDate)}</Text>
         <Text style={styles.cardTotal}>
           {item.currencyCode} {Number(item.total).toFixed(2)}
         </Text>
@@ -99,6 +102,16 @@ export default function InvoicesScreen() {
 
       {loading ? (
         <ActivityIndicator style={styles.loader} color="#2563eb" />
+      ) : error ? (
+        <TouchableOpacity
+          style={styles.errorBanner}
+          onPress={() => {
+            setLoading(true);
+            load(activeFilter);
+          }}
+        >
+          <Text style={styles.errorText}>{error}</Text>
+        </TouchableOpacity>
       ) : (
         <FlatList
           data={invoices}
@@ -110,7 +123,12 @@ export default function InvoicesScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/invoices/new')}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/(app)/invoices/new')}
+        accessibilityLabel="Create new invoice"
+        accessibilityRole="button"
+      >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
     </View>
@@ -158,6 +176,14 @@ const styles = StyleSheet.create({
   cardMeta: { fontSize: 12, color: '#6b7280' },
   cardTotal: { fontSize: 14, fontWeight: '600', color: '#111827' },
   empty: { textAlign: 'center', marginTop: 40, color: '#9ca3af' },
+  errorBanner: {
+    backgroundColor: '#fee2e2',
+    padding: 16,
+    margin: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  errorText: { color: '#dc2626', fontSize: 14, textAlign: 'center' },
   fab: {
     position: 'absolute',
     bottom: 24,

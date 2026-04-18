@@ -29,13 +29,16 @@ export default function ProductsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async (searchVal = '') => {
     try {
+      setError(null);
       const res = await productsApi.list({ search: searchVal || undefined });
       setProducts((res.data as any)?.data?.products ?? (res.data as any)?.data ?? []);
     } catch {
+      setError('Failed to load products. Tap to retry.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -107,6 +110,16 @@ export default function ProductsScreen() {
 
       {loading ? (
         <ActivityIndicator style={styles.loader} color="#2563eb" />
+      ) : error ? (
+        <TouchableOpacity
+          style={styles.errorBanner}
+          onPress={() => {
+            setLoading(true);
+            load(search);
+          }}
+        >
+          <Text style={styles.errorText}>{error}</Text>
+        </TouchableOpacity>
       ) : (
         <FlatList
           data={products}
@@ -126,7 +139,12 @@ export default function ProductsScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/products/new')}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/(app)/products/new')}
+        accessibilityLabel="Add new product"
+        accessibilityRole="button"
+      >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
@@ -198,6 +216,14 @@ const styles = StyleSheet.create({
   stockBadgeInactive: { backgroundColor: '#fee2e2' },
   stockBadgeText: { fontSize: 11, fontWeight: '600', color: '#065f46' },
   empty: { textAlign: 'center', marginTop: 40, color: '#9ca3af' },
+  errorBanner: {
+    backgroundColor: '#fee2e2',
+    padding: 16,
+    margin: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  errorText: { color: '#dc2626', fontSize: 14, textAlign: 'center' },
   fab: {
     position: 'absolute',
     bottom: 24,

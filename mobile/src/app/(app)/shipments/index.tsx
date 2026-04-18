@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { shipmentsApi } from '../../../lib/api/shipments.api';
 import { ShipmentStatusBadge } from '../../../components/ShipmentStatusBadge';
+import { formatDate } from '../../../lib/utils/date';
 
 interface ShipmentCard {
   id: string;
@@ -38,17 +39,19 @@ export default function ShipmentsScreen() {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const load = useCallback(async (searchVal = '', status?: string) => {
     try {
+      setError(null);
       const res = await shipmentsApi.list({
         search: searchVal || undefined,
         status,
       });
       setShipments((res.data as any).data ?? []);
     } catch {
-      // silently ignore
+      setError('Failed to load shipments. Tap to retry.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -86,14 +89,10 @@ export default function ShipmentsScreen() {
           {item._count.items !== 1 ? 's' : ''}
         </Text>
         {item.dispatchDate && (
-          <Text style={styles.cardMetaText}>
-            Dispatched {new Date(item.dispatchDate).toLocaleDateString()}
-          </Text>
+          <Text style={styles.cardMetaText}>Dispatched {formatDate(item.dispatchDate)}</Text>
         )}
         {item.expectedArrivalDate && (
-          <Text style={styles.cardMetaText}>
-            ETA {new Date(item.expectedArrivalDate).toLocaleDateString()}
-          </Text>
+          <Text style={styles.cardMetaText}>ETA {formatDate(item.expectedArrivalDate)}</Text>
         )}
       </View>
     </TouchableOpacity>
@@ -130,6 +129,16 @@ export default function ShipmentsScreen() {
 
       {loading ? (
         <ActivityIndicator style={styles.loader} color="#2563eb" />
+      ) : error ? (
+        <TouchableOpacity
+          style={styles.errorBanner}
+          onPress={() => {
+            setLoading(true);
+            load(search, statusFilter);
+          }}
+        >
+          <Text style={styles.errorText}>{error}</Text>
+        </TouchableOpacity>
       ) : (
         <FlatList
           data={shipments}
@@ -141,7 +150,12 @@ export default function ShipmentsScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={() => router.push('/(app)/shipments/new')}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/(app)/shipments/new')}
+        accessibilityLabel="Create new shipment"
+        accessibilityRole="button"
+      >
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
     </View>
@@ -194,6 +208,14 @@ const styles = StyleSheet.create({
   cardMeta: { gap: 2, marginTop: 4 },
   cardMetaText: { fontSize: 12, color: '#6b7280' },
   empty: { textAlign: 'center', marginTop: 40, color: '#9ca3af' },
+  errorBanner: {
+    backgroundColor: '#fee2e2',
+    padding: 16,
+    margin: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  errorText: { color: '#dc2626', fontSize: 14, textAlign: 'center' },
   fab: {
     position: 'absolute',
     bottom: 24,

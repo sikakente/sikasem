@@ -38,9 +38,9 @@ export class ShipmentsController {
   @Roles('admin', 'operations')
   create(
     @Body() dto: CreateShipmentDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.shipmentsService.create(dto, req.user.id);
+    return this.shipmentsService.create(dto, req.user.sub);
   }
 
   @Get(':id')
@@ -54,9 +54,9 @@ export class ShipmentsController {
   update(
     @Param('id') id: string,
     @Body() dto: UpdateShipmentDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.shipmentsService.update(id, dto, req.user.id);
+    return this.shipmentsService.update(id, dto, req.user.sub);
   }
 
   @Post(':id/items')
@@ -64,9 +64,9 @@ export class ShipmentsController {
   addItem(
     @Param('id') id: string,
     @Body() dto: AddShipmentItemDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.shipmentsService.addItem(id, dto, req.user.id);
+    return this.shipmentsService.addItem(id, dto, req.user.sub);
   }
 
   @Delete(':id/items/:itemId')
@@ -74,17 +74,17 @@ export class ShipmentsController {
   removeItem(
     @Param('id') id: string,
     @Param('itemId') itemId: string,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.shipmentsService.removeItem(id, itemId, req.user.id);
+    return this.shipmentsService.removeItem(id, itemId, req.user.sub);
   }
 
   @Post(':id/dispatch')
   @Roles('admin', 'operations')
   @RequirePermission('shipments.dispatch')
   @UseGuards(PermissionsGuard)
-  dispatch(@Param('id') id: string, @Request() req: { user: { id: string } }) {
-    return this.shipmentsService.dispatch(id, req.user.id);
+  dispatch(@Param('id') id: string, @Request() req: { user: { sub: string } }) {
+    return this.shipmentsService.dispatch(id, req.user.sub);
   }
 
   @Post(':id/costs')
@@ -92,9 +92,9 @@ export class ShipmentsController {
   addCost(
     @Param('id') id: string,
     @Body() dto: CreateShipmentCostDto,
-    @Request() req: { user: { id: string } },
+    @Request() req: { user: { sub: string } },
   ) {
-    return this.shipmentsService.addCost(id, dto, req.user.id);
+    return this.shipmentsService.addCost(id, dto, req.user.sub);
   }
 
   @Get(':id/costs')

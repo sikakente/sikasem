@@ -12,6 +12,8 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateRoleDto } from './dto/create-role.dto';
+import { UpdateRolePermissionsDto } from './dto/update-role-permissions.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 
@@ -40,16 +42,16 @@ export class UsersController {
   }
 
   @Post('roles')
-  createRole(@Body() body: { name: string; description?: string }) {
-    return this.usersService.createRole(body.name, body.description);
+  createRole(@Body() dto: CreateRoleDto) {
+    return this.usersService.createRole(dto.name, dto.description);
   }
 
   @Patch('roles/:id/permissions')
   updateRolePermissions(
     @Param('id') id: string,
-    @Body() body: { permissions: string[] },
+    @Body() dto: UpdateRolePermissionsDto,
   ) {
-    return this.usersService.updateRolePermissions(id, body.permissions);
+    return this.usersService.updateRolePermissions(id, dto.permissions);
   }
 
   @Get(':id')

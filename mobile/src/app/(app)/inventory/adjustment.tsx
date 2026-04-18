@@ -15,7 +15,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { inventoryApi } from '../../../lib/api/inventory.api';
 import { productsApi } from '../../../lib/api/products.api';
-import { adminApi } from '../../../lib/api/admin.api';
 
 type AdjustmentType = 'add' | 'remove';
 
@@ -23,26 +22,6 @@ interface LocationOption {
   id: string;
   name: string;
   quantityOnHand: number;
-}
-
-async function loadLocationsForProduct(productId: string): Promise<LocationOption[]> {
-  const res = await inventoryApi.getProductStock(productId);
-  const balances: any[] = (res.data as any)?.data ?? [];
-  if (balances.length > 0) {
-    return balances.map((b: any) => ({
-      id: b.locationId,
-      name: b.location?.name ?? b.locationId,
-      quantityOnHand: Number(b.quantityOnHand) || 0,
-    }));
-  }
-  // Product has no stock yet — fall back to all warehouse locations
-  const locRes = await adminApi.getLocations();
-  const allLocs: any[] = (locRes.data as any)?.data ?? [];
-  return allLocs.map((l: any) => ({
-    id: l.id,
-    name: l.name,
-    quantityOnHand: 0,
-  }));
 }
 
 interface ProductOption {
@@ -82,14 +61,27 @@ export default function AdjustmentScreen() {
   useEffect(() => {
     if (!initialProductId) return;
     setLocationsLoading(true);
-    productsApi
-      .get(initialProductId)
-      .then(async (pRes) => {
+    Promise.all([
+      productsApi.get(initialProductId),
+      inventoryApi.getProductStock(initialProductId),
+      inventoryApi.listLocations(),
+    ])
+      .then(([pRes, sRes, lRes]) => {
         const prod = (pRes.data as any)?.data;
         if (prod) {
           setSelectedProduct({ id: prod.id, name: prod.name, sku: prod.sku });
         }
-        const locs = await loadLocationsForProduct(initialProductId);
+        const balances: any[] = (sRes.data as any)?.data ?? [];
+        const allLocations: any[] = (lRes.data as any)?.data ?? [];
+        const balanceMap = new Map(balances.map((b: any) => [b.locationId, b]));
+        const locs = allLocations.map((loc: any) => {
+          const balance = balanceMap.get(loc.id);
+          return {
+            id: loc.id,
+            name: loc.name,
+            quantityOnHand: balance ? Number(balance.quantityOnHand) || 0 : 0,
+          };
+        });
         setLocationOptions(locs);
         if (locs.length === 1) setSelectedLocation(locs[0]);
       })
@@ -126,7 +118,21 @@ export default function AdjustmentScreen() {
     setLocationsLoading(true);
     setStep('details');
     try {
-      const locs = await loadLocationsForProduct(product.id);
+      const [sRes, lRes] = await Promise.all([
+        inventoryApi.getProductStock(product.id),
+        inventoryApi.listLocations(),
+      ]);
+      const balances: any[] = (sRes.data as any)?.data ?? [];
+      const allLocations: any[] = (lRes.data as any)?.data ?? [];
+      const balanceMap = new Map(balances.map((b: any) => [b.locationId, b]));
+      const locs = allLocations.map((loc: any) => {
+        const balance = balanceMap.get(loc.id);
+        return {
+          id: loc.id,
+          name: loc.name,
+          quantityOnHand: balance ? Number(balance.quantityOnHand) || 0 : 0,
+        };
+      });
       setLocationOptions(locs);
       if (locs.length === 1) setSelectedLocation(locs[0]);
     } catch {
@@ -161,7 +167,7 @@ export default function AdjustmentScreen() {
       await inventoryApi.createAdjustment({
         productId: selectedProduct.id,
         locationId: selectedLocation.id,
-        type,
+        adjustmentType: type,
         quantity: qty,
         reason: reason.trim(),
         notes: notes.trim() || undefined,
@@ -311,34 +317,41 @@ export default function AdjustmentScreen() {
           ) : locationOptions.length === 0 ? (
             <Text style={styles.hintText}>No stock locations found for this product.</Text>
           ) : (
-            <View style={styles.locationGrid}>
-              {locationOptions.map((loc) => (
-                <TouchableOpacity
-                  key={loc.id}
-                  style={[
-                    styles.locationCard,
-                    selectedLocation?.id === loc.id && styles.locationCardActive,
-                  ]}
-                  onPress={() => setSelectedLocation(loc)}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons
-                    name="location-outline"
-                    size={16}
-                    color={selectedLocation?.id === loc.id ? '#2563eb' : '#94a3b8'}
-                  />
-                  <Text
+            <>
+              <View style={styles.locationGrid}>
+                {locationOptions.map((loc) => (
+                  <TouchableOpacity
+                    key={loc.id}
                     style={[
-                      styles.locationName,
-                      selectedLocation?.id === loc.id && styles.locationNameActive,
+                      styles.locationCard,
+                      selectedLocation?.id === loc.id && styles.locationCardActive,
                     ]}
+                    onPress={() => setSelectedLocation(loc)}
+                    activeOpacity={0.8}
                   >
-                    {loc.name}
-                  </Text>
-                  <Text style={styles.locationStock}>{loc.quantityOnHand} on hand</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+                    <Ionicons
+                      name="location-outline"
+                      size={16}
+                      color={selectedLocation?.id === loc.id ? '#2563eb' : '#94a3b8'}
+                    />
+                    <Text
+                      style={[
+                        styles.locationName,
+                        selectedLocation?.id === loc.id && styles.locationNameActive,
+                      ]}
+                    >
+                      {loc.name}
+                    </Text>
+                    <Text style={styles.locationStock}>{loc.quantityOnHand} on hand</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {locationOptions.length === 1 && (
+                <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+                  Only one location available — auto-selected.
+                </Text>
+              )}
+            </>
           )}
         </View>
 
@@ -383,7 +396,10 @@ export default function AdjustmentScreen() {
             placeholder="0"
             placeholderTextColor="#cbd5e1"
             value={quantity}
-            onChangeText={setQuantity}
+            onChangeText={(val) => {
+              setQuantity(val);
+              setError(null);
+            }}
             keyboardType="number-pad"
             returnKeyType="done"
           />
@@ -397,7 +413,10 @@ export default function AdjustmentScreen() {
             placeholder="e.g. Damaged goods, Stock count correction"
             placeholderTextColor="#9ca3af"
             value={reason}
-            onChangeText={setReason}
+            onChangeText={(val) => {
+              setReason(val);
+              setError(null);
+            }}
           />
         </View>
 

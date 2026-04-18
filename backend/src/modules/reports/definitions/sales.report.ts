@@ -55,7 +55,7 @@ export const SalesReport: ReportDefinition = {
         ? Number(s.fxRecords[0].exchangeRate)
         : 0;
       const totalGhs = Number(s.totalGhs);
-      const gbpEquivalent = fxRate > 0 ? totalGhs * fxRate : 0;
+      const gbpEquivalent = fxRate > 0 ? totalGhs / fxRate : 0;
       const paymentMethods = [
         ...new Set(s.payments.map((p) => p.paymentMethod)),
       ].join(', ');
