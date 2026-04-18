@@ -18,16 +18,16 @@ import { productsApi } from '../../../lib/api/products.api';
 
 type AdjustmentType = 'add' | 'remove';
 
-interface ProductOption {
-  id: string;
-  name: string;
-  sku: string;
-}
-
 interface LocationOption {
   id: string;
   name: string;
   quantityOnHand: number;
+}
+
+interface ProductOption {
+  id: string;
+  name: string;
+  sku: string;
 }
 
 export default function AdjustmentScreen() {

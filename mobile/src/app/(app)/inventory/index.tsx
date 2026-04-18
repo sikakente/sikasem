@@ -128,21 +128,7 @@ export default function InventoryScreen() {
     </View>
   );
 
-  const renderHeader = () => (
-    <View>
-      {renderSummaryCards()}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by product name or ID..."
-          placeholderTextColor="#9ca3af"
-          value={search}
-          onChangeText={setSearch}
-          clearButtonMode="while-editing"
-        />
-      </View>
-    </View>
-  );
+  const renderHeader = () => renderSummaryCards();
 
   if (loading) {
     return (
@@ -159,6 +145,16 @@ export default function InventoryScreen() {
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by product name or ID..."
+          placeholderTextColor="#9ca3af"
+          value={search}
+          onChangeText={setSearch}
+          clearButtonMode="while-editing"
+        />
+      </View>
       <FlatList
         data={filteredBalances}
         keyExtractor={(item) => item.id}
